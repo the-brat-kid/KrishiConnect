@@ -33,9 +33,23 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS_DEFAULT: List[str] = [
         "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://krishiconnect.in",
+        "https://www.krishiconnect.in",
         "https://vatsaai.com",
         "https://www.vatsaai.com",
     ]
+
+    CORS_ORIGIN_REGEX_DEFAULT: str = (
+        r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$|"
+        r"^https://.*\.onrender\.com$|"
+        r"^https://.*\.vercel\.app$|"
+        r"^https://.*\.netlify\.app$"
+    )
 
     @property
     def CORS_ORIGINS(self) -> List[str]:
@@ -51,6 +65,18 @@ class Settings(BaseSettings):
         if env_value:
             return [origin.strip() for origin in env_value.split(",") if origin.strip()]
         return self.CORS_ORIGINS_DEFAULT
+
+    @property
+    def CORS_ORIGIN_REGEX(self) -> Optional[str]:
+        """
+        Regex to match dynamic subdomains/preview deployments (Vercel, Render,
+        Netlify) and local ports with credentials enabled.
+        """
+        import os
+        env_value = os.getenv("CORS_ORIGIN_REGEX")
+        if env_value:
+            return env_value.strip()
+        return self.CORS_ORIGIN_REGEX_DEFAULT
 
     class Config:
         case_sensitive = True
