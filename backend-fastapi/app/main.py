@@ -30,6 +30,23 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import logging, traceback
+    logging.getLogger("krishiconnect.server").error(
+        "Unhandled 500 on %s %s: %s\n%s", request.method, request.url, exc, traceback.format_exc()
+    )
+    response = JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": exc.__class__.__name__}
+    )
+    origin = request.headers.get("origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    return response
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,

@@ -178,27 +178,32 @@ async def trigger_email(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    # Fetch invoice with items and customer loaded
-    res = await db.execute(
-        select(Invoice)
-        .where(Invoice.id == invoice_id, Invoice.business_profile_id == profile.id)
-        .options(selectinload(Invoice.items), selectinload(Invoice.customer))
-    )
-    invoice = res.scalars().first()
-    if not invoice:
-        raise HTTPException(status_code=404, detail="Invoice not found")
+    try:
+        # Fetch invoice with items and customer loaded
+        res = await db.execute(
+            select(Invoice)
+            .where(Invoice.id == invoice_id, Invoice.business_profile_id == profile.id)
+            .options(selectinload(Invoice.items), selectinload(Invoice.customer))
+        )
+        invoice = res.scalars().first()
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
 
-    # Extract real amount and invoice number
-    amount = float(invoice.grand_total)
-    invoice_number = invoice.invoice_number
+        # Extract real amount and invoice number
+        amount = float(invoice.grand_total or 0.0)
+        invoice_number = invoice.invoice_number or "INV"
 
-    # Generate PDF
-    pdf_buffer = generate_invoice_pdf(invoice, profile, invoice.customer)
-    pdf_bytes = pdf_buffer.getvalue()
+        # Generate PDF
+        pdf_buffer = generate_invoice_pdf(invoice, profile, invoice.customer)
+        pdf_bytes = pdf_buffer.getvalue()
 
-    # Adding to background tasks ensures the API responds immediately.
-    # Failures are now logged server-side (see email_service.py) instead of
-    # disappearing silently -- check backend logs if an email doesn't arrive.
-    background_tasks.add_task(send_invoice_email_background, email, invoice_number, amount, pdf_bytes)
+        # Adding to background tasks ensures the API responds immediately.
+        background_tasks.add_task(send_invoice_email_background, email, invoice_number, amount, pdf_bytes)
 
-    return {"status": "queued", "message": f"Email to {email} has been queued for sending"}
+        return {"status": "queued", "message": f"Email to {email} has been queued for sending"}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        import logging
+        logging.getLogger("krishiconnect.invoices").error("Error in trigger_email: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to process email dispatch: {exc}")

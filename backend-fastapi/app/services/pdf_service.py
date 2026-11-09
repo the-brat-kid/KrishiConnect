@@ -43,6 +43,20 @@ def draw_top_bar(canvas, doc):
     canvas.rect(0, A4[1] - 6*pt, A4[0], 6*pt, fill=1, stroke=0)
     canvas.restoreState()
 
+def _safe_str(val, default=""):
+    if val is None:
+        return default
+    s = str(val).strip()
+    return s if s else default
+
+def _safe_float(val, default=0.0):
+    if val is None:
+        return default
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return default
+
 # ==========================================
 # MAIN PDF GENERATOR CLASS
 # ==========================================
@@ -69,7 +83,8 @@ class PDFInvoiceService:
         self.styles.add(ParagraphStyle(name='GrandCurrency', fontName='Helvetica', fontSize=7, textColor=WHITE, alignment=TA_RIGHT))
 
     def format_currency(self, amount):
-        return f"Rs. {amount:,.2f}"
+        val = _safe_float(amount, 0.0)
+        return f"Rs. {val:,.2f}"
 
     def generate_pdf(self, invoice_data, business_profile, customer_data):
         buffer = io.BytesIO()
@@ -83,20 +98,20 @@ class PDFInvoiceService:
         )
         elements = []
         
-        status = str(invoice_data.get('status', 'unpaid')).lower()
+        status = _safe_str(invoice_data.get('status'), 'unpaid').lower()
         
         # 1. HEADER SECTION
         brand_col = [
-            Paragraph(f"{business_profile.get('business_name', '')}", self.styles['Brand']),
+            Paragraph(_safe_str(business_profile.get('business_name'), 'KrishiConnect Merchant'), self.styles['Brand']),
             Spacer(1, 2),
             Paragraph("Retail Tax Invoice", self.styles['MutedSmall'])
         ]
         
         meta_col = [
             Paragraph("INVOICE NUMBER", self.styles['MetaTitle']),
-            Paragraph(invoice_data.get('invoice_number', ''), self.styles['MetaValue']),
-            Paragraph(f"Issue Date: {invoice_data.get('date', '')}", self.styles['MutedSmall']),
-            Paragraph(f"Due Date: {invoice_data.get('due_date', '')}", self.styles['MutedSmall'])
+            Paragraph(_safe_str(invoice_data.get('invoice_number'), 'N/A'), self.styles['MetaValue']),
+            Paragraph(f"Issue Date: {_safe_str(invoice_data.get('date'), 'N/A')}", self.styles['MutedSmall']),
+            Paragraph(f"Due Date: {_safe_str(invoice_data.get('due_date'), 'N/A')}", self.styles['MutedSmall'])
         ]
         
         header_table = Table([[brand_col, meta_col]], colWidths=['60%', '40%'])
@@ -112,16 +127,16 @@ class PDFInvoiceService:
         # 2. PARTIES SECTION (Billed By & Billed To)
         merchant = [
             Paragraph("BILLED BY (MERCHANT)", self.styles['PartyLabel']),
-            Paragraph(business_profile.get('business_name', ''), self.styles['PartyName']),
-            Paragraph(f"GSTIN: {business_profile.get('gst_number', 'N/A')}", self.styles['BodyTextSmall']),
-            Paragraph(business_profile.get('address', ''), self.styles['MutedSmall'])
+            Paragraph(_safe_str(business_profile.get('business_name'), 'Merchant'), self.styles['PartyName']),
+            Paragraph(f"GSTIN: {_safe_str(business_profile.get('gst_number'), 'N/A')}", self.styles['BodyTextSmall']),
+            Paragraph(_safe_str(business_profile.get('address'), 'N/A'), self.styles['MutedSmall'])
         ]
         
         client = [
             Paragraph("BILLED TO (CUSTOMER)", self.styles['PartyLabel']),
-            Paragraph(customer_data.get('name', ''), self.styles['PartyName']),
-            Paragraph(f"GSTIN: {customer_data.get('gst_number', 'N/A')}", self.styles['BodyTextSmall']),
-            Paragraph(customer_data.get('address', ''), self.styles['MutedSmall'])
+            Paragraph(_safe_str(customer_data.get('name'), 'Valued Customer'), self.styles['PartyName']),
+            Paragraph(f"GSTIN: {_safe_str(customer_data.get('gst_number'), 'N/A')}", self.styles['BodyTextSmall']),
+            Paragraph(_safe_str(customer_data.get('address'), 'N/A'), self.styles['MutedSmall'])
         ]
         
         parties_table = Table([[merchant, client]], colWidths=['50%', '50%'])
@@ -138,14 +153,17 @@ class PDFInvoiceService:
         # 3. ITEMS TABLE
         table_data = [['#', 'DESCRIPTION', 'QTY', 'PRICE', 'GST %', 'TOTAL']]
         
-        for idx, item in enumerate(invoice_data.get('items', [])):
-            total = item['quantity'] * item['unit_price'] * (1 + item['gst_rate'] / 100)
+        for idx, item in enumerate(invoice_data.get('items') or []):
+            qty = _safe_float(item.get('quantity'), 1.0)
+            unit_price = _safe_float(item.get('unit_price'), 0.0)
+            gst_rate = _safe_float(item.get('gst_rate'), 0.0)
+            total = qty * unit_price * (1 + gst_rate / 100)
             table_data.append([
                 str(idx + 1).zfill(2),
-                Paragraph(item['description'], self.styles['TdBold']),
-                str(item['quantity']),
-                self.format_currency(item['unit_price']),
-                f"{item['gst_rate']}%",
+                Paragraph(_safe_str(item.get('description'), 'Product/Item'), self.styles['TdBold']),
+                str(int(qty) if qty.is_integer() else qty),
+                self.format_currency(unit_price),
+                f"{int(gst_rate) if gst_rate.is_integer() else gst_rate}%",
                 self.format_currency(total)
             ])
 
@@ -167,19 +185,19 @@ class PDFInvoiceService:
         elements.append(Spacer(1, 20))
 
         # 4. BOTTOM SECTION (Payment Info & Totals)
-        subtotal = invoice_data.get('subtotal', 0)
-        gst_total = invoice_data.get('gst_total', 0)
-        grand_total = invoice_data.get('grand_total', 0)
+        subtotal = _safe_float(invoice_data.get('subtotal'), 0.0)
+        gst_total = _safe_float(invoice_data.get('gst_total'), 0.0)
+        grand_total = _safe_float(invoice_data.get('grand_total'), 0.0)
         
         # Payment Panel (Left Side)
         payment_status_text = "VERIFIED / Settled" if status == 'paid' else "Pending"
         payment_info = [
             Paragraph("<b>PAYMENT DETAILS</b>", self.styles['BodyTextSmall']),
             Spacer(1, 5),
-            Paragraph(f"Method: {invoice_data.get('payment_method', 'Not recorded')}", self.styles['MutedSmall']),
+            Paragraph(f"Method: {_safe_str(invoice_data.get('payment_method'), 'Not recorded')}", self.styles['MutedSmall']),
             Paragraph(f"Status: {payment_status_text}", self.styles['MutedSmall']),
             Spacer(1, 5),
-            Paragraph(f"<i>Thank you for shopping with {business_profile.get('business_name', '')}!</i>", self.styles['MutedSmall'])
+            Paragraph(f"<i>Thank you for shopping with {_safe_str(business_profile.get('business_name'), 'us')}!</i>", self.styles['MutedSmall'])
         ]
         
         # Totals Panel (Right Side)
@@ -220,13 +238,13 @@ class PDFInvoiceService:
         elements.append(Spacer(1, 30))
 
         # 5. FOOTER (Terms & Signature)
-        terms = invoice_data.get('terms')
+        terms = _safe_str(invoice_data.get('terms'))
         if not terms:
             terms = '• Goods once sold can be exchanged within 2 days with original invoice.\n• Subject to local jurisdiction only. This is a computer generated invoice.'
             
         footer_data = [[
             [Paragraph("Terms & Conditions", self.styles['PartyLabel']), Paragraph(terms.replace('\n', '<br/>'), self.styles['MutedSmall'])],
-            [Paragraph(business_profile.get('business_name', ''), ParagraphStyle('sig', fontName='Helvetica-Oblique', fontSize=10, textColor=BODY, alignment=TA_CENTER)), 
+            [Paragraph(_safe_str(business_profile.get('business_name'), 'Merchant'), ParagraphStyle('sig', fontName='Helvetica-Oblique', fontSize=10, textColor=BODY, alignment=TA_CENTER)), 
              Spacer(1, 20),
              Paragraph("Authorized Signatory", ParagraphStyle('sigLabel', fontName='Helvetica-Bold', fontSize=7, textColor=INK, alignment=TA_CENTER))]
         ]]
