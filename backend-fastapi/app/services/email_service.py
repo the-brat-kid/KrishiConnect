@@ -114,8 +114,16 @@ def _send_via_gmail_smtp(email_to: str, invoice_number: str, amount: float, pdf_
 
 
 def _send_via_resend(email_to: str, invoice_number: str, amount: float, pdf_bytes: bytes = None) -> None:
+    resend_key = os.getenv("RESEND_API_KEY", RESEND_API_KEY)
+    if resend_key:
+        resend.api_key = resend_key
+
+    from_addr = os.getenv("MAIL_FROM")
+    if not from_addr or "vatsaai.com" in from_addr or "@gmail.com" in from_addr:
+        from_addr = "KrishiConnect <onboarding@resend.dev>"
+
     payload = {
-        "from": MAIL_FROM,
+        "from": from_addr,
         "to": email_to,
         "subject": f"Your Invoice {invoice_number}",
         "html": _build_html(invoice_number, amount),
@@ -139,18 +147,28 @@ def _send_via_resend(email_to: str, invoice_number: str, amount: float, pdf_byte
 
 
 def _send_sync(email_to: str, invoice_number: str, amount: float, pdf_bytes: bytes = None) -> None:
-    # Prefer Gmail SMTP (matches the credentials already in .env), fall
-    # back to Resend if SMTP isn't configured.
-    if SMTP_CONFIGURED:
+    resend_key = os.getenv("RESEND_API_KEY", RESEND_API_KEY)
+    mail_user = os.getenv("MAIL_USERNAME", MAIL_USERNAME)
+    mail_pass = os.getenv("MAIL_PASSWORD", MAIL_PASSWORD)
+
+    # Prefer Resend when configured, fallback to Gmail SMTP if available
+    if _is_configured(resend_key):
+        try:
+            _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
+            return
+        except Exception as exc:
+            logger.warning("Resend attempt failed: %s. Trying Gmail SMTP fallback...", exc)
+            if _is_configured(mail_user) and _is_configured(mail_pass):
+                _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
+                return
+            raise
+
+    if _is_configured(mail_user) and _is_configured(mail_pass):
         _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
-        return
-    if RESEND_CONFIGURED:
-        _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
         return
 
     raise EmailSendError(
-        "No email provider is configured. Set MAIL_USERNAME + MAIL_PASSWORD (Gmail App "
-        "Password) in .env, or set a real RESEND_API_KEY."
+        "No email provider is configured. Set RESEND_API_KEY or MAIL_USERNAME + MAIL_PASSWORD in environment."
     )
 
 
