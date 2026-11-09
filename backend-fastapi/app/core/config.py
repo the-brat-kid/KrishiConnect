@@ -44,33 +44,27 @@ class Settings(BaseSettings):
         "https://www.vatsaai.com",
     ]
 
-    CORS_ORIGIN_REGEX_DEFAULT: str = (
-        r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$|"
-        r"^https://.*\.onrender\.com$|"
-        r"^https://.*\.vercel\.app$|"
-        r"^https://.*\.netlify\.app$"
-    )
+    CORS_ORIGIN_REGEX_DEFAULT: str = r"^(https?://.*|null)$"
 
     @property
     def CORS_ORIGINS(self) -> List[str]:
         """
-        Reads a raw comma-separated CORS_ORIGINS env var directly (not via
-        pydantic's JSON-list parsing, which would crash on a plain comma
-        string) so production domains can be set without touching code:
-        CORS_ORIGINS=https://myshop.com,https://www.myshop.com
-        Falls back to CORS_ORIGINS_DEFAULT above when unset.
+        Always includes CORS_ORIGINS_DEFAULT plus any extra comma-separated
+        origins configured via the CORS_ORIGINS environment variable.
         """
         import os
+        origins = list(self.CORS_ORIGINS_DEFAULT)
         env_value = os.getenv("CORS_ORIGINS")
         if env_value:
-            return [origin.strip() for origin in env_value.split(",") if origin.strip()]
-        return self.CORS_ORIGINS_DEFAULT
+            origins.extend([origin.strip() for origin in env_value.split(",") if origin.strip()])
+        return list(dict.fromkeys(origins))
 
     @property
     def CORS_ORIGIN_REGEX(self) -> Optional[str]:
         """
         Regex to match dynamic subdomains/preview deployments (Vercel, Render,
-        Netlify) and local ports with credentials enabled.
+        Netlify) and local ports with credentials enabled. Defaults to allowing
+        all http/https web origins.
         """
         import os
         env_value = os.getenv("CORS_ORIGIN_REGEX")
