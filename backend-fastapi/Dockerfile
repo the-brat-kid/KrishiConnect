@@ -12,8 +12,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN chmod +x start.sh \
-    && groupadd -r app && useradd -r -g app app \
-    && chown -R app:app /app
+    && groupadd -r app && useradd -r -m -d /home/app -s /bin/bash -g app app \
+    && chown -R app:app /app /home/app
+
+ENV HOME=/home/app
+ENV XDG_RUNTIME_DIR=/tmp
 
 USER app
 
