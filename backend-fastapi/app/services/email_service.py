@@ -16,12 +16,11 @@ load_dotenv()
 logger = logging.getLogger("krishiconnect.email")
 
 # --- Gmail / generic SMTP config ---------------------------------------
-MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
-MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
-MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-# YAHAN DEFAULT PORT 587 KIYA HAI (Kyunki ye 465 se jyada reliable hai)
-MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
-MAIL_FROM = os.getenv("MAIL_FROM", MAIL_USERNAME or "onboarding@resend.dev")
+MAIL_USERNAME = os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USER") or ""
+MAIL_PASSWORD = (os.getenv("MAIL_PASSWORD") or os.getenv("SMTP_PASSWORD") or "").replace(" ", "")
+MAIL_SERVER = os.getenv("MAIL_SERVER") or os.getenv("SMTP_HOST") or "smtp.gmail.com"
+MAIL_PORT = int(os.getenv("MAIL_PORT") or os.getenv("SMTP_PORT") or "587")
+MAIL_FROM = os.getenv("MAIL_FROM") or MAIL_USERNAME or "onboarding@resend.dev"
 
 # --- Resend config (used only if SMTP isn't configured) -----------------
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
@@ -147,28 +146,28 @@ def _send_via_resend(email_to: str, invoice_number: str, amount: float, pdf_byte
 
 
 def _send_sync(email_to: str, invoice_number: str, amount: float, pdf_bytes: bytes = None) -> None:
+    mail_user = os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USER") or MAIL_USERNAME
+    mail_pass = (os.getenv("MAIL_PASSWORD") or os.getenv("SMTP_PASSWORD") or MAIL_PASSWORD).replace(" ", "")
     resend_key = os.getenv("RESEND_API_KEY", RESEND_API_KEY)
-    mail_user = os.getenv("MAIL_USERNAME", MAIL_USERNAME)
-    mail_pass = os.getenv("MAIL_PASSWORD", MAIL_PASSWORD)
 
-    # Prefer Resend when configured, fallback to Gmail SMTP if available
-    if _is_configured(resend_key):
+    # Prefer Gmail SMTP when configured (can send to ANY recipient), with Resend fallback
+    if _is_configured(mail_user) and _is_configured(mail_pass):
         try:
-            _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
+            _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
             return
         except Exception as exc:
-            logger.warning("Resend attempt failed: %s. Trying Gmail SMTP fallback...", exc)
-            if _is_configured(mail_user) and _is_configured(mail_pass):
-                _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
+            logger.warning("Gmail SMTP attempt failed: %s. Trying Resend fallback...", exc)
+            if _is_configured(resend_key):
+                _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
                 return
             raise
 
-    if _is_configured(mail_user) and _is_configured(mail_pass):
-        _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
+    if _is_configured(resend_key):
+        _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
         return
 
     raise EmailSendError(
-        "No email provider is configured. Set RESEND_API_KEY or MAIL_USERNAME + MAIL_PASSWORD in environment."
+        "No email provider is configured. Set MAIL_USERNAME + MAIL_PASSWORD in environment."
     )
 
 
