@@ -12,6 +12,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (data: any) => Promise<void>;
   loginWithOtp: (phone: string, otp: string, name?: string, role?: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   demoLogin: (role: "farmer" | "trader") => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
@@ -78,6 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/dashboard");
   };
 
+  const loginWithGoogle = async (credential: string) => {
+    const res = await api.post("/auth/google", { credential });
+    const { access_token, refresh_token, user: userData, business_profile } = res.data;
+    localStorage.setItem("access_token", access_token);
+    localStorage.setItem("refresh_token", refresh_token);
+    setUser(userData);
+    setBusinessProfile(business_profile);
+    router.push("/dashboard");
+  };
+
   const demoLogin = async (role: "farmer" | "trader") => {
     const res = await api.post("/auth/demo-login", { role });
     const { access_token, refresh_token, user: userData, business_profile } = res.data;
@@ -115,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         loginWithOtp,
+        loginWithGoogle,
         demoLogin,
         register,
         logout,

@@ -19,6 +19,11 @@ class OtpVerifyRequest(BaseModel):
 class DemoLoginRequest(BaseModel):
     role: str = "farmer"
 
+class GoogleLoginRequest(BaseModel):
+    credential: Optional[str] = None
+    id_token: Optional[str] = None
+    access_token: Optional[str] = None
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: Optional[str] = None

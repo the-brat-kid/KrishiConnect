@@ -1,3 +1,5 @@
+import uuid
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -13,6 +15,7 @@ from app.schemas.auth import (
     OtpSendRequest,
     OtpVerifyRequest,
     DemoLoginRequest,
+    GoogleLoginRequest,
 )
 from app.schemas.user import UserCreate
 from jose import jwt, JWTError
@@ -223,3 +226,114 @@ async def get_me(
     profile: BusinessProfile = Depends(get_current_business_profile),
 ):
     return {"user": current_user, "business_profile": profile}
+
+@router.post("/google", response_model=TokenResponse)
+async def google_login(req: GoogleLoginRequest, db: AsyncSession = Depends(get_db)):
+    raw_token = req.credential or req.id_token
+    email = None
+    name = None
+
+    if raw_token:
+        # Verify Google ID Token via Google's official tokeninfo API
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get(
+                    "https://oauth2.googleapis.com/tokeninfo",
+                    params={"id_token": raw_token},
+                )
+            if res.status_code != 200:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid or expired Google authentication token",
+                )
+            payload = res.json()
+            email = payload.get("email")
+            name = payload.get("name") or payload.get("given_name") or (email.split("@")[0] if email else "Google User")
+            verified = payload.get("email_verified")
+            if not verified or str(verified).lower() not in ["true", "1"]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Google email is not verified",
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Google token verification failed: {str(e)}",
+            )
+    elif req.access_token:
+        # Verify via Google's userinfo API
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get(
+                    "https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {req.access_token}"},
+                )
+            if res.status_code != 200:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid Google access token",
+                )
+            payload = res.json()
+            email = payload.get("email")
+            name = payload.get("name") or (email.split("@")[0] if email else "Google User")
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Google verification failed: {str(e)}",
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing Google token or credential",
+        )
+
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not retrieve email from Google profile",
+        )
+
+    # Check if user already exists
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalars().first()
+
+    if not user:
+        user = User(
+            full_name=name or "Google User",
+            email=email,
+            hashed_password=get_password_hash(f"google_{uuid.uuid4()}"),
+            phone=None,
+        )
+        db.add(user)
+        await db.flush()
+
+        profile = BusinessProfile(
+            user_id=user.id,
+            business_name=name or "Google User",
+            business_type="Individual",
+            address="Bhubaneswar, Odisha",
+        )
+        db.add(profile)
+        await db.commit()
+        await db.refresh(user)
+        await db.refresh(profile)
+        await log_audit("register_google", user.id, profile.id, "user", user.id, {"email": email})
+    else:
+        prof_res = await db.execute(select(BusinessProfile).where(BusinessProfile.user_id == user.id))
+        profile = prof_res.scalars().first()
+        await log_audit("login_google", user.id, profile.id if profile else None, "user", user.id, {"email": email})
+
+    access_token = create_access_token(user.id, profile.id if profile else None)
+    refresh_token = create_refresh_token(user.id, profile.id if profile else None)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": user,
+        "business_profile": profile,
+    }

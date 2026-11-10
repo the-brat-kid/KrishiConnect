@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import {
   Sprout,
   Users2,
@@ -129,6 +130,20 @@ export default function RegisterPage() {
         <p className="text-sm text-muted-foreground">
           Sign up to access live mandi crop rates, freight transport & verified buyers
         </p>
+      </div>
+
+      {/* 1-Click Google Sign Up */}
+      <div className="space-y-3">
+        <GoogleSignInButton text="signup_with" />
+
+        <div className="relative flex items-center justify-center pt-1">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <span className="relative bg-background px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            or register manually
+          </span>
+        </div>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">

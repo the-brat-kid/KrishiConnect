@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { loginSchema } from "@/lib/validations";
 import Link from "next/link";
 import api from "@/lib/api";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import {
   Phone,
   Mail,
@@ -169,6 +170,20 @@ export default function LoginPage() {
         <p className="text-sm text-muted-foreground">
           Access daily crop mandi rates, logistics, buyers directory & invoicing
         </p>
+      </div>
+
+      {/* Google Sign In */}
+      <div className="space-y-3">
+        <GoogleSignInButton text="continue_with" />
+
+        <div className="relative flex items-center justify-center pt-1">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <span className="relative bg-background px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            or continue with
+          </span>
+        </div>
       </div>
 
       {/* Tabs: Mobile OTP vs Email */}

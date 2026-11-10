@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_ID: str = ""
     RAZORPAY_KEY_SECRET: str = ""
 
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = "586620821912-vpp58t1c17uqqdl2mrf49d8ha98dtbpq.apps.googleusercontent.com"
+
     CORS_ORIGINS_DEFAULT: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
