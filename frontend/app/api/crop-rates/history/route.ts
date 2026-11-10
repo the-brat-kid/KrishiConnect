@@ -2,91 +2,140 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 1800; // 30 minutes caching
 
-const FALLBACK_HISTORY_ITEMS = [
+export interface CropHistoryItem {
+  id: string;
+  name: string;
+  color: string;
+  image: string;
+  unit: string;
+  dailyPrices: number[];
+  dailyPricesQuintal?: number[];
+  retailPrices: string[];
+  currentPrice: number;
+  startPrice: number;
+  change: number;
+  changePercent: number;
+  trend: "up" | "down" | "stable";
+}
+
+const FALLBACK_HISTORY_ITEMS: CropHistoryItem[] = [
   {
     id: "potato",
-    name: "Potato (Alu)",
+    name: "Potato",
     color: "#d97706",
-    image: "https://vegetablemarketprice.com/images/vegetables/potato.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
     unit: "1kg",
-    dailyPrices: [26, 26, 27, 27, 28, 28, 28],
-    retailPrices: ["₹34", "₹34", "₹35", "₹35", "₹36", "₹36", "₹36"],
-    currentPrice: 28,
-    startPrice: 26,
-    change: 2,
-    changePercent: 7.7,
-    trend: "up" as const,
-  },
-  {
-    id: "onion-big",
-    name: "Onion Big (Piaja)",
-    color: "#b45309",
-    image: "https://vegetablemarketprice.com/images/vegetables/onionbig.png",
-    unit: "1kg",
-    dailyPrices: [56, 55, 54, 53, 52, 52, 52],
-    retailPrices: ["₹70", "₹68", "₹67", "₹65", "₹65", "₹65", "₹65"],
-    currentPrice: 52,
-    startPrice: 56,
-    change: -4,
-    changePercent: -7.1,
-    trend: "down" as const,
+    dailyPrices: [17.8, 16.0, 16.5, 17.0, 18.0, 15.8],
+    dailyPricesQuintal: [1775, 1600, 1650, 1700, 1800, 1575],
+    retailPrices: ["₹23", "₹21", "₹22", "₹23", "₹24", "₹21"],
+    currentPrice: 15.8,
+    startPrice: 17.8,
+    change: -2.0,
+    changePercent: -11.2,
+    trend: "down",
   },
   {
     id: "tomato",
-    name: "Tomato (Bilati Baigana)",
+    name: "Tomato",
     color: "#dc2626",
-    image: "https://vegetablemarketprice.com/images/vegetables/tomato.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
     unit: "1kg",
-    dailyPrices: [34, 35, 36, 36, 37, 38, 38],
-    retailPrices: ["₹44", "₹45", "₹46", "₹46", "₹48", "₹48", "₹48"],
-    currentPrice: 38,
-    startPrice: 34,
-    change: 4,
-    changePercent: 11.8,
-    trend: "up" as const,
+    dailyPrices: [32.0, 30.0, 33.5, 30.0, 30.0, 30.0],
+    dailyPricesQuintal: [3200, 3000, 3350, 3000, 3000, 3000],
+    retailPrices: ["₹42", "₹39", "₹44", "₹39", "₹39", "₹39"],
+    currentPrice: 30.0,
+    startPrice: 32.0,
+    change: -2.0,
+    changePercent: -6.2,
+    trend: "down",
   },
   {
-    id: "green-chili",
-    name: "Green Chilli (Kancha Lanka)",
-    color: "#16a34a",
-    image: "https://vegetablemarketprice.com/images/vegetables/greenchili.png",
+    id: "onion",
+    name: "Onion",
+    color: "#b45309",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
     unit: "1kg",
-    dailyPrices: [75, 75, 72, 72, 70, 70, 70],
-    retailPrices: ["₹95", "₹95", "₹92", "₹92", "₹90", "₹90", "₹90"],
-    currentPrice: 70,
-    startPrice: 75,
-    change: -5,
-    changePercent: -6.7,
-    trend: "down" as const,
+    dailyPrices: [49.0, 50.0, 50.0, 48.5, 50.0, 50.0],
+    dailyPricesQuintal: [4900, 5000, 5000, 4850, 5000, 5000],
+    retailPrices: ["₹65", "₹66", "₹66", "₹64", "₹66", "₹66"],
+    currentPrice: 50.0,
+    startPrice: 49.0,
+    change: 1.0,
+    changePercent: 2.0,
+    trend: "up",
   },
   {
     id: "brinjal",
-    name: "Brinjal (Baigana)",
+    name: "Brinjal",
     color: "#7c3aed",
-    image: "https://vegetablemarketprice.com/images/vegetables/brinjal.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain",
     unit: "1kg",
-    dailyPrices: [32, 33, 34, 34, 35, 35, 35],
-    retailPrices: ["₹42", "₹43", "₹44", "₹44", "₹45", "₹45", "₹45"],
-    currentPrice: 35,
-    startPrice: 32,
-    change: 3,
-    changePercent: 9.4,
-    trend: "up" as const,
+    dailyPrices: [27.0, 32.0, 26.0, 26.0, 28.5, 27.5],
+    dailyPricesQuintal: [2700, 3200, 2600, 2600, 2850, 2750],
+    retailPrices: ["₹36", "₹42", "₹34", "₹34", "₹38", "₹36"],
+    currentPrice: 27.5,
+    startPrice: 27.0,
+    change: 0.5,
+    changePercent: 1.9,
+    trend: "up",
+  },
+  {
+    id: "green-chilli",
+    name: "Green Chilli",
+    color: "#16a34a",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
+    unit: "1kg",
+    dailyPrices: [84.0, 80.0, 80.0, 55.0, 82.0, 58.0],
+    dailyPricesQuintal: [8400, 8000, 8000, 5500, 8200, 5800],
+    retailPrices: ["₹110", "₹105", "₹105", "₹75", "₹108", "₹78"],
+    currentPrice: 58.0,
+    startPrice: 84.0,
+    change: -26.0,
+    changePercent: -31.0,
+    trend: "down",
+  },
+  {
+    id: "cabbage",
+    name: "Cabbage",
+    color: "#059669",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cabbage.jpg?width=48&quality=75&format=webp&resize=contain",
+    unit: "1kg",
+    dailyPrices: [30.0, 31.0, 28.0, 30.0, 30.0, 30.0],
+    dailyPricesQuintal: [3000, 3100, 2800, 3000, 3000, 3000],
+    retailPrices: ["₹40", "₹41", "₹37", "₹40", "₹40", "₹40"],
+    currentPrice: 30.0,
+    startPrice: 30.0,
+    change: 0.0,
+    changePercent: 0.0,
+    trend: "stable",
   },
   {
     id: "cauliflower",
-    name: "Cauliflower (Phula Kobi)",
+    name: "Cauliflower",
     color: "#65a30d",
-    image: "https://vegetablemarketprice.com/images/vegetables/cauliflower.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cauliflower.jpg?width=48&quality=75&format=webp&resize=contain",
     unit: "1kg",
-    dailyPrices: [45, 44, 44, 43, 42, 42, 42],
-    retailPrices: ["₹58", "₹56", "₹56", "₹55", "₹55", "₹55", "₹55"],
-    currentPrice: 42,
-    startPrice: 45,
-    change: -3,
-    changePercent: -6.7,
-    trend: "down" as const,
+    dailyPrices: [50.0, 50.0, 45.0, 47.5, 45.0, 43.5],
+    dailyPricesQuintal: [5000, 5000, 4500, 4750, 4500, 4350],
+    retailPrices: ["₹66", "₹66", "₹60", "₹63", "₹60", "₹58"],
+    currentPrice: 43.5,
+    startPrice: 50.0,
+    change: -6.5,
+    changePercent: -13.0,
+    trend: "down",
   },
+];
+
+const DEFAULT_COLUMNS = ["4 Nov", "5 Nov", "6 Nov", "7 Nov", "8 Nov", "9 Nov"];
+
+const COMMODITY_CONFIG = [
+  { id: "potato", slug: "potato", name: "Potato", color: "#d97706", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "tomato", slug: "tomato", name: "Tomato", color: "#dc2626", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "onion", slug: "onion", name: "Onion", color: "#b45309", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "brinjal", slug: "brinjal", name: "Brinjal", color: "#7c3aed", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "green-chilli", slug: "greenchilli", name: "Green Chilli", color: "#16a34a", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "cabbage", slug: "cabbage", name: "Cabbage", color: "#059669", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cabbage.jpg?width=48&quality=75&format=webp&resize=contain" },
+  { id: "cauliflower", slug: "cauliflower", name: "Cauliflower", color: "#65a30d", image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cauliflower.jpg?width=48&quality=75&format=webp&resize=contain" },
 ];
 
 export async function GET(request: Request) {
@@ -94,125 +143,109 @@ export async function GET(request: Request) {
   const forceRefresh = searchParams.get("refresh") === "true";
 
   try {
-    const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-      Accept: "application/json, text/javascript, */*; q=0.01",
-      "X-Requested-With": "XMLHttpRequest",
-      Referer: "https://vegetablemarketprice.com/market/bhubaneswar/history",
-    };
+    let allDates: string[] = [];
+    const parsedItems: CropHistoryItem[] = [];
 
-    // 1. Initial call to get columnMapping and all available vegIds
-    const initRes = await fetch(
-      "https://vegetablemarketprice.com/api/dataapi/market/bhubaneswar/latestchartdata?days=7",
-      {
-        headers,
-        ...(forceRefresh ? { cache: "no-store" as const } : { next: { revalidate: 1800 } }),
-      }
-    );
-
-    if (initRes.ok) {
-      const initData = await initRes.json();
-      const columnMapping = initData.columnMapping || [];
-      const vegIds = columnMapping.map((v: any) => v.vegId).filter(Boolean);
-
-      // 2. Query with all vegetable IDs to fetch complete 7-day data
-      let fullData = initData;
-      if (vegIds.length > 0) {
-        const fullRes = await fetch(
-          `https://vegetablemarketprice.com/api/dataapi/market/bhubaneswar/latestchartdata?days=7&vegIds=${vegIds.join(",")}`,
-          {
-            headers,
-            ...(forceRefresh ? { cache: "no-store" as const } : { next: { revalidate: 1800 } }),
-          }
-        );
-        if (fullRes.ok) {
-          fullData = await fullRes.json();
-        }
-      }
-
-      const rawColumns: string[] = fullData.columns || [];
-      const formattedColumns = rawColumns.map((col) => {
-        try {
-          const parts = col.split("-");
-          if (parts.length === 3) {
-            const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-            return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-          }
-          return col;
-        } catch {
-          return col;
-        }
-      });
-
-      const rawItems = fullData.data || [];
-      const items = rawItems.map((it: any) => {
-        const name = it.name || "";
-        const rawData = it.data || [];
-        const dailyPrices = rawData.map((d: any) => (typeof d.yValue === "number" ? d.yValue : d.y || 0));
-        const retailPrices = rawData.map((d: any) => d.retailprice || "");
-        const units = rawData.length > 0 && rawData[0].units ? rawData[0].units : "1kg";
-
-        let img = it.marker?.symbol || "";
-        if (img.includes("url(")) {
-          img = img.replace("url(", "").replace(")", "").trim();
-        }
-        if (img.startsWith("/")) {
-          img = `https://vegetablemarketprice.com${img}`;
-        }
-
-        const currentPrice = dailyPrices.length > 0 ? dailyPrices[dailyPrices.length - 1] : 0;
-        const startPrice = dailyPrices.length > 0 ? dailyPrices[0] : 0;
-        const change = currentPrice - startPrice;
-        const changePercent = startPrice > 0 ? Math.round((change / startPrice) * 100 * 10) / 10 : 0;
-        const trend = change > 0 ? "up" : change < 0 ? "down" : "stable";
-
-        return {
-          id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          name,
-          color: it.color || "#10b981",
-          image: img,
-          unit: units,
-          dailyPrices,
-          retailPrices,
-          currentPrice,
-          startPrice,
-          change,
-          changePercent,
-          trend,
-        };
-      });
-
-      if (items.length > 0) {
-        return NextResponse.json({
-          success: true,
-          market: "Bhubaneswar APMC",
-          state: "Odisha",
-          sourceUrl: "https://vegetablemarketprice.com/market/bhubaneswar/history",
-          startDate: fullData.startDate,
-          endDate: fullData.endDate,
-          rawColumns,
-          columns: formattedColumns,
-          count: items.length,
-          items,
+    const fetchPromises = COMMODITY_CONFIG.map(async (cfg) => {
+      try {
+        const res = await fetch(`https://acrop.app/prices/${cfg.slug}/odisha`, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)",
+          },
+          ...(forceRefresh ? { cache: "no-store" as const } : { next: { revalidate: 1800 } }),
         });
+
+        if (!res.ok) return null;
+        const html = await res.text();
+
+        const pointMatches = Array.from(html.matchAll(/<circle[^>]*class="national-series-point"[^>]*><title>([^<]+)<\/title>/g));
+        const dates: string[] = [];
+        const pricesKg: number[] = [];
+        const pricesQ: number[] = [];
+        const retailPrices: string[] = [];
+
+        for (const pt of pointMatches) {
+          const m = pt[1].match(/(\d+\s+[A-Za-z]+)\s+\d{4}:\s*₹([\d,]+)\/quintal/);
+          if (m) {
+            const dStr = m[1];
+            const qVal = parseInt(m[2].replace(/,/g, ""), 10);
+            const kgVal = Math.round((qVal / 100.0) * 10) / 10;
+            dates.push(dStr);
+            pricesKg.push(kgVal);
+            pricesQ.push(qVal);
+            retailPrices.push(`₹${Math.round(kgVal * 1.35)}`);
+          }
+        }
+
+        if (dates.length > 0) {
+          const curr = pricesKg[pricesKg.length - 1];
+          const start = pricesKg[0];
+          const chg = Math.round((curr - start) * 10) / 10;
+          const pct = start > 0 ? Math.round((chg / start) * 1000) / 10 : 0;
+          const trend: "up" | "down" | "stable" = chg > 0 ? "up" : chg < 0 ? "down" : "stable";
+
+          return {
+            dates,
+            item: {
+              id: cfg.id,
+              name: cfg.name,
+              color: cfg.color,
+              image: cfg.image,
+              unit: "1kg",
+              dailyPrices: pricesKg,
+              dailyPricesQuintal: pricesQ,
+              retailPrices,
+              currentPrice: curr,
+              startPrice: start,
+              change: chg,
+              changePercent: pct,
+              trend,
+            },
+          };
+        }
+      } catch {
+        return null;
+      }
+      return null;
+    });
+
+    const results = await Promise.all(fetchPromises);
+    for (const r of results) {
+      if (r) {
+        if (r.dates.length > allDates.length) {
+          allDates = r.dates;
+        }
+        parsedItems.push(r.item);
       }
     }
-  } catch (error: any) {
-    console.error("Upstream 7-day rate history fetch failed, using fallback:", error);
+
+    if (parsedItems.length >= 3 && allDates.length >= 3) {
+      return NextResponse.json({
+        success: true,
+        market: "Odisha Mandis (State-wide Average)",
+        state: "Odisha",
+        sourceUrl: "https://acrop.app/mandi/odisha",
+        startDate: allDates[0],
+        endDate: allDates[allDates.length - 1],
+        rawColumns: allDates,
+        columns: allDates,
+        count: parsedItems.length,
+        items: parsedItems,
+      });
+    }
+  } catch (err) {
+    console.error("History fetch from acrop.app failed, serving baseline:", err);
   }
 
-  // Graceful verified 7-day trend fallback for Bhubaneswar APMC
-  const days = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Today"];
   return NextResponse.json({
     success: true,
-    market: "Bhubaneswar APMC",
+    market: "Odisha Mandis (State-wide Average)",
     state: "Odisha",
-    sourceUrl: "https://vegetablemarketprice.com/market/bhubaneswar/history",
-    startDate: "Recent 7 Days",
-    endDate: "Today",
-    rawColumns: days,
-    columns: days,
+    sourceUrl: "https://acrop.app/mandi/odisha",
+    startDate: DEFAULT_COLUMNS[0],
+    endDate: DEFAULT_COLUMNS[DEFAULT_COLUMNS.length - 1],
+    rawColumns: DEFAULT_COLUMNS,
+    columns: DEFAULT_COLUMNS,
     count: FALLBACK_HISTORY_ITEMS.length,
     items: FALLBACK_HISTORY_ITEMS,
   });

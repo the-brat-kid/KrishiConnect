@@ -3,11 +3,20 @@ import { useQuery } from "@tanstack/react-query";
 export interface CropRateItem {
   id: string;
   name: string;
+  category?: string;
   price: string;
   priceNum: number;
+  price_quintal?: string;
+  priceNumQuintal?: number;
   retailPrice: string;
+  mallPrice?: string;
   unit: string;
   image: string;
+  emoji?: string;
+  mandi_info?: string;
+  arrivals?: string;
+  url?: string;
+  date?: string;
 }
 
 export interface CropRatesResponse {

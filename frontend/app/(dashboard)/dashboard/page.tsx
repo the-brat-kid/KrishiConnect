@@ -47,68 +47,68 @@ const BASE_STAPLES = [
   {
     id: "potato",
     name: "Potato (Alu)",
-    fallbackPrice: 28,
+    fallbackPrice: 20,
     unit: "kg",
-    fallbackRetail: "₹36",
-    change: "+₹2",
+    fallbackRetail: "₹26",
+    change: "+₹1",
     status: "up",
     emoji: "🥔",
-    image: "https://vegetablemarketprice.com/images/vegetables/potato.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=128&height=128&fit=bounds",
   },
   {
-    id: "onion-big",
-    name: "Onion Big (Piaja)",
-    fallbackPrice: 52,
+    id: "onion",
+    name: "Onion (Piaja)",
+    fallbackPrice: 32,
     unit: "kg",
-    fallbackRetail: "₹65",
-    change: "-₹4",
+    fallbackRetail: "₹42",
+    change: "-₹2",
     status: "down",
     emoji: "🧅",
-    image: "https://vegetablemarketprice.com/images/vegetables/onionbig.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=128&height=128&fit=bounds",
   },
   {
     id: "tomato",
     name: "Tomato (Bilati)",
-    fallbackPrice: 38,
+    fallbackPrice: 22,
     unit: "kg",
-    fallbackRetail: "₹48",
-    change: "+₹4",
+    fallbackRetail: "₹30",
+    change: "+₹3",
     status: "up",
     emoji: "🍅",
-    image: "https://vegetablemarketprice.com/images/vegetables/tomato.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=128&height=128&fit=bounds",
   },
   {
-    id: "green-chili",
+    id: "green-chilli",
     name: "Green Chilli (Lanka)",
-    fallbackPrice: 70,
+    fallbackPrice: 55,
     unit: "kg",
-    fallbackRetail: "₹90",
-    change: "-₹5",
+    fallbackRetail: "₹75",
+    change: "-₹3",
     status: "down",
     emoji: "🌶️",
-    image: "https://vegetablemarketprice.com/images/vegetables/greenchili.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Green%20Chilli.jpg?width=128&height=128&fit=bounds",
   },
   {
     id: "brinjal",
     name: "Brinjal (Baigana)",
-    fallbackPrice: 35,
+    fallbackPrice: 24,
     unit: "kg",
-    fallbackRetail: "₹45",
-    change: "+₹3",
+    fallbackRetail: "₹32",
+    change: "+₹2",
     status: "up",
     emoji: "🍆",
-    image: "https://vegetablemarketprice.com/images/vegetables/brinjal.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=128&height=128&fit=bounds",
   },
   {
     id: "ginger",
     name: "Ginger (Ada)",
-    fallbackPrice: 130,
+    fallbackPrice: 85,
     unit: "kg",
-    fallbackRetail: "₹160",
+    fallbackRetail: "₹110",
     change: "0",
     status: "stable",
     emoji: "🫚",
-    image: "https://vegetablemarketprice.com/images/vegetables/ginger.png",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Ginger.jpg?width=128&height=128&fit=bounds",
   },
 ];
 
@@ -310,7 +310,7 @@ export default function DashboardPage() {
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                <span>Wholesale modal auction rates compared with urban retail market baselines across Odisha.</span>
+                <span>Wholesale modal auction rates across Odisha Mandis (acrop.app).</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 font-mono">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   {lastUpdatedText}
@@ -325,7 +325,7 @@ export default function DashboardPage() {
                 onClick={() => refetchRates()}
                 disabled={ratesFetching}
                 className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
-                title="Refresh live mandi rates from mandi auctions"
+                title="Refresh live mandi rates from mandi auctions (acrop.app)"
               >
                 <RefreshCw className={cn("w-3.5 h-3.5 text-primary", ratesFetching && "animate-spin")} />
                 <span>{ratesFetching ? "Syncing..." : "Sync Live Rates"}</span>
@@ -335,7 +335,7 @@ export default function DashboardPage() {
                 href="/crop-rates"
                 className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
               >
-                <span>View all 54 crops</span>
+                <span>View all 40+ Odisha crops</span>
                 <ArrowRight className="w-3.5 h-3.5 text-primary" />
               </Link>
             </div>

@@ -7,6 +7,7 @@ export interface CropHistoryItem {
   image: string;
   unit: string;
   dailyPrices: number[];
+  dailyPricesQuintal?: number[];
   retailPrices: string[];
   currentPrice: number;
   startPrice: number;

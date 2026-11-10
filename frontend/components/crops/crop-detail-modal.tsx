@@ -17,6 +17,7 @@ import {
   IndianRupee,
   Layers,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -160,6 +161,10 @@ interface CropDetailModalProps {
   currentPrice?: number | string;
   retailPrice?: string;
   unit?: string;
+  category?: string;
+  priceQuintal?: number | string;
+  mandiInfo?: string;
+  url?: string;
 }
 
 export function CropDetailModal({
@@ -169,6 +174,10 @@ export function CropDetailModal({
   currentPrice,
   retailPrice,
   unit = "kg",
+  category,
+  priceQuintal,
+  mandiInfo,
+  url,
 }: CropDetailModalProps) {
   const [activeTab, setActiveTab] = useState<"history" | "profit">("history");
   const [calcAcres, setCalcAcres] = useState<number>(1);
@@ -260,7 +269,7 @@ export function CropDetailModal({
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[10px] font-bold uppercase tracking-wider">
-                  Mandi Intelligence
+                  {category || "Mandi Intelligence"}
                 </Badge>
                 <span className="text-xs text-muted-foreground font-medium">{agroProfile.localName}</span>
               </div>
@@ -268,19 +277,24 @@ export function CropDetailModal({
                 {cropName}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Bhubaneswar APMC Yard • Verified Modal Pricing & Next-Season Agronomic Model
+                Odisha Mandis (acrop.app) • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
               </DialogDescription>
             </div>
 
             {/* Price Pill */}
             <div className="text-left sm:text-right p-2.5 rounded-lg border border-border/80 bg-card">
-              <span className="text-[10px] font-bold uppercase text-muted-foreground block">Wholesale Rate</span>
-              <div className="text-2xl font-black text-primary">
-                {typeof displayWholesale === "number" ? `₹${displayWholesale}` : displayWholesale}
-                <span className="text-xs font-normal text-muted-foreground ml-1">/{unit}</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground block">
+                {priceQuintal ? "Wholesale (Quintal & Kg)" : "Wholesale Rate"}
+              </span>
+              <div className="text-xl sm:text-2xl font-black text-primary">
+                {priceQuintal
+                  ? typeof priceQuintal === "number"
+                    ? `₹${priceQuintal.toLocaleString("en-IN")}/qtl`
+                    : `${priceQuintal.startsWith("₹") ? "" : "₹"}${priceQuintal}/qtl`
+                  : (typeof displayWholesale === "number" ? `₹${displayWholesale}/${unit}` : displayWholesale)}
               </div>
               <span className="text-[11px] text-muted-foreground block mt-0.5">
-                Retail Spread: <strong className="text-foreground">{displayRetail}/{unit}</strong>
+                Per-Kg: <strong className="text-foreground">{typeof displayWholesale === "number" ? `₹${displayWholesale}` : displayWholesale}/{unit}</strong> • Retail: {displayRetail}
               </span>
             </div>
           </div>
@@ -394,7 +408,7 @@ export function CropDetailModal({
               <div className="p-3 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  Prices are collected directly from Bhubaneswar APMC mandi auction registers. Wholesale rates apply to minimum 50 kg gunny bags and vegetable lot trades.
+                  Prices are synchronized from <strong className="text-foreground">acrop.app</strong> across Odisha APMC mandis. Modal values represent state-wide wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
                 </p>
               </div>
             </div>
@@ -514,9 +528,20 @@ export function CropDetailModal({
 
         {/* Modal Bottom Actions */}
         <div className="p-4 border-t border-border/80 bg-muted/20 flex flex-wrap items-center justify-between gap-3">
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
-            Close
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
+              Close
+            </Button>
+            <a
+              href={url || "https://acrop.app/mandi/odisha"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded"
+            >
+              <span>acrop.app</span>
+              <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+            </a>
+          </div>
 
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild className="text-xs">
