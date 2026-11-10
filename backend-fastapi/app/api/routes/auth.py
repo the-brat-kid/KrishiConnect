@@ -1,5 +1,9 @@
 import uuid
-import httpx
+import json
+import asyncio
+import urllib.request
+import urllib.parse
+import urllib.error
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -227,6 +231,36 @@ async def get_me(
 ):
     return {"user": current_user, "business_profile": profile}
 
+def _fetch_google_token_info(id_token: str) -> dict:
+    url = f"https://oauth2.googleapis.com/tokeninfo?id_token={urllib.parse.quote(id_token)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "KrishiConnect-Server/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        raise ValueError(f"Google token rejected ({e.code}): {body}")
+    except Exception as e:
+        raise ValueError(f"Google verification network error: {str(e)}")
+
+def _fetch_google_user_info(access_token: str) -> dict:
+    url = "https://www.googleapis.com/oauth2/v3/userinfo"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "User-Agent": "KrishiConnect-Server/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        raise ValueError(f"Google access token rejected ({e.code}): {body}")
+    except Exception as e:
+        raise ValueError(f"Google verification network error: {str(e)}")
+
 @router.post("/google", response_model=TokenResponse)
 async def google_login(req: GoogleLoginRequest, db: AsyncSession = Depends(get_db)):
     raw_token = req.credential or req.id_token
@@ -236,17 +270,7 @@ async def google_login(req: GoogleLoginRequest, db: AsyncSession = Depends(get_d
     if raw_token:
         # Verify Google ID Token via Google's official tokeninfo API
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                res = await client.get(
-                    "https://oauth2.googleapis.com/tokeninfo",
-                    params={"id_token": raw_token},
-                )
-            if res.status_code != 200:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid or expired Google authentication token",
-                )
-            payload = res.json()
+            payload = await asyncio.to_thread(_fetch_google_token_info, raw_token)
             email = payload.get("email")
             name = payload.get("name") or payload.get("given_name") or (email.split("@")[0] if email else "Google User")
             verified = payload.get("email_verified")
@@ -255,6 +279,11 @@ async def google_login(req: GoogleLoginRequest, db: AsyncSession = Depends(get_d
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Google email is not verified",
                 )
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=str(e),
+            )
         except HTTPException:
             raise
         except Exception as e:
@@ -265,19 +294,14 @@ async def google_login(req: GoogleLoginRequest, db: AsyncSession = Depends(get_d
     elif req.access_token:
         # Verify via Google's userinfo API
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                res = await client.get(
-                    "https://www.googleapis.com/oauth2/v3/userinfo",
-                    headers={"Authorization": f"Bearer {req.access_token}"},
-                )
-            if res.status_code != 200:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid Google access token",
-                )
-            payload = res.json()
+            payload = await asyncio.to_thread(_fetch_google_user_info, req.access_token)
             email = payload.get("email")
             name = payload.get("name") or (email.split("@")[0] if email else "Google User")
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=str(e),
+            )
         except HTTPException:
             raise
         except Exception as e:

@@ -71,3 +71,7 @@ app.include_router(cold_storage.router, prefix=f"{settings.API_V1_STR}/cold-stor
 @app.get("/")
 def root():
     return {"message": "Welcome to KrishiConnect API"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "krishiconnect-api"}
