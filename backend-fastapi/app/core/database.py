@@ -4,8 +4,15 @@ from sqlalchemy.orm import DeclarativeBase
 from app.core.config import settings
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# PostgreSQL Setup
-engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URI, echo=False)
+# PostgreSQL Setup with auto-reconnect, pre-ping and connection recycling
+engine = create_async_engine(
+    settings.SQLALCHEMY_DATABASE_URI,
+    echo=False,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_size=10,
+    max_overflow=20,
+)
 AsyncSessionLocal = async_sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
@@ -15,7 +22,13 @@ class Base(DeclarativeBase):
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
 # MongoDB Setup
 mongo_client = AsyncIOMotorClient(settings.MONGODB_URL)
