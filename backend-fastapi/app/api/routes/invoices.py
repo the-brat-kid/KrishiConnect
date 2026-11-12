@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from sqlalchemy.orm import selectinload
 from typing import Optional, List
 
@@ -29,7 +29,7 @@ async def list_invoices(
     db: AsyncSession = Depends(get_db)
 ):
     skip = (page - 1) * limit
-    q = select(Invoice).where(Invoice.business_profile_id == profile.id).options(selectinload(Invoice.items))
+    q = select(Invoice).where(Invoice.business_profile_id == profile.id).options(selectinload(Invoice.items)).order_by(desc(Invoice.created_at))
     if status:
         q = q.where(Invoice.status == status)
     if customer_id:

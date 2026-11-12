@@ -18,6 +18,8 @@ import {
   ChevronRight,
   CloudSun,
   Warehouse,
+  Phone,
+  Copyright,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -45,6 +47,13 @@ const MENU_GROUPS = [
       { href: "/products", label: "Crops Inventory", icon: Package },
       { href: "/invoices", label: "Invoices & Billing", icon: FileText },
       { href: "/settings", label: "Settings", icon: Settings },
+    ],
+  },
+  {
+    title: "Support & Legal",
+    routes: [
+      { href: "/contact", label: "Contact Us & WhatsApp", icon: Phone },
+      { href: "/copyright", label: "Copyright Policy", icon: Copyright },
     ],
   },
 ];

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from typing import Optional, List
 from datetime import date
 from app.core.database import get_db
@@ -24,7 +24,7 @@ async def list_expenses(
     db: AsyncSession = Depends(get_db)
 ):
     skip = (page - 1) * limit
-    q = select(Expense).where(Expense.business_profile_id == profile.id)
+    q = select(Expense).where(Expense.business_profile_id == profile.id).order_by(desc(Expense.date))
     if category:
         q = q.where(Expense.category == category)
     if start_date:

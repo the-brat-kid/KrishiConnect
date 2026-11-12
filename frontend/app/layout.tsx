@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-provider";
 import QueryClientProvider from "@/lib/query-client";
@@ -9,6 +9,18 @@ import { GlobalClickAnimation } from "@/components/ui/button-click-animation";
 import { BackToTop } from "@/components/ui/back-to-top";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://krishiconnect.in";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#080808" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

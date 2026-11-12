@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
 import { DynamicFarmWeatherBackground } from "@/components/layout/dynamic-farm-weather-background";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -64,11 +65,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-transparent">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 pb-24 md:pb-8 bg-transparent smooth-touch-scroll">
           <div className="max-w-7xl mx-auto w-full relative z-10">
             {children}
           </div>
         </main>
+
+        {/* Mobile Bottom Navigation Dock */}
+        <MobileBottomBar onOpenMenu={() => setSidebarOpen(true)} />
       </div>
     </div>
   );

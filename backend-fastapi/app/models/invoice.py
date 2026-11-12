@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, date
-from sqlalchemy import String, ForeignKey, Float, Date, DateTime, Text, Enum as SQLEnum
+from sqlalchemy import String, ForeignKey, Float, Date, DateTime, Text, Index, Enum as SQLEnum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.core.database import Base
 import enum
@@ -13,7 +13,12 @@ class InvoiceStatus(str, enum.Enum):
 
 class Invoice(Base):
     __tablename__ = "invoices"
-    __table_args__ = {'extend_existing': True} # Safety ke liye add kiya hai
+    __table_args__ = (
+        Index("ix_invoices_profile_status", "business_profile_id", "status"),
+        Index("ix_invoices_profile_created", "business_profile_id", "created_at"),
+        Index("ix_invoices_date", "date"),
+        {'extend_existing': True}
+    )
     
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     business_profile_id: Mapped[str] = mapped_column(String, ForeignKey("business_profiles.id"), index=True)

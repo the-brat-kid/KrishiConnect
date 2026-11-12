@@ -39,6 +39,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 flex items-center justify-between text-xs text-[#8A8A8A] pt-4 border-t border-[#3D3D3D]">
           <p>© {new Date().getFullYear()} KrishiConnect. All rights reserved.</p>
           <div className="flex gap-4">
+            <Link href="/contact" className="hover:text-[#E5E5E5] transition-colors">
+              Contact
+            </Link>
+            <Link href="/copyright" className="hover:text-[#E5E5E5] transition-colors">
+              Copyright
+            </Link>
             <Link href="/privacy" className="hover:text-[#E5E5E5] transition-colors">
               Privacy
             </Link>
@@ -60,6 +66,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <span className="text-lg font-semibold tracking-tight text-foreground">KrishiConnect</span>
           </div>
           {children}
+          <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+            <Link href="/contact" className="hover:text-foreground">Contact Us</Link>
+            <Link href="/copyright" className="hover:text-foreground">Copyright</Link>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+          </div>
         </div>
       </div>
     </div>

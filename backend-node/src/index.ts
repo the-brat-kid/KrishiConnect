@@ -34,8 +34,13 @@ initWebSocket(wss);
 // Start Server
 const start = async () => {
   try {
-    await mongoose.connect(config.mongoUri);
-    console.log('Connected to MongoDB');
+    await mongoose.connect(config.mongoUri, {
+      maxPoolSize: 20,
+      minPoolSize: 5,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    console.log('Connected to MongoDB (Pool Size: 20)');
 
     server.listen(config.port, () => {
       console.log(`Server is running on http://localhost:${config.port}`);

@@ -1,12 +1,16 @@
 import uuid
 from datetime import date
-from sqlalchemy import String, ForeignKey, Float, Date, Text
+from sqlalchemy import String, ForeignKey, Float, Date, Text, Index
 from sqlalchemy.orm import mapped_column, Mapped
 from app.core.database import Base
 from sqlalchemy.dialects.postgresql import UUID
 
 class Expense(Base):
     __tablename__ = "expenses"
+    __table_args__ = (
+        Index("ix_expenses_profile_date", "business_profile_id", "date"),
+        Index("ix_expenses_category", "category"),
+    )
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     business_profile_id: Mapped[str] = mapped_column(String, ForeignKey("business_profiles.id"), index=True)
     category: Mapped[str] = mapped_column(String, nullable=False)

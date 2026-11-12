@@ -133,7 +133,9 @@ export default function PrivacyPolicyPage() {
         {/* Bottom Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} KrishiConnect. All rights reserved.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
+            <Link href="/contact" className="hover:text-foreground underline">Contact Us</Link>
+            <Link href="/copyright" className="hover:text-foreground underline">Copyright</Link>
             <Link href="/terms" className="hover:text-foreground underline">Terms of Service</Link>
             <Link href="/dashboard" className="hover:text-foreground underline">Dashboard</Link>
           </div>

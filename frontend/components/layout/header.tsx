@@ -10,6 +10,7 @@ import {
   FileText,
   UserCircle,
   LogOut,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,6 +133,12 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
               {user?.email || "Odisha Mandi Account"}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer text-xs">
+              <Link href="/contact" className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-primary" />
+                <span>Contact & Support</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer text-xs flex items-center gap-2">
               <LogOut className="h-3.5 w-3.5" />
               <span>Sign out</span>

@@ -20,4 +20,8 @@ const NotificationSchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now }
 });
 
+// High-speed compound indexes for fetching notifications and unread counters
+NotificationSchema.index({ business_profile_id: 1, created_at: -1 });
+NotificationSchema.index({ business_profile_id: 1, read: 1 });
+
 export const Notification = mongoose.model<INotification>('Notification', NotificationSchema);

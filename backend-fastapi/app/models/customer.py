@@ -1,11 +1,15 @@
 import uuid
-from sqlalchemy import String, ForeignKey, Text
+from sqlalchemy import String, ForeignKey, Text, Index
 from sqlalchemy.orm import mapped_column, Mapped
 from app.core.database import Base
 from sqlalchemy.dialects.postgresql import UUID
 
 class Customer(Base):
     __tablename__ = "customers"
+    __table_args__ = (
+        Index("ix_customers_profile_name", "business_profile_id", "name"),
+        Index("ix_customers_phone", "phone"),
+    )
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     business_profile_id: Mapped[str] = mapped_column(String, ForeignKey("business_profiles.id"), index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)

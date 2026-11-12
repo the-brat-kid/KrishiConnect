@@ -68,7 +68,7 @@ export default function InvoicesPage() {
   }, [invoices, search]);
 
   return (
-    <div className="bg-stitch-background -m-6 p-6 min-h-screen font-stitch-body">
+    <div className="bg-stitch-background w-full min-h-screen font-stitch-body">
       <div className="flex flex-col gap-space-xl">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">

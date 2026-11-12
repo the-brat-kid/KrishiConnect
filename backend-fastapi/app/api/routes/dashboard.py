@@ -1,6 +1,7 @@
+import asyncio
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, case
 from app.core.database import get_db
 from app.api.deps import get_current_business_profile
 from app.models.business_profile import BusinessProfile
@@ -16,38 +17,42 @@ async def get_dashboard_stats(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    # Total Revenue (sum of grand total of paid invoices)
-    rev_res = await db.execute(select(func.sum(Invoice.grand_total)).where(Invoice.business_profile_id == profile.id, Invoice.status == InvoiceStatus.paid))
-    total_revenue = rev_res.scalar() or 0.0
+    # High-Performance Aggregated Query: Combines 5 invoice queries into a single SQL pass
+    inv_stats_q = select(
+        func.count(Invoice.id).label("total_invoices"),
+        func.coalesce(
+            func.sum(
+                case((Invoice.status == InvoiceStatus.paid.value, Invoice.grand_total), else_=0.0)
+            ),
+            0.0
+        ).label("total_revenue"),
+        func.count(case((Invoice.status == InvoiceStatus.paid.value, 1))).label("paid_invoices"),
+        func.count(case((Invoice.status == InvoiceStatus.unpaid.value, 1))).label("unpaid_invoices"),
+        func.count(case((Invoice.status == InvoiceStatus.overdue.value, 1))).label("overdue_invoices"),
+    ).where(Invoice.business_profile_id == profile.id)
 
-    # Counts
-    inv_res = await db.execute(select(func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id))
-    total_invoices = inv_res.scalar() or 0
+    cust_q = select(func.count(Customer.id)).where(Customer.business_profile_id == profile.id)
+    prod_q = select(func.count(Product.id)).where(Product.business_profile_id == profile.id)
 
-    cust_res = await db.execute(select(func.count(Customer.id)).where(Customer.business_profile_id == profile.id))
+    # Execute queries concurrently over async connection
+    inv_res, cust_res, prod_res = await asyncio.gather(
+        db.execute(inv_stats_q),
+        db.execute(cust_q),
+        db.execute(prod_q),
+    )
+
+    inv_row = inv_res.one()
     total_customers = cust_res.scalar() or 0
-
-    prod_res = await db.execute(select(func.count(Product.id)).where(Product.business_profile_id == profile.id))
     total_products = prod_res.scalar() or 0
-    
-    # Invoice status breakdown
-    paid_res = await db.execute(select(func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id, Invoice.status == InvoiceStatus.paid))
-    paid_invoices = paid_res.scalar() or 0
-    
-    unpaid_res = await db.execute(select(func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id, Invoice.status == InvoiceStatus.unpaid))
-    unpaid_invoices = unpaid_res.scalar() or 0
-
-    overdue_res = await db.execute(select(func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id, Invoice.status == InvoiceStatus.overdue))
-    overdue_invoices = overdue_res.scalar() or 0
 
     return {
-        "total_revenue": total_revenue,
-        "total_invoices": total_invoices,
+        "total_revenue": float(inv_row.total_revenue or 0.0),
+        "total_invoices": int(inv_row.total_invoices or 0),
         "total_customers": total_customers,
         "total_products": total_products,
-        "paid_invoices": paid_invoices,
-        "unpaid_invoices": unpaid_invoices,
-        "overdue_invoices": overdue_invoices
+        "paid_invoices": int(inv_row.paid_invoices or 0),
+        "unpaid_invoices": int(inv_row.unpaid_invoices or 0),
+        "overdue_invoices": int(inv_row.overdue_invoices or 0)
     }
 
 @router.get("/recent-transactions")
