@@ -166,12 +166,20 @@ export default function DashboardPage() {
       });
 
       if (match) {
-        const priceNum = match.priceNum || base.fallbackPrice;
+        const rawPrice = match.priceNum || base.fallbackPrice;
+        // Clean round wholesale price to 1 decimal place to eliminate floating point glitches
+        const priceNum = Math.round(rawPrice * 10) / 10;
         const retailNum = parseInt(match.retailPrice?.replace(/₹|,/g, ""), 10) || Math.round(priceNum * 1.3);
-        const changeNum = priceNum - base.fallbackPrice;
+        
+        // Accurate clean difference calculation without IEEE 754 precision artifacts
+        const rawDiff = priceNum - base.fallbackPrice;
+        const cleanDiff = Math.round(rawDiff * 10) / 10;
+        const absDiff = Math.abs(cleanDiff);
+        const formattedDiff = absDiff % 1 === 0 ? absDiff.toFixed(0) : absDiff.toFixed(1);
+        
         const changeStr =
-          changeNum > 0 ? `+₹${changeNum}` : changeNum < 0 ? `-₹${Math.abs(changeNum)}` : base.change;
-        const status = changeNum > 0 ? "up" : changeNum < 0 ? "down" : base.status;
+          cleanDiff > 0 ? `+₹${formattedDiff}` : cleanDiff < 0 ? `-₹${formattedDiff}` : "0";
+        const status = cleanDiff > 0 ? "up" : cleanDiff < 0 ? "down" : "stable";
 
         return {
           ...base,
@@ -383,7 +391,7 @@ export default function DashboardPage() {
                         <Badge
                           variant="outline"
                           className={cn(
-                            "text-[10px] font-bold rounded-full px-2 py-0.5 backdrop-blur-md",
+                            "text-[10px] font-bold rounded-full px-2 py-0.5 backdrop-blur-md whitespace-nowrap tabular-nums shrink-0",
                             crop.status === "up"
                               ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.25)]"
                               : crop.status === "down"

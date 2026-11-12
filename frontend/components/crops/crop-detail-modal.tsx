@@ -339,12 +339,12 @@ export function CropDetailModal({
                   <span className="text-[10px] text-muted-foreground block">7-Day Trajectory</span>
                   <div className="flex items-center justify-center gap-1 font-extrabold text-sm text-foreground mt-0.5">
                     {historyItem?.trend === "up" ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center">
-                        <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +₹{historyItem.change}
+                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center tabular-nums">
+                        <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +₹{Number(historyItem.change).toFixed(historyItem.change % 1 === 0 ? 0 : 1)}
                       </span>
                     ) : historyItem?.trend === "down" ? (
-                      <span className="text-rose-600 dark:text-rose-400 flex items-center">
-                        <TrendingDown className="w-3.5 h-3.5 mr-0.5" /> -₹{Math.abs(historyItem.change)}
+                      <span className="text-rose-600 dark:text-rose-400 flex items-center tabular-nums">
+                        <TrendingDown className="w-3.5 h-3.5 mr-0.5" /> -₹{Math.abs(Number(historyItem.change)).toFixed(historyItem.change % 1 === 0 ? 0 : 1)}
                       </span>
                     ) : (
                       <span className="text-amber-500">Stable</span>

@@ -184,7 +184,7 @@ export default function RateTrendsPage() {
                 <div className="text-xl font-bold truncate">{stats.topGainer.name}</div>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
-                    +{stats.topGainer.changePercent}% (+₹{stats.topGainer.change})
+                    +{stats.topGainer.changePercent}% (+₹{Number(stats.topGainer.change).toFixed(stats.topGainer.change % 1 === 0 ? 0 : 1)})
                   </Badge>
                   <span className="text-xs text-muted-foreground">Now ₹{stats.topGainer.currentPrice}/kg</span>
                 </div>
@@ -206,7 +206,7 @@ export default function RateTrendsPage() {
                 <div className="text-xl font-bold truncate">{stats.topLoser.name}</div>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge className="bg-rose-100 text-rose-800 border-rose-200">
-                    {stats.topLoser.changePercent}% (-₹{Math.abs(stats.topLoser.change)})
+                    {stats.topLoser.changePercent}% (-₹{Math.abs(Number(stats.topLoser.change)).toFixed(stats.topLoser.change % 1 === 0 ? 0 : 1)})
                   </Badge>
                   <span className="text-xs text-muted-foreground">Now ₹{stats.topLoser.currentPrice}/kg</span>
                 </div>
