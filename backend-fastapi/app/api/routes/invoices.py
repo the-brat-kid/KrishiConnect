@@ -98,6 +98,59 @@ async def create_invoice(
     await log_audit("create_invoice", current_user.id, profile.id, "invoice", invoice.id, {})
     return invoice
 
+@router.get("/public/{id}")
+async def get_public_invoice(
+    id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Public invoice endpoint for customers/buyers to view their invoice and pay via Stripe."""
+    res = await db.execute(
+        select(Invoice)
+        .where(Invoice.id == id)
+        .options(
+            selectinload(Invoice.items),
+            selectinload(Invoice.customer),
+            selectinload(Invoice.business_profile)
+        )
+    )
+    invoice = res.scalars().first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+        
+    return {
+        "id": invoice.id,
+        "invoice_number": invoice.invoice_number,
+        "date": invoice.date.isoformat() if invoice.date else None,
+        "due_date": invoice.due_date.isoformat() if invoice.due_date else None,
+        "status": invoice.status,
+        "payment_method": invoice.payment_method,
+        "subtotal": invoice.subtotal,
+        "gst_total": invoice.gst_total,
+        "grand_total": invoice.grand_total,
+        "notes": invoice.notes,
+        "terms": invoice.terms,
+        "customer": {
+            "name": invoice.customer.name if invoice.customer else "Valued Buyer",
+            "email": invoice.customer.email if invoice.customer else None,
+            "phone": invoice.customer.phone if invoice.customer else None,
+        } if invoice.customer else None,
+        "business": {
+            "name": invoice.business_profile.business_name if invoice.business_profile else "KrishiConnect Merchant",
+            "phone": invoice.business_profile.phone if invoice.business_profile else None,
+            "address": invoice.business_profile.address if invoice.business_profile else None,
+        } if invoice.business_profile else None,
+        "items": [
+            {
+                "description": item.description,
+                "quantity": item.quantity,
+                "unit_price": item.unit_price,
+                "gst_rate": item.gst_rate,
+                "total": item.quantity * item.unit_price,
+            }
+            for item in invoice.items
+        ],
+    }
+
 @router.get("/{id}", response_model=InvoiceResponse)
 async def get_invoice(
     id: str,

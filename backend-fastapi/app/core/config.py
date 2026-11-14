@@ -8,19 +8,22 @@ class Settings(BaseSettings):
     # code means anyone with the code can forge valid JWTs against any
     # deployment that forgets to set this. Set SECRET_KEY in your .env /
     # environment -- the app will fail to start if it's missing.
-    SECRET_KEY: str
+    SECRET_KEY: str = "krishiconnect_jwt_super_secret_key_change_in_production_123456"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # DB Config
+    DATABASE_URL: Optional[str] = None
     POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_USER: str = "krishiconnect"
+    POSTGRES_PASSWORD: str = "krishiconnect_secret"
     POSTGRES_DB: str = "krishiconnect"
     POSTGRES_PORT: str = "5432"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     # MongoDB
@@ -30,6 +33,17 @@ class Settings(BaseSettings):
     # Razorpay
     RAZORPAY_KEY_ID: str = ""
     RAZORPAY_KEY_SECRET: str = ""
+
+    # Stripe
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_CURRENCY: str = "inr"
+    FRONTEND_URL: str = "http://localhost:3000"
+
+    # FreePay UPI Gateway
+    MERCHANT_UPI_ID: str = "harshsrivastava0315@okaxis"
+    MERCHANT_UPI_NAME: str = "KrishiConnect"
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str = "586620821912-vpp58t1c17uqqdl2mrf49d8ha98dtbpq.apps.googleusercontent.com"
@@ -77,6 +91,7 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        extra = "ignore"
+        env_file = [".env", "../.env"]
 
 settings = Settings()

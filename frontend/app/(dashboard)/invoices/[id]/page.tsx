@@ -1,16 +1,31 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useInvoice, useUpdateInvoiceStatus } from "@/hooks/use-invoices";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { useCustomers } from "@/hooks/use-customers";
+import { useCreateStripeCheckout, useVerifyStripePayment } from "@/hooks/use-payments";
 import { Button } from "@/components/ui/button";
 import { PaymentQR } from "@/components/invoices/payment-qr";
 import { InvoiceSheet } from "@/components/invoices/invoice-sheet";
 import { formatCurrency } from "@/lib/utils";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/invoices/invoice-pdf";
-import { Download, Printer, ArrowLeft, CheckCircle2, Banknote, QrCode, Loader2 } from "lucide-react";
+import {
+  Download,
+  Printer,
+  ArrowLeft,
+  CheckCircle2,
+  Banknote,
+  QrCode,
+  Loader2,
+  CreditCard,
+  Copy,
+  Check,
+  ExternalLink,
+  AlertCircle,
+  ShieldCheck,
+} from "lucide-react";
 
 const STATUS_BADGE: Record<string, string> = {
   paid: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -22,16 +37,61 @@ const STATUS_BADGE: Record<string, string> = {
 export default function InvoiceDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const { data: invoice, isLoading } = useInvoice(id);
+  const searchParams = useSearchParams();
+  const { data: invoice, isLoading, refetch } = useInvoice(id);
   const { data: profile } = useBusinessProfile();
   const { data: customers } = useCustomers();
   const { mutateAsync: updateStatus } = useUpdateInvoiceStatus();
+  const { mutateAsync: createCheckout, isPending: isCreatingCheckout } = useCreateStripeCheckout();
+  const { mutateAsync: verifyStripe, isPending: isVerifyingStripe } = useVerifyStripePayment();
+
   const [isClient, setIsClient] = useState(false);
   const [showUpiQR, setShowUpiQR] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Handle Stripe redirect parameters (?payment=success&session_id=...)
+  useEffect(() => {
+    const paymentStatus = searchParams.get("payment");
+    const sessionId = searchParams.get("session_id");
+
+    if (paymentStatus === "success" && sessionId && invoice && invoice.status !== "paid") {
+      let isSubscribed = true;
+      (async () => {
+        try {
+          const res = await verifyStripe({
+            session_id: sessionId,
+            invoice_id: invoice.id,
+          });
+          if (!isSubscribed) return;
+          if (res.success) {
+            setVerificationMessage(res.message || "Payment verified successfully via Stripe!");
+            await refetch();
+          } else {
+            setVerificationError(res.message || "Could not confirm Stripe payment yet.");
+          }
+        } catch (err: any) {
+          if (!isSubscribed) return;
+          setVerificationError(err?.response?.data?.detail || "Error verifying Stripe payment");
+        } finally {
+          // Clean URL params so duplicate verification isn't fired on re-render
+          window.history.replaceState({}, "", `/invoices/${id}`);
+        }
+      })();
+
+      return () => {
+        isSubscribed = false;
+      };
+    } else if (paymentStatus === "cancelled") {
+      setVerificationError("Stripe checkout was cancelled. You can try again at any time.");
+      window.history.replaceState({}, "", `/invoices/${id}`);
+    }
+  }, [searchParams, invoice, id, verifyStripe, refetch]);
 
   if (isLoading) {
     return (
@@ -42,9 +102,37 @@ export default function InvoiceDetailPage() {
   }
   if (!invoice) return <div className="py-24 text-center text-muted-foreground">Invoice not found</div>;
 
-  const customer = customers?.find(c => c.id === invoice.customer_id);
+  const customer = customers?.find((c) => c.id === invoice.customer_id);
   const status = invoice.status || "unpaid";
   const badgeStyle = STATUS_BADGE[status] || STATUS_BADGE.unpaid;
+
+  const handleStripePay = async () => {
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const success_url = `${origin}/invoices/${invoice.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+      const cancel_url = `${origin}/invoices/${invoice.id}?payment=cancelled`;
+
+      const session = await createCheckout({
+        invoice_id: invoice.id,
+        success_url,
+        cancel_url,
+      });
+
+      if (session.url) {
+        window.location.href = session.url;
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.detail || "Failed to initiate Stripe checkout");
+    }
+  };
+
+  const handleCopyPaymentLink = () => {
+    if (typeof window === "undefined") return;
+    const payUrl = `${window.location.origin}/pay/${invoice.id}`;
+    navigator.clipboard.writeText(payUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
@@ -67,23 +155,67 @@ export default function InvoiceDetailPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full md:w-auto">
-            <Button variant="outline" className="rounded-lg" onClick={() => window.print()}>
-              <Printer className="mr-2 h-4 w-4" /> Print
+          <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+            <Button variant="outline" size="sm" className="rounded-lg" onClick={handleCopyPaymentLink}>
+              {copiedLink ? <Check className="mr-1.5 h-4 w-4 text-emerald-600" /> : <Copy className="mr-1.5 h-4 w-4" />}
+              {copiedLink ? "Link Copied!" : "Share Link"}
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-lg" onClick={() => window.print()}>
+              <Printer className="mr-1.5 h-4 w-4" /> Print
             </Button>
             {isClient && profile && (
               <PDFDownloadLink
                 document={<InvoicePDF invoice={invoice} businessProfile={profile} customer={customer} />}
                 fileName={`Invoice-${invoice.invoice_number}.pdf`}
               >
-                <Button className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
-                  <Download className="mr-2 h-4 w-4" /> Download PDF
+                <Button size="sm" className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Download className="mr-1.5 h-4 w-4" /> PDF
                 </Button>
               </PDFDownloadLink>
             )}
           </div>
         </div>
       </div>
+
+      {/* Stripe Auto-Verification Feedback Banner */}
+      {isVerifyingStripe && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900 animate-pulse">
+          <Loader2 className="h-5 w-5 animate-spin text-indigo-600 shrink-0" />
+          <div className="text-sm font-medium">
+            Verifying payment with Stripe... Please wait while your transaction is confirmed.
+          </div>
+        </div>
+      )}
+
+      {verificationMessage && (
+        <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+            <span className="text-sm font-semibold">{verificationMessage}</span>
+          </div>
+          <button
+            onClick={() => setVerificationMessage(null)}
+            className="text-xs text-emerald-700 hover:text-emerald-900 font-bold"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {verificationError && (
+        <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+            <span className="text-sm font-medium">{verificationError}</span>
+          </div>
+          <button
+            onClick={() => setVerificationError(null)}
+            className="text-xs text-amber-700 hover:text-amber-900 font-bold"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-3 gap-6 items-start">
         {/* Invoice sheet */}
@@ -92,12 +224,17 @@ export default function InvoiceDetailPage() {
         </div>
 
         {/* Payment panel */}
-        <div className="no-print md:sticky md:top-6">
+        <div className="no-print md:sticky md:top-6 space-y-4">
           <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/60 border border-slate-100 overflow-hidden">
             <div className="px-6 pt-6 pb-4 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-900">Payment</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-900">Payment</h2>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" /> Auto-Verify
+                </span>
+              </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                {status === "paid" ? "This invoice has been settled" : "Record how the customer pays"}
+                {status === "paid" ? "This invoice has been settled" : "Collect payment via Stripe, UPI, or Cash"}
               </p>
             </div>
 
@@ -108,49 +245,94 @@ export default function InvoiceDetailPage() {
                     <CheckCircle2 className="h-9 w-9 text-emerald-600" />
                     <div className="font-bold text-emerald-800">Payment Received</div>
                     <div className="text-xs text-emerald-600">{formatCurrency(invoice.grand_total)} settled</div>
+                    {invoice.payment_method && (
+                      <span className="text-[11px] font-medium text-emerald-700 mt-1 uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-200/60">
+                        Via {invoice.payment_method}
+                      </span>
+                    )}
                   </div>
                   <Button
                     variant="ghost"
-                    className="w-full text-muted-foreground hover:text-slate-700"
-                    onClick={() => { setShowUpiQR(false); updateStatus({ id: invoice.id, status: "unpaid" }); }}
+                    className="w-full text-muted-foreground hover:text-slate-700 text-xs"
+                    onClick={() => {
+                      setShowUpiQR(false);
+                      updateStatus({ id: invoice.id, status: "unpaid" });
+                    }}
                   >
                     Mark as Unpaid
                   </Button>
                 </div>
               ) : !showUpiQR ? (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* Stripe Online Checkout Button */}
+                  <Button
+                    className="w-full h-14 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md shadow-indigo-200 flex items-center justify-center gap-2.5 font-semibold text-sm transition-all"
+                    onClick={handleStripePay}
+                    disabled={isCreatingCheckout}
+                  >
+                    {isCreatingCheckout ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="h-5 w-5" />
+                    )}
+                    <span>Pay with Stripe (Cards / Online)</span>
+                  </Button>
+
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
                     <Button
-                      className="h-16 flex-col gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
-                      onClick={() => updateStatus({ id: invoice.id, status: "paid" })}
+                      variant="outline"
+                      className="h-14 flex-col gap-1 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
+                      onClick={() => setShowUpiQR(true)}
                     >
-                      <Banknote className="h-5 w-5" />
-                      <span className="text-xs font-semibold">Cash</span>
+                      <QrCode className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs font-semibold">UPI QR</span>
                     </Button>
                     <Button
                       variant="outline"
-                      className="h-16 flex-col gap-1.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
-                      onClick={() => setShowUpiQR(true)}
+                      className="h-14 flex-col gap-1 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
+                      onClick={() => updateStatus({ id: invoice.id, status: "paid" })}
                     >
-                      <QrCode className="h-5 w-5" />
-                      <span className="text-xs font-semibold">UPI</span>
+                      <Banknote className="h-4 w-4 text-emerald-600" />
+                      <span className="text-xs font-semibold">Cash (Paid)</span>
                     </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-muted-foreground hover:text-slate-700"
-                    onClick={() => updateStatus({ id: invoice.id, status: "unpaid" })}
-                  >
-                    Mark as Unpaid
-                  </Button>
+
+                  <div className="pt-3 border-t border-slate-100 space-y-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full text-xs font-medium rounded-lg text-slate-700 flex items-center justify-center gap-1.5"
+                      onClick={handleCopyPaymentLink}
+                    >
+                      {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedLink ? "Link Copied to Clipboard!" : "Copy Customer Payment Link"}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs text-muted-foreground hover:text-slate-700"
+                      onClick={() => updateStatus({ id: invoice.id, status: "unpaid" })}
+                    >
+                      Keep as Unpaid
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
-                    <PaymentQR amount={invoice.grand_total} invoiceNumber={invoice.invoice_number} />
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-2">
+                    <PaymentQR
+                      amount={invoice.grand_total}
+                      invoiceNumber={invoice.invoice_number}
+                      invoiceId={invoice.id}
+                      onPaymentSuccess={() => {
+                        refetch();
+                        setVerificationMessage("Payment verified automatically in real-time via UPI!");
+                      }}
+                    />
                   </div>
                   <p className="text-xs text-center text-muted-foreground">
-                    Ask the customer to scan and pay. Once payment is received, confirm below.
+                    Ask customer to scan with any UPI app (GPay, PhonePe, Paytm).
                   </p>
                   <div className="flex gap-2">
                     <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setShowUpiQR(false)}>
@@ -160,12 +342,23 @@ export default function InvoiceDetailPage() {
                       className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
                       onClick={() => updateStatus({ id: invoice.id, status: "paid" })}
                     >
-                      OK, Payment Done
+                      Confirm Paid
                     </Button>
                   </div>
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Secure Payment Assurance Box */}
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-slate-600 space-y-2">
+            <div className="flex items-center gap-2 font-semibold text-xs text-slate-800">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <span>Instant Automatic Settlement</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-slate-500">
+              When paid through Stripe, payment is automatically verified in real-time, the invoice is stamped as Paid, and buyer receives an instant digital receipt.
+            </p>
           </div>
         </div>
       </div>

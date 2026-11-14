@@ -41,3 +41,4 @@ class Invoice(Base):
 
     items: Mapped[list["InvoiceItem"]] = relationship("InvoiceItem", back_populates="invoice", cascade="all, delete-orphan")
     customer: Mapped["Customer"] = relationship("Customer")
+    business_profile: Mapped["BusinessProfile"] = relationship("BusinessProfile")

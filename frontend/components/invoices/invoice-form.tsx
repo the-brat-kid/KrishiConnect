@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Trash2, QrCode, Banknote, Clock, Info, CheckCircle2, UserCheck, Edit3 } from "lucide-react";
+import { Plus, Trash2, QrCode, Banknote, Clock, Info, CheckCircle2, UserCheck, Edit3, CreditCard } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { PaymentQR } from "@/components/invoices/payment-qr";
 
@@ -184,6 +184,7 @@ export function InvoiceForm() {
       if (paymentMethod === "cash") finalStatus = "paid";
       if (paymentMethod === "upi") finalStatus = upiPaymentConfirmed ? "paid" : "unpaid";
       if (paymentMethod === "postpaid") finalStatus = "unpaid";
+      if (paymentMethod === "stripe") finalStatus = "unpaid";
 
       const invoiceData = {
         customer_id: resolvedCustomerId,
@@ -196,9 +197,13 @@ export function InvoiceForm() {
         status: finalStatus
       };
 
-      await createInvoice(invoiceData);
+      const created = await createInvoice(invoiceData);
       toast({ title: "Success", description: "Invoice created successfully" });
-      router.push('/invoices');
+      if (paymentMethod === "stripe" && created?.id) {
+        router.push(`/invoices/${created.id}`);
+      } else {
+        router.push('/invoices');
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -387,34 +392,59 @@ export function InvoiceForm() {
       {/* STEP 2: PAYMENT OPTIONS */}
       {step === 2 && (
         <div className="space-y-8 animate-in fade-in duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button
+              type="button"
+              onClick={() => handlePaymentMethodChange("stripe")}
+              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'stripe' ? 'border-indigo-600 bg-indigo-50/70 text-indigo-700 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-indigo-400'}`}
+            >
+              <CreditCard className="w-8 h-8 mb-2 text-indigo-600" />
+              <span className="font-semibold text-base">Stripe Online</span>
+              <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Cards / Auto-Verify</span>
+            </button>
+
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("upi")}
-              className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'upi' ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'upi' ? 'border-primary bg-primary/10 text-primary font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-primary/50'}`}
             >
-              <QrCode className="w-10 h-10 mb-3" />
-              <span className="font-semibold text-lg">UPI Dynamic</span>
+              <QrCode className="w-8 h-8 mb-2" />
+              <span className="font-semibold text-base">UPI Dynamic</span>
+              <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Instant QR Scan</span>
             </button>
 
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("cash")}
-              className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'cash' ? 'border-green-500 bg-green-500/10 text-green-600' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
+              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'cash' ? 'border-green-500 bg-green-500/10 text-green-600 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-green-500/50'}`}
             >
-              <Banknote className="w-10 h-10 mb-3" />
-              <span className="font-semibold text-lg">Cash (Paid)</span>
+              <Banknote className="w-8 h-8 mb-2" />
+              <span className="font-semibold text-base">Cash (Paid)</span>
+              <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Settled in Hand</span>
             </button>
 
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("postpaid")}
-              className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'postpaid' ? 'border-orange-500 bg-orange-500/10 text-orange-600' : 'border-border text-muted-foreground hover:border-orange-500/50'}`}
+              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'postpaid' ? 'border-orange-500 bg-orange-500/10 text-orange-600 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-orange-500/50'}`}
             >
-              <Clock className="w-10 h-10 mb-3" />
-              <span className="font-semibold text-lg">Postpaid (Unpaid)</span>
+              <Clock className="w-8 h-8 mb-2" />
+              <span className="font-semibold text-base">Postpaid</span>
+              <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Aging Ledger</span>
             </button>
           </div>
+
+          {paymentMethod === 'stripe' && (
+            <div className="p-6 rounded-xl bg-gradient-to-br from-indigo-50/70 to-violet-50/70 border border-indigo-200/80 flex flex-col items-center justify-center gap-3 text-center">
+              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <h4 className="font-bold text-indigo-950 text-base">Instant Stripe Payment & Automatic Verification</h4>
+              <p className="text-xs text-indigo-700 max-w-lg leading-relaxed">
+                A secure Stripe checkout session will be generated. The buyer can settle via Credit/Debit Cards, Apple Pay, Google Pay, or Netbanking. Once paid, the payment is automatically verified in real-time.
+              </p>
+            </div>
+          )}
 
           {paymentMethod === 'upi' && (
             <div className="p-6 rounded-xl bg-muted/50 border flex flex-col items-center justify-center gap-4">
@@ -474,9 +504,11 @@ export function InvoiceForm() {
             <Button type="submit" size="lg" className="text-md">
               {paymentMethod === 'postpaid'
                 ? 'Finalize Unpaid Invoice'
-                : paymentMethod === 'upi'
-                  ? (upiPaymentConfirmed ? 'Complete & Mark as Paid' : 'Save as Unpaid')
-                  : 'Complete & Mark as Paid'}
+                : paymentMethod === 'stripe'
+                  ? 'Create & Open Stripe Checkout'
+                  : paymentMethod === 'upi'
+                    ? (upiPaymentConfirmed ? 'Complete & Mark as Paid' : 'Save as Unpaid')
+                    : 'Complete & Mark as Paid'}
             </Button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
@@ -75,3 +75,8 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "krishiconnect-api"}
+
+@app.post("/webhook/payment")
+async def root_webhook_payment(req: payments.UpiWebhookRequest, db = Depends(payments.get_db)):
+    """Direct FreePay GpayReader Android Listener compatibility endpoint."""
+    return await payments.upi_payment_webhook(req, db)
