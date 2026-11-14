@@ -52,12 +52,21 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  const backendUrl =
+    process.env.BACKEND_URL ||
+    process.env.BACKEND_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "";
   return NextResponse.json({
     status: "active",
     message: "KrishiConnect FreePay UPI Webhook endpoint is live.",
+    backend_url: backendUrl,
     endpoints: {
       post_webhook: "/api/v1/payments/upi/webhook",
       post_direct: "/webhook/payment",
+    },
+  });
+}
     },
   });
 }
