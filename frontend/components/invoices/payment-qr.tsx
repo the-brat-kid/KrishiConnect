@@ -62,7 +62,7 @@ export function PaymentQR({
       }
 
       // Fallback for draft/new invoices without an ID yet
-      const vpa = profile?.upi_id || "harshsrivastava0315@okaxis";
+      const vpa = profile?.upi_id || "harshsrivastava0315@pingpay";
       const name = profile?.business_name || "KrishiConnect";
       const fallbackTn = `Invoice-${invoiceNumber}`;
       const url = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(fallbackTn)}`;

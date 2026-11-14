@@ -363,7 +363,7 @@ async def create_upi_qr_order(
     upi_vpa = (
         (invoice.business_profile.upi_id if invoice.business_profile and invoice.business_profile.upi_id else None)
         or settings.MERCHANT_UPI_ID
-        or "harshsrivastava0315@okaxis"
+        or "harshsrivastava0315@pingpay"
     )
     upi_name = (
         (invoice.business_profile.business_name if invoice.business_profile and invoice.business_profile.business_name else None)

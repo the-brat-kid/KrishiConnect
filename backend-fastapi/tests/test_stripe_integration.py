@@ -204,7 +204,7 @@ async def run_tests():
             "tn": upi_tn,
             "note": f"Payment received for {upi_tn}",
             "amount": 15750.0,
-            "timestamp": int(datetime.utcnow().timestamp() * 1000),
+            "timestamp": int(datetime.now().timestamp() * 1000),
         }
         res_upi_wh = await client.post("/webhook/payment", json=gpay_webhook_payload)
         assert res_upi_wh.status_code == 200

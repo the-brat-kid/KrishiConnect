@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
 
     # FreePay UPI Gateway
-    MERCHANT_UPI_ID: str = "harshsrivastava0315@okaxis"
+    MERCHANT_UPI_ID: str = "harshsrivastava0315@pingpay"
     MERCHANT_UPI_NAME: str = "KrishiConnect"
 
     # Google OAuth
