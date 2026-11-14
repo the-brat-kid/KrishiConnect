@@ -439,21 +439,41 @@ async def get_upi_transaction_status(
 
 @router.post("/upi/webhook")
 async def upi_payment_webhook(
-    req: UpiWebhookRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """
     FreePay Webhook Endpoint:
-    Receives notification payloads from the Android GPay/PhonePe Listener app (GpayReader).
+    Receives notification payloads from Android Listener (MacroDroid, GpayReader, Tasker, NotifyHook).
     Extracts the unique transaction note (tn), updates the transaction, and marks invoice as Paid.
+    Supports JSON, form-data, or raw text payloads seamlessly.
     """
-    resolved_tn = req.tn
-    if not resolved_tn and req.note:
-        match = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+)", req.note)
+    resolved_tn = None
+    raw_body_text = ""
+    try:
+        body_bytes = await request.body()
+        raw_body_text = body_bytes.decode("utf-8", errors="ignore")
+    except Exception:
+        pass
+
+    # 1. Try parsing JSON
+    try:
+        data = await request.json()
+        if isinstance(data, dict):
+            resolved_tn = data.get("tn")
+            if not resolved_tn and data.get("note"):
+                match = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+)", str(data.get("note")))
+                resolved_tn = match.group(0) if match else None
+    except Exception:
+        pass
+
+    # 2. Fallback: Search directly in raw body text
+    if not resolved_tn and raw_body_text:
+        match = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+)", raw_body_text)
         resolved_tn = match.group(0) if match else None
 
     if not resolved_tn:
-        return {"status": "ignored", "message": "No matching transaction reference found in note"}
+        return {"status": "ignored", "message": "No matching transaction reference found in payload"}
 
     res = await db.execute(select(Payment).where(Payment.upi_tn == resolved_tn))
     payment = res.scalars().first()

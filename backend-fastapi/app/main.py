@@ -77,6 +77,6 @@ def health():
     return {"status": "ok", "service": "krishiconnect-api"}
 
 @app.post("/webhook/payment")
-async def root_webhook_payment(req: payments.UpiWebhookRequest, db = Depends(payments.get_db)):
+async def root_webhook_payment(request: Request, db = Depends(payments.get_db)):
     """Direct FreePay GpayReader Android Listener compatibility endpoint."""
-    return await payments.upi_payment_webhook(req, db)
+    return await payments.upi_payment_webhook(request, db)
