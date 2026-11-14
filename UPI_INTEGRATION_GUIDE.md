@@ -4,72 +4,69 @@ Yeh guide safe rakhi gayi hai taaki aap jab chahein UPI auto-verification setup 
 
 ---
 
-## 🔗 Live Webhook Endpoints
-Aapke domain `https://www.phantomstack.me` par dono endpoints active hain:
+## ⚡ Abhi Auto-Verification Kyu Nahi Ho Raha Tha? (Root Cause Solved)
 
-1. **Standard Endpoint:**
-   ```text
-   https://www.phantomstack.me/api/v1/payments/upi/webhook
-   ```
-2. **Direct FreePay Compatibility Endpoint:**
-   ```text
-   https://www.phantomstack.me/webhook/payment
-   ```
+Do main reasons the jiske wajah se verify nahi ho raha tha:
 
-*Supported HTTP Method:* `POST`  
-*Supported Formats:* JSON, Form-data, ya Raw text (Backend regex se automatically transaction reference identify kar leta hai).
+1. **Vercel vs Local Backend:**
+   * `https://www.phantomstack.me` sirf **Next.js frontend** hai jo Vercel par host hai.
+   * Aapka database aur Python FastAPI backend aapke laptop par chal raha hai.
+   * Phone se jab NotifyHook `phantomstack.me` par request bhej raha tha, Vercel `404 Not Found` de raha tha kyunki Vercel ke paas backend nahi tha.
+
+2. **Google Pay Personal Notification Text:**
+   * Google Pay (Personal app) ke notification me `krishi_inv_...` transaction note print nahi hota. GPay notification me sirf **Amount** (jaise `Received ₹500.00 from Harsh`) aata hai.
+   * Humne backend ko **intelligent amount-matching** se upgrade kar diya hai! Ab agar notification me sirf amount (`₹500` ya `500.00`) bhi aayega, backend recent pending invoice se match karke instantly **PAID** mark kar dega!
 
 ---
 
-## 📲 Saved Android Apps & Setup
+## 🔗 Live Active Tunnel URL (Aapke Laptop Se Seedha Connected)
 
-### App Option 1: NotifyHook (Sabse Aasan - Recommended)
-* **Download:** Google Play Store se **"NotifyHook: Forward to Webhook"**
-* **Setup (1 Minute):**
-  1. Open karein aur **Notification Access** Allow karein.
-  2. `+` Rule banayein.
-  3. **Select Apps:** Google Pay aur PhonePe tick karein.
-  4. **Webhook URL:** `https://www.phantomstack.me/api/v1/payments/upi/webhook`
-  5. **Save** dabayein. Done!
+Aapka FastAPI backend aur Cloudflare tunnel live active hai:
 
----
+### **Live Webhook URL for NotifyHook / MacroDroid:**
+```text
+https://melissa-considerations-pencil-ever.trycloudflare.com/api/v1/payments/upi/webhook
+```
 
-### App Option 2: MacroDroid
-* **Download:** Google Play Store se **"MacroDroid"**
-* **Setup:**
-  1. **Trigger:** Device Events ➔ Notification ➔ Notification Received ➔ Select *Google Pay* / *PhonePe*.
-  2. **Action:** Web Interactions ➔ HTTP Request
-     * Method: `POST`
-     * URL: `https://www.phantomstack.me/api/v1/payments/upi/webhook`
-     * Content Type: `application/json`
-     * Body Content:
-       ```json
-       {
-         "note": "[notification]",
-         "app": "com.google.android.apps.nbu.paisa.user"
-       }
-       ```
-  3. Save & ON.
+*(Yeh URL public HTTPS hai aur kisi bhi mobile network / 4G / 5G / WiFi se turant accessible hai!)*
 
 ---
 
-### App Option 3: Official GpayReader Open-Source App
-* **GitHub Repository:** [https://github.com/InventiveGit-12/GpayReader](https://github.com/InventiveGit-12/GpayReader)
-* **Build Command (EAS Cloud Build):**
-  ```bash
-  git clone https://github.com/InventiveGit-12/GpayReader.git
-  cd GpayReader
-  # Update BACKEND_URL in index.js to https://www.phantomstack.me
-  eas build -p android --profile preview
-  ```
+## 📲 Setup in NotifyHook (1 Minute)
+
+1. **NotifyHook** app open karein.
+2. Rule add karein:
+   * **App:** Google Pay (`com.google.android.apps.nbu.paisa.user`) aur PhonePe
+   * **Webhook URL:**
+     ```text
+     https://melissa-considerations-pencil-ever.trycloudflare.com/api/v1/payments/upi/webhook
+     ```
+   * **Method:** `POST`
+   * **Content Type:** `application/json`
+   * **Body / Payload:**
+     ```json
+     {
+       "note": "{notification_text}",
+       "app": "com.google.android.apps.nbu.paisa.user"
+     }
+     ```
+3. Save karein!
 
 ---
 
-## 💻 Web App Features (No App Needed for Fallback)
-Agar phone app active na ho ya kisi customer ke phone par direct test karna ho:
-* **"Maine Payment Kar Diya (Instant Confirm)"**: QR code ke neeche ek button diya hai jisse 1-click me invoice instantly Paid ho jati hai.
-* **12-Digit UTR Entry**: Customer ya seller chahein toh bank UTR / Reference ID bhi enter kar sakte hain.
+## 🚀 How to Test in 3 Steps:
+
+1. Apne laptop me browser par invoice open karein (jaise invoice total ₹500 hai).
+2. Apne mobile se QR code scan karke ₹500 send karein (harshsrivastava0315@pingpay par).
+3. Jaise hi aapke mobile par notification aayega (`Received ₹500.00`), NotifyHook webhook fire karega:
+   * Backend amount match karega (`₹500.00`).
+   * Invoice status instantly `paid` ho jayega.
+   * Laptop screen par QR code gayab ho kar **Green Success Tick 🎉** aur **"Payment Verified via UPI!"** show hoga!
+
+---
+
+## 💻 Backup Fallback Options (Always Available):
+
+* **"Maine Payment Kar Diya (Instant Confirm)"**: QR code ke neeche button par click karke bhi buyer/seller 1 second me payment confirm kar sakta hai.
+* **12-Digit UTR Entry**: PhonePe / GPay ka 12-digit UPI Ref/UTR number dalne ka option bhi diya hua hai.
 * **Settings Dynamic UPI**: Settings (`/settings`) me jaakar aap kabhi bhi apni UPI ID (`harshsrivastava0315@pingpay`) badal sakte hain.
-
----
-*Created on 15 Nov 2026 for KrishiConnect Platform.*
