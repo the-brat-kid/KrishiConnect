@@ -211,15 +211,15 @@ export function InvoiceForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-8 max-w-5xl mx-auto">
       {/* Progress Tracker */}
-      <div className="flex items-center justify-between border-b pb-4 mb-6">
-        <div className={`flex items-center gap-3 ${step >= 1 ? 'opacity-100' : 'opacity-50'}`}>
-          <span className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-bold ${step === 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>1</span>
-          <span className="text-lg font-semibold">Invoice Details</span>
+      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+        <div className={`flex items-center gap-3 ${step >= 1 ? 'opacity-100' : 'opacity-40'}`}>
+          <span className={`w-8 h-8 flex items-center justify-center rounded-xl text-sm font-bold ${step === 1 ? 'btn-liquid-glass-primary shadow-[0_0_12px_rgba(20,122,77,0.4)]' : 'btn-liquid-glass text-muted-foreground'}`}>1</span>
+          <span className="text-base font-bold text-foreground">Invoice Details</span>
         </div>
-        <div className="flex-1 h-px bg-border mx-6"></div>
+        <div className="flex-1 h-px bg-white/10 mx-6"></div>
         <div className={`flex items-center gap-3 ${step >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-          <span className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-bold ${step === 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>2</span>
-          <span className="text-lg font-semibold">Payment Option</span>
+          <span className={`w-8 h-8 flex items-center justify-center rounded-xl text-sm font-bold ${step === 2 ? 'btn-liquid-glass-primary shadow-[0_0_12px_rgba(20,122,77,0.4)]' : 'btn-liquid-glass text-muted-foreground'}`}>2</span>
+          <span className="text-base font-bold text-foreground">Payment Method</span>
         </div>
       </div>
 
@@ -391,9 +391,9 @@ export function InvoiceForm() {
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("cash")}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'cash' ? 'border-emerald-600 bg-emerald-50/70 text-emerald-700 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-emerald-500/50'}`}
+              className={`liquid-glass flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-200 cursor-pointer ${paymentMethod === 'cash' ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]' : 'border-white/10 text-muted-foreground hover:border-emerald-500/50 hover:text-foreground'}`}
             >
-              <Banknote className="w-8 h-8 mb-2 text-emerald-600" />
+              <Banknote className="w-8 h-8 mb-2 text-emerald-400" />
               <span className="font-semibold text-base">Cash</span>
               <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Paid in Hand</span>
             </button>
@@ -401,9 +401,9 @@ export function InvoiceForm() {
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("upi")}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'upi' ? 'border-emerald-600 bg-emerald-50/70 text-emerald-700 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-emerald-500/50'}`}
+              className={`liquid-glass flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-200 cursor-pointer ${paymentMethod === 'upi' ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]' : 'border-white/10 text-muted-foreground hover:border-emerald-500/50 hover:text-foreground'}`}
             >
-              <QrCode className="w-8 h-8 mb-2 text-emerald-600" />
+              <QrCode className="w-8 h-8 mb-2 text-emerald-400" />
               <span className="font-semibold text-base">UPI</span>
               <span className="text-[11px] font-normal text-muted-foreground mt-0.5">GPay / PhonePe / QR</span>
             </button>
@@ -411,36 +411,36 @@ export function InvoiceForm() {
             <button
               type="button"
               onClick={() => handlePaymentMethodChange("postpaid")}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200 ${paymentMethod === 'postpaid' ? 'border-amber-600 bg-amber-50/70 text-amber-700 font-bold shadow-sm' : 'border-border text-muted-foreground hover:border-amber-500/50'}`}
+              className={`liquid-glass flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-200 cursor-pointer ${paymentMethod === 'postpaid' ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-bold shadow-[0_0_20px_rgba(245,158,11,0.3)] scale-[1.02]' : 'border-white/10 text-muted-foreground hover:border-amber-500/50 hover:text-foreground'}`}
             >
-              <Clock className="w-8 h-8 mb-2 text-amber-600" />
+              <Clock className="w-8 h-8 mb-2 text-amber-400" />
               <span className="font-semibold text-base">Pay Later</span>
               <span className="text-[11px] font-normal text-muted-foreground mt-0.5">Pay after delivery / Ledger</span>
             </button>
           </div>
 
           {paymentMethod === 'upi' && (
-            <div className="p-6 rounded-xl bg-muted/50 border flex flex-col items-center justify-center gap-4">
+            <div className="liquid-glass p-6 rounded-3xl border border-white/15 bg-black/40 backdrop-blur-2xl flex flex-col items-center justify-center gap-4 shadow-xl">
               <PaymentQR amount={grandTotal} invoiceNumber="DRAFT" />
 
               {!upiPaymentConfirmed ? (
-                <div className="w-full pt-4 border-t flex flex-col items-center gap-3">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Invoice will stay <strong className="text-orange-600">Unpaid</strong> until you confirm the payment has been received.
+                <div className="w-full pt-4 border-t border-white/10 flex flex-col items-center gap-3">
+                  <p className="text-xs text-muted-foreground text-center">
+                    Invoice will stay <strong className="text-amber-400">Unpaid</strong> until you confirm payment has been received.
                   </p>
-                  <Button
+                  <button
                     type="button"
                     onClick={() => setUpiPaymentConfirmed(true)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="btn-liquid-glass-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white shadow-[0_0_15px_rgba(20,122,77,0.4)]"
                   >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Payment Received
-                  </Button>
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Payment Received</span>
+                  </button>
                 </div>
               ) : (
-                <div className="w-full pt-4 border-t flex items-center justify-center gap-2 text-green-600 font-semibold">
-                  <CheckCircle2 className="w-5 h-5" />
-                  Payment confirmed: invoice will be marked as Paid
+                <div className="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Payment confirmed: invoice will be stamped as Paid</span>
                 </div>
               )}
             </div>
@@ -448,39 +448,46 @@ export function InvoiceForm() {
 
           {paymentMethod === 'postpaid' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-start gap-3 text-orange-700">
-                <Info className="w-5 h-5 mt-0.5" />
-                <p className="text-sm font-medium leading-relaxed">
-                  This invoice will be marked as <strong className="font-bold underline">Unpaid</strong> and added to your Receivables aging ledger. You can log the payment later.
+              <div className="liquid-glass p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-amber-300 text-xs">
+                <Info className="w-5 h-5 mt-0.5 text-amber-400 shrink-0" />
+                <p className="leading-relaxed">
+                  This invoice will be marked as <strong className="font-bold underline text-white">Unpaid</strong> and added to your Receivables ledger balance. You can log the payment whenever received.
                 </p>
               </div>
-              <div className="space-y-2 max-w-xs">
-                <Label>Due Date</Label>
-                <Input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} />
+              <div className="space-y-1.5 max-w-xs">
+                <Label className="text-xs font-semibold text-muted-foreground">Due Date</Label>
+                <Input type="date" required value={dueDate} onChange={e => setDueDate(e.target.value)} className="bg-black/40 border border-white/15 rounded-xl" />
               </div>
             </div>
           )}
 
           {paymentMethod === 'cash' && (
-            <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-start gap-3 text-green-700">
-              <CheckCircle2 className="w-5 h-5 mt-0.5" />
-              <p className="text-sm font-medium leading-relaxed">
-                Funds assumed received in hand. Invoice will be securely marked as <strong className="font-bold">Paid</strong> in your ledger.
+            <div className="liquid-glass p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3 text-emerald-300 text-xs">
+              <CheckCircle2 className="w-5 h-5 mt-0.5 text-emerald-400 shrink-0" />
+              <p className="leading-relaxed">
+                Funds assumed received in hand. Invoice will be securely stamped as <strong className="font-bold text-white">Paid</strong> in your customer ledger.
               </p>
             </div>
           )}
 
-          <div className="flex justify-between items-center pt-6 border-t mt-8">
-            <Button type="button" variant="outline" onClick={() => setStep(1)}>
+          <div className="flex justify-between items-center pt-6 border-t border-white/10 mt-8">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="btn-liquid-glass px-4 py-2.5 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all"
+            >
               Back to Details
-            </Button>
-            <Button type="submit" size="lg" className="text-md">
+            </button>
+            <button
+              type="submit"
+              className="btn-liquid-glass-primary px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-[0_0_20px_rgba(20,122,77,0.4)] transition-all cursor-pointer"
+            >
               {paymentMethod === 'postpaid'
                 ? 'Save as Pay Later (Unpaid)'
                 : paymentMethod === 'upi'
                   ? (upiPaymentConfirmed ? 'Complete & Mark as Paid (UPI)' : 'Save as Unpaid (UPI)')
                   : 'Complete & Mark as Paid (Cash)'}
-            </Button>
+            </button>
           </div>
         </div>
       )}

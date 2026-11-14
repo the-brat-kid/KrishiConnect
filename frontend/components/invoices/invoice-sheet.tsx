@@ -10,10 +10,10 @@ interface InvoiceSheetProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  paid: "bg-emerald-100/70 text-emerald-700",
-  unpaid: "bg-amber-100/70 text-amber-700",
-  partial: "bg-emerald-100/70 text-emerald-700",
-  overdue: "bg-rose-100/70 text-rose-700",
+  paid: "badge-liquid-glass-emerald",
+  unpaid: "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30",
+  partial: "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+  overdue: "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30",
 };
 
 export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceSheetProps) {
@@ -24,56 +24,54 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
   const discountAmount =
     invoice.discount_type === "percent" ? invoice.subtotal * (discountValue / 100) : discountValue;
 
-  // Assume a single GST rate for the CGST/SGST split display; falls back
-  // gracefully when items have mixed rates by using the blended rate.
   const blendedGstRate = invoice.subtotal > 0 ? (invoice.gst_total / invoice.subtotal) * 100 : 0;
   const halfGst = invoice.gst_total / 2;
 
   return (
     <main
-      className="invoice-sheet bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8 sm:p-12 relative overflow-hidden"
+      className="invoice-sheet liquid-glass bg-card/95 dark:bg-[#0c0e12]/90 rounded-3xl shadow-2xl border border-white/20 dark:border-white/10 p-6 sm:p-10 relative overflow-hidden backdrop-blur-2xl text-foreground print:bg-white print:text-black print:border-none print:shadow-none"
       data-purpose="invoice-container"
     >
       <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500" />
 
       {/* Header */}
-      <section className="border-b border-slate-100 pb-8 pt-2">
+      <section className="border-b border-border/60 pb-8 pt-2">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-13 h-13 p-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
+            <div className="w-14 h-14 p-3 bg-emerald-500/15 dark:bg-emerald-500/20 rounded-2xl border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.25)]">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
               </svg>
             </div>
             <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
                   {businessProfile.business_name}
                 </h1>
-                <span className={`${statusStyle} text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide`}>
+                <span className={statusStyle}>
                   {status}
                 </span>
               </div>
               {businessProfile.business_type && (
-                <p className="text-xs text-slate-500 mt-1">{businessProfile.business_type}</p>
+                <p className="text-xs text-muted-foreground mt-1">{businessProfile.business_type}</p>
               )}
-              <p className="text-xs text-slate-400 font-mono-num mt-0.5">Retail Tax Invoice</p>
+              <p className="text-xs text-emerald-400 font-mono mt-0.5">Retail Tax Invoice</p>
             </div>
           </div>
 
-          <div className="sm:text-right bg-slate-50/80 sm:bg-transparent p-4 sm:p-0 rounded-xl w-full sm:w-auto border sm:border-0 border-slate-100">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Invoice Number</span>
-            <span className="text-xl font-mono-num font-bold text-slate-900 tracking-tight">
-              {invoice.invoice_number}
+          <div className="sm:text-right bg-white/5 dark:bg-black/30 sm:bg-transparent p-4 sm:p-0 rounded-2xl w-full sm:w-auto border sm:border-0 border-white/10">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Invoice Number</span>
+            <span className="text-xl font-mono font-bold text-foreground tracking-tight">
+              #{invoice.invoice_number}
             </span>
             <div className="mt-2 space-y-1 text-xs">
-              <div className="flex justify-between sm:justify-end gap-3 text-slate-600">
-                <span className="text-slate-400">Issue Date:</span>
-                <span className="font-medium font-mono-num text-slate-800">{formatDate(invoice.date)}</span>
+              <div className="flex justify-between sm:justify-end gap-3 text-muted-foreground">
+                <span>Issue Date:</span>
+                <span className="font-medium font-mono text-foreground">{formatDate(invoice.date)}</span>
               </div>
-              <div className="flex justify-between sm:justify-end gap-3 text-slate-600">
-                <span className="text-slate-400">Due Date:</span>
-                <span className="font-medium font-mono-num text-slate-800">{formatDate(invoice.due_date)}</span>
+              <div className="flex justify-between sm:justify-end gap-3 text-muted-foreground">
+                <span>Due Date:</span>
+                <span className="font-medium font-mono text-foreground">{formatDate(invoice.due_date)}</span>
               </div>
             </div>
           </div>
@@ -81,37 +79,37 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
       </section>
 
       {/* Parties */}
-      <section className="py-8 border-b border-slate-100">
+      <section className="py-8 border-b border-border/60">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
               Billed By (Merchant)
             </span>
-            <h3 className="text-base font-bold text-slate-900">{businessProfile.business_name}</h3>
-            <div className="text-xs text-slate-600 space-y-1">
+            <h3 className="text-base font-bold text-foreground">{businessProfile.business_name}</h3>
+            <div className="text-xs text-muted-foreground space-y-1">
               <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-slate-700">GSTIN:</span>
-                <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono-num text-[11px]">
+                <span className="font-semibold text-foreground">GSTIN:</span>
+                <span className="bg-white/10 text-foreground px-2 py-0.5 rounded-lg font-mono text-[11px] border border-white/10">
                   {businessProfile.gst_number || "N/A (Unregistered)"}
                 </span>
               </p>
-              {businessProfile.address && <p className="text-slate-500">{businessProfile.address}</p>}
+              {businessProfile.address && <p>{businessProfile.address}</p>}
             </div>
           </div>
 
-          <div className="space-y-2 sm:pl-6 sm:border-l sm:border-slate-100">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+          <div className="space-y-2 sm:pl-6 sm:border-l sm:border-border/60">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
               Billed To (Customer)
             </span>
-            <h3 className="text-base font-bold text-slate-900">{customer?.name || "Customer Name"}</h3>
-            <div className="text-xs text-slate-600 space-y-1">
+            <h3 className="text-base font-bold text-foreground">{customer?.name || "Customer Name"}</h3>
+            <div className="text-xs text-muted-foreground space-y-1">
               <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-slate-700">GSTIN:</span>
-                <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono-num text-[11px]">
+                <span className="font-semibold text-foreground">GSTIN:</span>
+                <span className="bg-white/10 text-foreground px-2 py-0.5 rounded-lg font-mono text-[11px] border border-white/10">
                   {customer?.gst_number || "N/A"}
                 </span>
               </p>
-              {customer?.address && <p className="text-slate-500">{customer.address}</p>}
+              {customer?.address && <p>{customer.address}</p>}
             </div>
           </div>
         </div>
@@ -122,7 +120,7 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+              <tr className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60">
                 <th className="pb-3.5 pl-1 w-12 text-center">#</th>
                 <th className="pb-3.5 pr-4 font-semibold">Description</th>
                 <th className="pb-3.5 px-4 text-center font-semibold w-24">Qty</th>
@@ -131,29 +129,29 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
                 <th className="pb-3.5 pr-1 text-right font-semibold w-32">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border/40">
               {invoice.items.map((item, i) => {
                 const total = item.quantity * item.unit_price * (1 + item.gst_rate / 100);
                 return (
-                  <tr key={i} className="group hover:bg-slate-50/60 transition">
-                    <td className="py-4 pl-1 text-xs text-slate-400 font-mono-num text-center">
+                  <tr key={i} className="group hover:bg-white/5 transition">
+                    <td className="py-4 pl-1 text-xs text-muted-foreground font-mono text-center">
                       {String(i + 1).padStart(2, "0")}
                     </td>
                     <td className="py-4 pr-4">
-                      <div className="font-semibold text-slate-900">{item.description}</div>
+                      <div className="font-semibold text-foreground">{item.description}</div>
                     </td>
-                    <td className="py-4 px-4 text-center font-mono-num text-slate-700 font-medium">
+                    <td className="py-4 px-4 text-center font-mono text-foreground font-medium">
                       {item.quantity}
                     </td>
-                    <td className="py-4 px-4 text-right font-mono-num text-slate-700">
+                    <td className="py-4 px-4 text-right font-mono text-foreground">
                       {formatCurrency(item.unit_price)}
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <span className="inline-block text-[11px] font-mono-num bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium">
+                      <span className="inline-block text-[11px] font-mono bg-white/10 text-foreground px-2 py-0.5 rounded-lg font-medium border border-white/10">
                         {item.gst_rate}%
                       </span>
                     </td>
-                    <td className="py-4 pr-1 text-right font-mono-num font-bold text-slate-900">
+                    <td className="py-4 pr-1 text-right font-mono font-bold text-foreground">
                       {formatCurrency(total)}
                     </td>
                   </tr>
@@ -165,39 +163,39 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
       </section>
 
       {/* Totals + payment info */}
-      <section className="border-t border-slate-200 pt-6">
+      <section className="border-t border-border/60 pt-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           <div className="md:col-span-6 space-y-4">
-            <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-100 text-xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-200/60 pb-2.5">
-                <span className="font-bold text-slate-700 uppercase tracking-wide">Payment Details</span>
+            <div className="bg-white/5 dark:bg-black/30 rounded-2xl p-5 border border-white/10 text-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                <span className="font-bold text-foreground uppercase tracking-wide">Payment Details</span>
                 {status === "paid" && (
-                  <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[10px]">
+                  <span className="text-emerald-400 font-semibold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30 text-[10px]">
                     VERIFIED
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-2 text-slate-600">
+              <div className="grid grid-cols-2 gap-2 text-muted-foreground">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Payment Mode</span>
-                  <span className="font-semibold text-slate-800">{invoice.payment_method || "Not recorded"}</span>
+                  <span className="text-muted-foreground block text-[11px]">Payment Mode</span>
+                  <span className="font-semibold text-foreground uppercase">{invoice.payment_method || "Not recorded"}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Transaction Status</span>
-                  <span className={`font-semibold ${status === "paid" ? "text-emerald-700" : "text-slate-700"}`}>
+                  <span className="text-muted-foreground block text-[11px]">Transaction Status</span>
+                  <span className={`font-semibold ${status === "paid" ? "text-emerald-400" : "text-foreground"}`}>
                     {status === "paid" ? "Fully Settled" : status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
               </div>
               {blendedGstRate > 0 && (
-                <p className="text-slate-400 text-[11px] pt-1">
+                <p className="text-muted-foreground text-[11px] pt-1">
                   * Effective GST rate of {blendedGstRate.toFixed(0)}% includes CGST + SGST as applicable.
                 </p>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 border border-emerald-100/60 text-emerald-900">
-              <svg className="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+              <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
                   strokeLinecap="round"
@@ -206,89 +204,78 @@ export function InvoiceSheet({ invoice, businessProfile, customer }: InvoiceShee
                 />
               </svg>
               <p className="text-xs font-medium">
-                Thank you for shopping with <span className="font-bold">{businessProfile.business_name}</span>! Visit
-                again soon.
+                Thank you for shopping with <span className="font-bold text-white">{businessProfile.business_name}</span>!
               </p>
             </div>
           </div>
 
           <div className="md:col-span-6 md:pl-6 space-y-3">
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between items-center text-slate-600 py-1">
+              <div className="flex justify-between items-center text-muted-foreground py-1">
                 <span className="font-medium">Subtotal (Base Price)</span>
-                <span className="font-mono-num font-semibold text-slate-800">{formatCurrency(invoice.subtotal)}</span>
+                <span className="font-mono font-semibold text-foreground">{formatCurrency(invoice.subtotal)}</span>
               </div>
-              <div className="flex justify-between items-center text-slate-500 py-1">
-                <span>Central GST (CGST {(blendedGstRate / 2).toFixed(1)}%)</span>
-                <span className="font-mono-num text-slate-700">{formatCurrency(halfGst)}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-500 py-1">
-                <span>State GST (SGST {(blendedGstRate / 2).toFixed(1)}%)</span>
-                <span className="font-mono-num text-slate-700">{formatCurrency(halfGst)}</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-600 py-1 border-t border-slate-100">
-                <span className="font-medium">GST Total ({blendedGstRate.toFixed(0)}%)</span>
-                <span className="font-mono-num font-semibold text-slate-800">{formatCurrency(invoice.gst_total)}</span>
-              </div>
-              {discountValue > 0 && (
-                <div className="flex justify-between items-center text-slate-600 py-1 border-t border-slate-100">
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-emerald-400 py-1">
                   <span className="font-medium">
-                    Discount{invoice.discount_type === "percent" ? ` (${discountValue}%)` : ""}
+                    Discount Applied {invoice.discount_type === "percent" ? `(${discountValue}%)` : ""}
                   </span>
-                  <span className="font-mono-num font-semibold text-slate-800">- {formatCurrency(discountAmount)}</span>
+                  <span className="font-mono font-semibold">-{formatCurrency(discountAmount)}</span>
                 </div>
               )}
-            </div>
 
-            <div className="bg-gradient-to-r from-pink-600 via-rose-500 to-pink-500 text-white rounded-2xl p-5 shadow-lg shadow-rose-500/20 mt-4">
-              <div className="flex justify-between items-end">
-                <div>
-                  <span className="text-xs font-medium text-pink-100 uppercase tracking-wider block">Grand Total</span>
-                  <span className="text-[11px] text-pink-200 font-medium">Rounded Total Amount</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl sm:text-3xl font-mono-num font-extrabold text-white tracking-tight">
-                    {formatCurrency(invoice.grand_total)}
+              {invoice.gst_total > 0 && (
+                <>
+                  <div className="flex justify-between items-center text-muted-foreground py-0.5">
+                    <span>CGST ({((blendedGstRate || 18) / 2).toFixed(1)}%)</span>
+                    <span className="font-mono">{formatCurrency(halfGst)}</span>
                   </div>
-                  <div className="text-[10px] text-pink-100 uppercase tracking-widest mt-0.5">INR (Indian Rupee)</div>
+                  <div className="flex justify-between items-center text-muted-foreground py-0.5">
+                    <span>SGST ({((blendedGstRate || 18) / 2).toFixed(1)}%)</span>
+                    <span className="font-mono">{formatCurrency(halfGst)}</span>
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-between items-baseline pt-3 border-t-2 border-border text-foreground">
+                <div>
+                  <span className="text-sm font-bold uppercase tracking-wider block">Grand Total</span>
+                  <span className="text-[10px] text-muted-foreground">Inclusive of all taxes</span>
                 </div>
+                <span className="text-2xl font-extrabold font-mono text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
+                  {formatCurrency(invoice.grand_total)}
+                </span>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-500 text-right italic pt-1">
-              Amount in words: <span className="font-medium text-slate-700">{amountInWords(invoice.grand_total)}</span>
-            </p>
+            <div className="pt-2 text-right">
+              <span className="text-[11px] text-muted-foreground uppercase font-bold block">Amount in Words</span>
+              <p className="text-xs italic text-foreground font-serif capitalize">
+                {amountInWords(invoice.grand_total)}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-end gap-6 text-xs text-slate-500">
-        <div>
-          <h4 className="font-bold text-slate-700 text-xs mb-1">Terms &amp; Conditions</h4>
-          <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400">
-            {invoice.terms ? (
-              <li>{invoice.terms}</li>
-            ) : (
-              <>
-                <li>Goods once sold can be exchanged within 2 days with original invoice.</li>
-                <li>Subject to local jurisdiction only. This is a computer generated invoice.</li>
-              </>
-            )}
-          </ul>
-        </div>
-        <div className="text-center sm:text-right shrink-0">
-          <div className="h-12 flex items-end justify-center sm:justify-end">
-            <span className="font-serif italic text-base text-slate-700 tracking-wide font-medium">
-              {businessProfile.business_name}
-            </span>
-          </div>
-          <div className="border-t border-slate-300 w-40 mt-1 pt-1">
-            <span className="text-[11px] font-semibold text-slate-600 block">Authorized Signatory</span>
-            <span className="text-[10px] text-slate-400">{businessProfile.business_name}</span>
-          </div>
-        </div>
-      </footer>
+      {/* Footer Notes & Terms */}
+      {(invoice.notes || invoice.terms) && (
+        <section className="mt-8 pt-6 border-t border-border/60 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-muted-foreground">
+          {invoice.notes && (
+            <div>
+              <span className="font-bold uppercase tracking-wider text-foreground block mb-1">Notes</span>
+              <p>{invoice.notes}</p>
+            </div>
+          )}
+          {invoice.terms && (
+            <div>
+              <span className="font-bold uppercase tracking-wider text-foreground block mb-1">Terms &amp; Conditions</span>
+              <p>{invoice.terms}</p>
+            </div>
+          )}
+        </section>
+      )}
     </main>
   );
 }

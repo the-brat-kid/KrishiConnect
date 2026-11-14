@@ -1,10 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useInvoice, useUpdateInvoiceStatus } from "@/hooks/use-invoices";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { useCustomers } from "@/hooks/use-customers";
-import { useCreateStripeCheckout, useVerifyStripePayment } from "@/hooks/use-payments";
 import { Button } from "@/components/ui/button";
 import { PaymentQR } from "@/components/invoices/payment-qr";
 import { InvoiceSheet } from "@/components/invoices/invoice-sheet";
@@ -19,20 +19,12 @@ import {
   Banknote,
   QrCode,
   Loader2,
-  CreditCard,
   Copy,
   Check,
-  ExternalLink,
-  AlertCircle,
+  Clock,
   ShieldCheck,
+  Share2,
 } from "lucide-react";
-
-const STATUS_BADGE: Record<string, string> = {
-  paid: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  unpaid: "bg-amber-100 text-amber-700 border-amber-200",
-  partial: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  overdue: "bg-rose-100 text-rose-700 border-rose-200",
-};
 
 export default function InvoiceDetailPage() {
   const { id } = useParams() as { id: string };
@@ -42,69 +34,39 @@ export default function InvoiceDetailPage() {
   const { data: profile } = useBusinessProfile();
   const { data: customers } = useCustomers();
   const { mutateAsync: updateStatus } = useUpdateInvoiceStatus();
-  const { mutateAsync: createCheckout, isPending: isCreatingCheckout } = useCreateStripeCheckout();
-  const { mutateAsync: verifyStripe, isPending: isVerifyingStripe } = useVerifyStripePayment();
 
   const [isClient, setIsClient] = useState(false);
   const [showUpiQR, setShowUpiQR] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
-  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Handle Stripe redirect parameters (?payment=success&session_id=...)
-  useEffect(() => {
-    const paymentStatus = searchParams.get("payment");
-    const sessionId = searchParams.get("session_id");
-
-    if (paymentStatus === "success" && sessionId && invoice && invoice.status !== "paid") {
-      let isSubscribed = true;
-      (async () => {
-        try {
-          const res = await verifyStripe({
-            session_id: sessionId,
-            invoice_id: invoice.id,
-          });
-          if (!isSubscribed) return;
-          if (res.success) {
-            setVerificationMessage(res.message || "Payment verified successfully!");
-            await refetch();
-          } else {
-            setVerificationError(res.message || "Could not confirm payment yet.");
-          }
-        } catch (err: any) {
-          if (!isSubscribed) return;
-          setVerificationError(err?.response?.data?.detail || "Error verifying payment");
-        } finally {
-          // Clean URL params so duplicate verification isn't fired on re-render
-          window.history.replaceState({}, "", `/invoices/${id}`);
-        }
-      })();
-
-      return () => {
-        isSubscribed = false;
-      };
-    } else if (paymentStatus === "cancelled") {
-      setVerificationError("Payment checkout was cancelled. You can try again at any time.");
-      window.history.replaceState({}, "", `/invoices/${id}`);
-    }
-  }, [searchParams, invoice, id, verifyStripe, refetch]);
-
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading invoice...
+      <div className="flex flex-col items-center justify-center py-28 text-muted-foreground gap-3">
+        <Loader2 className="h-7 w-7 animate-spin text-emerald-400" />
+        <span className="text-sm font-medium">Loading invoice sheet...</span>
       </div>
     );
   }
-  if (!invoice) return <div className="py-24 text-center text-muted-foreground">Invoice not found</div>;
+
+  if (!invoice) {
+    return (
+      <div className="liquid-glass max-w-md mx-auto my-24 p-8 rounded-3xl border border-white/10 bg-black/40 text-center space-y-4 backdrop-blur-xl">
+        <h2 className="text-xl font-bold text-foreground">Invoice Not Found</h2>
+        <p className="text-sm text-muted-foreground">The requested invoice ID does not exist or was deleted.</p>
+        <Button onClick={() => router.push("/invoices")} className="btn-liquid-glass-primary">
+          Back to Invoices
+        </Button>
+      </div>
+    );
+  }
 
   const customer = customers?.find((c) => c.id === invoice.customer_id);
   const status = invoice.status || "unpaid";
-  const badgeStyle = STATUS_BADGE[status] || STATUS_BADGE.unpaid;
 
   const handleCopyPaymentLink = () => {
     if (typeof window === "undefined") return;
@@ -115,181 +77,186 @@ export default function InvoiceDetailPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-16">
-      {/* Header */}
-      <div className="no-print space-y-4">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16 animate-page-enter">
+      {/* Header Actions Bar with Liquid Glass */}
+      <div className="no-print space-y-4 border-b border-white/10 pb-4">
         <button
           onClick={() => router.push("/invoices")}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-emerald-600 transition-colors"
+          className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white transition-all"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Invoices
+          <ArrowLeft className="h-3.5 w-3.5 text-emerald-400" />
+          <span>Back to Invoices</span>
         </button>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Invoice {invoice.invoice_number}
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+              <span>Invoice</span>
+              <span className="font-mono text-emerald-400">#{invoice.invoice_number}</span>
             </h1>
-            <span className={`text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full border ${badgeStyle}`}>
-              {status}
-            </span>
+
+            {status === "paid" ? (
+              <span className="badge-liquid-glass-emerald">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Paid &amp; Settled</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Payment Pending</span>
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-            <Button variant="outline" size="sm" className="rounded-lg" onClick={handleCopyPaymentLink}>
-              {copiedLink ? <Check className="mr-1.5 h-4 w-4 text-emerald-600" /> : <Copy className="mr-1.5 h-4 w-4" />}
-              {copiedLink ? "Link Copied!" : "Share Link"}
-            </Button>
-            <Button variant="outline" size="sm" className="rounded-lg" onClick={() => window.print()}>
-              <Printer className="mr-1.5 h-4 w-4" /> Print
-            </Button>
+            <button
+              onClick={handleCopyPaymentLink}
+              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all"
+              title="Copy public payment link to share with buyer"
+            >
+              {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Share2 className="h-3.5 w-3.5 text-emerald-400" />}
+              <span>{copiedLink ? "Link Copied!" : "Share Link"}</span>
+            </button>
+
+            <button
+              onClick={() => window.print()}
+              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all"
+            >
+              <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Print</span>
+            </button>
+
             {isClient && profile && (
               <PDFDownloadLink
                 document={<InvoicePDF invoice={invoice} businessProfile={profile} customer={customer} />}
                 fileName={`Invoice-${invoice.invoice_number}.pdf`}
               >
-                <Button size="sm" className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
-                  <Download className="mr-1.5 h-4 w-4" /> PDF
-                </Button>
+                <button className="btn-liquid-glass-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white shadow-[0_0_15px_rgba(20,122,77,0.35)] transition-all">
+                  <Download className="h-3.5 w-3.5" />
+                  <span>PDF Download</span>
+                </button>
               </PDFDownloadLink>
             )}
           </div>
         </div>
       </div>
 
-      {/* Auto-Verification Feedback Banner */}
-      {isVerifyingStripe && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900 animate-pulse">
-          <Loader2 className="h-5 w-5 animate-spin text-indigo-600 shrink-0" />
-          <div className="text-sm font-medium">
-            Verifying payment in real-time... Please wait while your transaction is confirmed.
-          </div>
-        </div>
-      )}
-
+      {/* Real-Time Notification Feedback */}
       {verificationMessage && (
-        <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+        <div className="liquid-glass flex items-center justify-between p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-200 backdrop-blur-xl animate-in zoom-in-95">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
             <span className="text-sm font-semibold">{verificationMessage}</span>
           </div>
           <button
             onClick={() => setVerificationMessage(null)}
-            className="text-xs text-emerald-700 hover:text-emerald-900 font-bold"
+            className="text-xs text-emerald-400 hover:text-emerald-300 font-bold underline"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      {verificationError && (
-        <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
-            <span className="text-sm font-medium">{verificationError}</span>
-          </div>
-          <button
-            onClick={() => setVerificationError(null)}
-            className="text-xs text-amber-700 hover:text-amber-900 font-bold"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      <div className="grid md:grid-cols-3 gap-6 items-start">
-        {/* Invoice sheet */}
-        <div className="md:col-span-2 space-y-6">
+      {/* Main Grid: Invoice Document (Left) + Settlement Panel (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Invoice Sheet View */}
+        <div className="lg:col-span-2 space-y-6">
           {profile && <InvoiceSheet invoice={invoice} businessProfile={profile} customer={customer} />}
         </div>
 
-        {/* Payment panel */}
-        <div className="no-print md:sticky md:top-6 space-y-4">
-          <div className="bg-white rounded-3xl shadow-lg shadow-slate-200/60 border border-slate-100 overflow-hidden">
-            <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+        {/* Liquid Glass Payment Panel */}
+        <div className="no-print lg:sticky lg:top-20 space-y-4">
+          <div className="liquid-glass rounded-3xl border border-white/15 bg-black/40 backdrop-blur-2xl shadow-2xl overflow-hidden">
+            {/* Panel Header */}
+            <div className="px-6 pt-6 pb-4 border-b border-white/10">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-900">Payment</h2>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Auto-Verify
-                </span>
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                  <span>Settlement</span>
+                </h2>
+                <div className="badge-liquid-glass-emerald">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Auto-Verify</span>
+                </div>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {status === "paid" ? "This invoice has been settled" : "Collect payment via Cash, UPI, or Pay Later"}
+              <p className="text-xs text-muted-foreground mt-1">
+                {status === "paid" ? "Invoice is settled in ledger" : "Collect payment via UPI, Cash, or Pay Later"}
               </p>
             </div>
 
             <div className="p-6">
               {status === "paid" ? (
                 <div className="space-y-4">
-                  <div className="flex flex-col items-center text-center gap-2 py-8 px-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <CheckCircle2 className="h-9 w-9 text-emerald-600" />
-                    <div className="font-bold text-emerald-800">Payment Received</div>
-                    <div className="text-xs text-emerald-600">{formatCurrency(invoice.grand_total)} settled</div>
+                  {/* Paid Card */}
+                  <div className="liquid-glass flex flex-col items-center text-center gap-2.5 py-7 px-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                      <CheckCircle2 className="h-7 w-7" />
+                    </div>
+                    <div className="font-extrabold text-base tracking-tight text-white">Payment Received</div>
+                    <div className="text-xs text-emerald-300 font-mono font-bold">
+                      {formatCurrency(invoice.grand_total)} settled
+                    </div>
                     {invoice.payment_method && (
-                      <span className="text-[11px] font-medium text-emerald-700 mt-1 uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-200/60">
+                      <span className="text-[10px] font-bold text-emerald-400 mt-1 uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
                         Via {invoice.payment_method}
                       </span>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-muted-foreground hover:text-slate-700 text-xs"
+
+                  <button
                     onClick={() => {
                       setShowUpiQR(false);
                       updateStatus({ id: invoice.id, status: "unpaid" });
                     }}
+                    className="btn-liquid-glass w-full py-2.5 rounded-xl text-muted-foreground hover:text-foreground text-xs font-semibold transition-all"
                   >
                     Mark as Unpaid (Pay Later)
-                  </Button>
+                  </button>
                 </div>
               ) : !showUpiQR ? (
                 <div className="space-y-3">
-                  {/* UPI QR Payment Button */}
-                  <Button
-                    className="w-full h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-200 flex items-center justify-center gap-2.5 font-semibold text-sm transition-all"
+                  {/* Primary UPI QR Button */}
+                  <button
                     onClick={() => setShowUpiQR(true)}
+                    className="btn-liquid-glass-primary w-full h-14 rounded-2xl shadow-[0_0_20px_rgba(20,122,77,0.4)] flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer"
                   >
-                    <QrCode className="h-5 w-5" />
+                    <QrCode className="h-5 w-5 text-white" />
                     <span>Pay via UPI (GPay / PhonePe / QR)</span>
-                  </Button>
+                  </button>
 
                   {/* Cash Payment Button */}
-                  <Button
-                    variant="outline"
-                    className="w-full h-12 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 flex items-center justify-center gap-2 font-semibold text-xs transition-all"
+                  <button
                     onClick={async () => {
                       await updateStatus({ id: invoice.id, status: "paid" });
                       await refetch();
                     }}
+                    className="btn-liquid-glass w-full h-12 rounded-2xl text-foreground hover:text-white flex items-center justify-center gap-2 font-semibold text-xs transition-all cursor-pointer"
                   >
-                    <Banknote className="h-4 w-4 text-emerald-600" />
+                    <Banknote className="h-4 w-4 text-emerald-400" />
                     <span>Received via Cash (Mark as Paid)</span>
-                  </Button>
+                  </button>
 
-                  <div className="pt-3 border-t border-slate-100 space-y-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="w-full text-xs font-medium rounded-lg text-slate-700 flex items-center justify-center gap-1.5"
+                  {/* Secondary Actions */}
+                  <div className="pt-3 border-t border-white/10 space-y-2">
+                    <button
                       onClick={handleCopyPaymentLink}
+                      className="btn-liquid-glass w-full py-2.5 rounded-xl text-xs font-semibold text-foreground hover:text-white flex items-center justify-center gap-2 transition-all"
                     >
-                      {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copiedLink ? "Link Copied to Clipboard!" : "Copy Customer Payment Link"}
-                    </Button>
+                      {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 text-emerald-400" />}
+                      <span>{copiedLink ? "Link Copied to Clipboard!" : "Copy Customer Payment Link"}</span>
+                    </button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-xs text-muted-foreground hover:text-slate-700 flex items-center justify-center gap-1.5"
+                    <button
                       onClick={() => updateStatus({ id: invoice.id, status: "unpaid" })}
+                      className="w-full text-xs text-muted-foreground hover:text-foreground py-1 text-center font-medium transition-colors"
                     >
-                      <span>Pay Later (Keep as Unpaid)</span>
-                    </Button>
+                      Pay Later (Keep as Unpaid)
+                    </button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-2">
+                  <div className="rounded-2xl overflow-hidden">
                     <PaymentQR
                       amount={invoice.grand_total}
                       invoiceNumber={invoice.invoice_number}
@@ -305,11 +272,14 @@ export default function InvoiceDetailPage() {
                     Ask customer to scan with any UPI app (GPay, PhonePe, Paytm).
                   </p>
                   <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 rounded-lg" onClick={() => setShowUpiQR(false)}>
+                    <button
+                      className="btn-liquid-glass flex-1 py-2.5 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all"
+                      onClick={() => setShowUpiQR(false)}
+                    >
                       Back
-                    </Button>
-                    <Button
-                      className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+                    </button>
+                    <button
+                      className="btn-liquid-glass-primary flex-1 py-2.5 rounded-xl text-xs font-bold text-white transition-all"
                       onClick={async () => {
                         setShowUpiQR(false);
                         await updateStatus({ id: invoice.id, status: "paid" });
@@ -317,20 +287,20 @@ export default function InvoiceDetailPage() {
                       }}
                     >
                       Confirm Paid
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Secure Payment Assurance Box */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-slate-600 space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-xs text-slate-800">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          {/* Liquid Glass Assurance Card */}
+          <div className="liquid-glass p-4 rounded-2xl border border-white/10 bg-emerald-950/20 text-emerald-200/90 text-xs space-y-1.5 backdrop-blur-xl">
+            <div className="flex items-center gap-2 font-bold text-emerald-300">
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
               <span>Instant Payment Settlement</span>
             </div>
-            <p className="text-[11px] leading-relaxed text-slate-500">
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
               When paid via UPI or Cash, the invoice is immediately stamped as Paid and settled in your ledger. Buyers can also view and pay via the digital payment link.
             </p>
           </div>
