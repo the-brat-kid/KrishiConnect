@@ -5,7 +5,6 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  CreditCard,
   CheckCircle2,
   AlertCircle,
   Loader2,
@@ -17,6 +16,8 @@ import {
   Receipt,
   FileCheck,
   QrCode,
+  Banknote,
+  Clock,
 } from "lucide-react";
 import axios from "axios";
 import { PaymentQR } from "@/components/invoices/payment-qr";
@@ -63,11 +64,11 @@ export default function PublicPaymentPage() {
   const [invoice, setInvoice] = useState<PublicInvoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paying, setPaying] = useState(false);
+  const [confirmingCash, setConfirmingCash] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifySuccess, setVerifySuccess] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [payMethod, setPayMethod] = useState<"upi" | "stripe">("upi");
+  const [payMethod, setPayMethod] = useState<"upi" | "cash" | "later">("upi");
 
   const fetchInvoice = async () => {
     try {
@@ -88,7 +89,7 @@ export default function PublicPaymentPage() {
     }
   }, [id]);
 
-  // Handle Stripe redirect back to this page: ?payment=success&session_id=...
+  // Handle return redirect verification
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
     const sessionId = searchParams.get("session_id");
@@ -104,10 +105,10 @@ export default function PublicPaymentPage() {
 
           if (res.data?.success) {
             setVerifySuccess(true);
-            setMessage("Payment verified successfully via Stripe! Receipt updated.");
+            setMessage("Payment verified successfully! Receipt updated.");
             await fetchInvoice();
           } else {
-            setMessage("Stripe payment pending or incomplete. Please check with your bank.");
+            setMessage("Payment pending or incomplete. Please check with your bank.");
           }
         } catch (err: any) {
           setMessage(err?.response?.data?.detail || "Could not verify payment automatically.");
@@ -122,26 +123,20 @@ export default function PublicPaymentPage() {
     }
   }, [searchParams, id]);
 
-  const handlePay = async () => {
+  const handleCashPaid = async () => {
     if (!invoice) return;
     try {
-      setPaying(true);
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const success_url = `${origin}/pay/${invoice.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url = `${origin}/pay/${invoice.id}?payment=cancelled`;
-
-      const res = await axios.post(`${API_BASE_URL}/api/v1/payments/public/stripe/checkout-session`, {
+      setConfirmingCash(true);
+      await axios.post(`${API_BASE_URL}/api/v1/payments/public/confirm-cash`, {
         invoice_id: invoice.id,
-        success_url,
-        cancel_url,
       });
-
-      if (res.data?.url) {
-        window.location.href = res.data.url;
-      }
+      setVerifySuccess(true);
+      setMessage("Invoice confirmed paid in Cash!");
+      await fetchInvoice();
     } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to start Stripe checkout session");
-      setPaying(false);
+      alert(err?.response?.data?.detail || "Failed to confirm cash payment");
+    } finally {
+      setConfirmingCash(false);
     }
   };
 
@@ -178,7 +173,7 @@ export default function PublicPaymentPage() {
           <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center gap-3 text-indigo-900 animate-pulse">
             <Loader2 className="w-5 h-5 animate-spin text-indigo-600 shrink-0" />
             <span className="text-sm font-semibold">
-              Verifying Stripe payment in real-time... Please do not close this window.
+              Verifying payment in real-time... Please do not close this window.
             </span>
           </div>
         )}
@@ -218,23 +213,25 @@ export default function PublicPaymentPage() {
                 <Receipt className="w-4 h-4" /> KrishiConnect Digital Invoice
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold mt-1">
-                Invoice #{invoice.invoice_number}
+                #{invoice.invoice_number}
               </h1>
             </div>
+
             <div className="flex items-center gap-3">
               <span
-                className={`text-xs font-extrabold uppercase tracking-wide px-3.5 py-1.5 rounded-full ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                   isPaid
-                    ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/40"
-                    : "bg-amber-400/20 text-amber-200 border border-amber-400/40"
+                    ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30"
+                    : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
                 }`}
               >
-                {isPaid ? "✓ Paid & Settled" : "● Payment Pending"}
+                {isPaid ? "Paid & Settled" : "Payment Pending"}
               </span>
+
               <button
                 onClick={() => window.print()}
-                className="no-print p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
-                title="Print Receipt"
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors no-print"
+                title="Print Invoice"
               >
                 <Printer className="w-4 h-4" />
               </button>
@@ -360,7 +357,7 @@ export default function PublicPaymentPage() {
                   </div>
                   <h3 className="text-lg font-bold text-emerald-950">Payment Settled</h3>
                   <p className="text-xs text-emerald-700 max-w-md mx-auto">
-                    This invoice was settled via {invoice.payment_method || "Stripe"}. Thank you for your business!
+                    This invoice was settled via {invoice.payment_method || "UPI"}. Thank you for your business!
                   </p>
                   <Button
                     variant="outline"
@@ -372,33 +369,72 @@ export default function PublicPaymentPage() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Payment Method Selector Tabs */}
-                  <div className="grid grid-cols-2 gap-3 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+                  {/* Payment Method Selector Tabs: Cash, UPI, Pay Later */}
+                  <div className="grid grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setPayMethod("cash")}
+                      className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl text-xs font-bold transition-all ${
+                        payMethod === "cash"
+                          ? "bg-white text-emerald-800 shadow-sm border border-slate-200"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      <Banknote className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Cash</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => setPayMethod("upi")}
-                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition-all ${
+                      className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl text-xs font-bold transition-all ${
                         payMethod === "upi"
                           ? "bg-white text-emerald-800 shadow-sm border border-slate-200"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      <QrCode className="w-4 h-4 text-emerald-600" />
-                      <span>FreePay UPI (0% Fee)</span>
+                      <QrCode className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>UPI QR</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPayMethod("stripe")}
-                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition-all ${
-                        payMethod === "stripe"
-                          ? "bg-white text-indigo-800 shadow-sm border border-slate-200"
+                      onClick={() => setPayMethod("later")}
+                      className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl text-xs font-bold transition-all ${
+                        payMethod === "later"
+                          ? "bg-white text-amber-800 shadow-sm border border-slate-200"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      <CreditCard className="w-4 h-4 text-indigo-600" />
-                      <span>Cards / Stripe</span>
+                      <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Pay Later</span>
                     </button>
                   </div>
+
+                  {/* Cash Flow */}
+                  {payMethod === "cash" && (
+                    <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center space-y-4 max-w-md mx-auto">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mx-auto">
+                        <Banknote className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-bold text-slate-900 text-base">Cash on Hand / Delivery</h4>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                          Settle the amount of <strong className="text-slate-800 font-mono">{formatCurrency(invoice.grand_total)}</strong> in cash directly with <strong className="text-slate-800">{invoice.business?.name}</strong> upon receiving your produce.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleCashPaid}
+                        disabled={confirmingCash}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2.5 rounded-xl shadow-md shadow-emerald-200"
+                      >
+                        {confirmingCash ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                        )}
+                        <span>I Have Paid in Cash (Confirm)</span>
+                      </Button>
+                    </div>
+                  )}
 
                   {/* UPI QR Flow with FreePay Real-Time Auto-Verification */}
                   {payMethod === "upi" && (
@@ -416,31 +452,21 @@ export default function PublicPaymentPage() {
                     </div>
                   )}
 
-                  {/* Stripe Card/Checkout Flow */}
-                  {payMethod === "stripe" && (
-                    <div className="space-y-4">
-                      <Button
-                        onClick={handlePay}
-                        disabled={paying || verifying}
-                        size="lg"
-                        className="w-full h-16 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white font-bold text-base shadow-lg shadow-indigo-200 flex items-center justify-center gap-3 transition-all"
-                      >
-                        {paying ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <CreditCard className="w-6 h-6" />
-                        )}
-                        <span>Pay {formatCurrency(invoice.grand_total)} with Stripe</span>
-                      </Button>
-
-                      <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400 pt-2">
-                        <span className="flex items-center gap-1.5">
-                          <ShieldCheck className="w-4 h-4 text-emerald-600" /> 256-bit SSL Secure
-                        </span>
-                        <span>•</span>
-                        <span>Credit / Debit Cards, Apple &amp; Google Pay</span>
-                        <span>•</span>
-                        <span>Instant Auto-Verification</span>
+                  {/* Pay Later Flow */}
+                  {payMethod === "later" && (
+                    <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center space-y-4 max-w-md mx-auto">
+                      <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mx-auto">
+                        <Clock className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-bold text-slate-900 text-base">Pay Later / Credit Balance</h4>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                          This invoice of <strong className="text-slate-800 font-mono">{formatCurrency(invoice.grand_total)}</strong> will remain recorded as receivable under your account with <strong className="text-slate-800">{invoice.business?.name}</strong>.
+                        </p>
+                      </div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-medium text-amber-800">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Due Date: {formatDate(invoice.due_date || invoice.date)}</span>
                       </div>
                     </div>
                   )}
@@ -453,7 +479,6 @@ export default function PublicPaymentPage() {
         {/* Footer */}
         <div className="text-center text-xs text-slate-400 space-y-1">
           <p>Powered by KrishiConnect Business Management Platform</p>
-          <p>Strict data isolation &amp; automated payment reconciliation</p>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useInvoices } from "@/hooks/use-invoices";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/core/animated-number";
-import { Plus, Mail, Eye, Search, Receipt, CheckCircle2, Clock, AlertTriangle, CreditCard } from "lucide-react";
+import { Plus, Mail, Eye, Search, Receipt, CheckCircle2, Clock, AlertTriangle, CreditCard, QrCode } from "lucide-react";
 import { useMemo, useState } from "react";
 
 const statusStyles: Record<string, string> = {
@@ -207,10 +207,10 @@ export default function InvoicesPage() {
                           {inv.status !== "paid" && (
                             <button
                               onClick={() => handleCopyPayLink(inv.id)}
-                              title="Copy Stripe Customer Payment Link"
-                              className="p-1.5 rounded-lg text-stitch-outline hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                              title="Copy Customer Payment Link"
+                              className="p-1.5 rounded-lg text-stitch-outline hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
                             >
-                              <CreditCard className="w-[18px] h-[18px]" />
+                              <QrCode className="w-[18px] h-[18px]" />
                             </button>
                           )}
                           <button

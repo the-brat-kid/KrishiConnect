@@ -70,14 +70,14 @@ export default function InvoiceDetailPage() {
           });
           if (!isSubscribed) return;
           if (res.success) {
-            setVerificationMessage(res.message || "Payment verified successfully via Stripe!");
+            setVerificationMessage(res.message || "Payment verified successfully!");
             await refetch();
           } else {
-            setVerificationError(res.message || "Could not confirm Stripe payment yet.");
+            setVerificationError(res.message || "Could not confirm payment yet.");
           }
         } catch (err: any) {
           if (!isSubscribed) return;
-          setVerificationError(err?.response?.data?.detail || "Error verifying Stripe payment");
+          setVerificationError(err?.response?.data?.detail || "Error verifying payment");
         } finally {
           // Clean URL params so duplicate verification isn't fired on re-render
           window.history.replaceState({}, "", `/invoices/${id}`);
@@ -88,7 +88,7 @@ export default function InvoiceDetailPage() {
         isSubscribed = false;
       };
     } else if (paymentStatus === "cancelled") {
-      setVerificationError("Stripe checkout was cancelled. You can try again at any time.");
+      setVerificationError("Payment checkout was cancelled. You can try again at any time.");
       window.history.replaceState({}, "", `/invoices/${id}`);
     }
   }, [searchParams, invoice, id, verifyStripe, refetch]);
@@ -105,26 +105,6 @@ export default function InvoiceDetailPage() {
   const customer = customers?.find((c) => c.id === invoice.customer_id);
   const status = invoice.status || "unpaid";
   const badgeStyle = STATUS_BADGE[status] || STATUS_BADGE.unpaid;
-
-  const handleStripePay = async () => {
-    try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const success_url = `${origin}/invoices/${invoice.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url = `${origin}/invoices/${invoice.id}?payment=cancelled`;
-
-      const session = await createCheckout({
-        invoice_id: invoice.id,
-        success_url,
-        cancel_url,
-      });
-
-      if (session.url) {
-        window.location.href = session.url;
-      }
-    } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to initiate Stripe checkout");
-    }
-  };
 
   const handleCopyPaymentLink = () => {
     if (typeof window === "undefined") return;
@@ -177,12 +157,12 @@ export default function InvoiceDetailPage() {
         </div>
       </div>
 
-      {/* Stripe Auto-Verification Feedback Banner */}
+      {/* Auto-Verification Feedback Banner */}
       {isVerifyingStripe && (
         <div className="flex items-center gap-3 p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900 animate-pulse">
           <Loader2 className="h-5 w-5 animate-spin text-indigo-600 shrink-0" />
           <div className="text-sm font-medium">
-            Verifying payment with Stripe... Please wait while your transaction is confirmed.
+            Verifying payment in real-time... Please wait while your transaction is confirmed.
           </div>
         </div>
       )}
@@ -230,11 +210,11 @@ export default function InvoiceDetailPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-slate-900">Payment</h2>
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" /> Auto-Verify
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Auto-Verify
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                {status === "paid" ? "This invoice has been settled" : "Collect payment via Stripe, UPI, or Cash"}
+                {status === "paid" ? "This invoice has been settled" : "Collect payment via Cash, UPI, or Pay Later"}
               </p>
             </div>
 
@@ -259,43 +239,32 @@ export default function InvoiceDetailPage() {
                       updateStatus({ id: invoice.id, status: "unpaid" });
                     }}
                   >
-                    Mark as Unpaid
+                    Mark as Unpaid (Pay Later)
                   </Button>
                 </div>
               ) : !showUpiQR ? (
                 <div className="space-y-3">
-                  {/* Stripe Online Checkout Button */}
+                  {/* UPI QR Payment Button */}
                   <Button
-                    className="w-full h-14 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md shadow-indigo-200 flex items-center justify-center gap-2.5 font-semibold text-sm transition-all"
-                    onClick={handleStripePay}
-                    disabled={isCreatingCheckout}
+                    className="w-full h-14 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-200 flex items-center justify-center gap-2.5 font-semibold text-sm transition-all"
+                    onClick={() => setShowUpiQR(true)}
                   >
-                    {isCreatingCheckout ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <CreditCard className="h-5 w-5" />
-                    )}
-                    <span>Pay with Stripe (Cards / Online)</span>
+                    <QrCode className="h-5 w-5" />
+                    <span>Pay via UPI (GPay / PhonePe / QR)</span>
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-2.5 pt-1">
-                    <Button
-                      variant="outline"
-                      className="h-14 flex-col gap-1 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
-                      onClick={() => setShowUpiQR(true)}
-                    >
-                      <QrCode className="h-4 w-4 text-emerald-600" />
-                      <span className="text-xs font-semibold">UPI QR</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-14 flex-col gap-1 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50"
-                      onClick={() => updateStatus({ id: invoice.id, status: "paid" })}
-                    >
-                      <Banknote className="h-4 w-4 text-emerald-600" />
-                      <span className="text-xs font-semibold">Cash (Paid)</span>
-                    </Button>
-                  </div>
+                  {/* Cash Payment Button */}
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 flex items-center justify-center gap-2 font-semibold text-xs transition-all"
+                    onClick={async () => {
+                      await updateStatus({ id: invoice.id, status: "paid" });
+                      await refetch();
+                    }}
+                  >
+                    <Banknote className="h-4 w-4 text-emerald-600" />
+                    <span>Received via Cash (Mark as Paid)</span>
+                  </Button>
 
                   <div className="pt-3 border-t border-slate-100 space-y-2">
                     <Button
@@ -311,10 +280,10 @@ export default function InvoiceDetailPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full text-xs text-muted-foreground hover:text-slate-700"
+                      className="w-full text-xs text-muted-foreground hover:text-slate-700 flex items-center justify-center gap-1.5"
                       onClick={() => updateStatus({ id: invoice.id, status: "unpaid" })}
                     >
-                      Keep as Unpaid
+                      <span>Pay Later (Keep as Unpaid)</span>
                     </Button>
                   </div>
                 </div>
@@ -326,6 +295,7 @@ export default function InvoiceDetailPage() {
                       invoiceNumber={invoice.invoice_number}
                       invoiceId={invoice.id}
                       onPaymentSuccess={() => {
+                        setShowUpiQR(false);
                         refetch();
                         setVerificationMessage("Payment verified automatically in real-time via UPI!");
                       }}
@@ -340,7 +310,11 @@ export default function InvoiceDetailPage() {
                     </Button>
                     <Button
                       className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
-                      onClick={() => updateStatus({ id: invoice.id, status: "paid" })}
+                      onClick={async () => {
+                        setShowUpiQR(false);
+                        await updateStatus({ id: invoice.id, status: "paid" });
+                        await refetch();
+                      }}
                     >
                       Confirm Paid
                     </Button>
@@ -354,10 +328,10 @@ export default function InvoiceDetailPage() {
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 text-slate-600 space-y-2">
             <div className="flex items-center gap-2 font-semibold text-xs text-slate-800">
               <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              <span>Instant Automatic Settlement</span>
+              <span>Instant Payment Settlement</span>
             </div>
             <p className="text-[11px] leading-relaxed text-slate-500">
-              When paid through Stripe, payment is automatically verified in real-time, the invoice is stamped as Paid, and buyer receives an instant digital receipt.
+              When paid via UPI or Cash, the invoice is immediately stamped as Paid and settled in your ledger. Buyers can also view and pay via the digital payment link.
             </p>
           </div>
         </div>

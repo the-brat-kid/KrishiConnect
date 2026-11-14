@@ -223,7 +223,40 @@ async def run_tests():
         assert res_inv_upi.json()["payment_method"] == "upi"
         print("✅ 14. Database verified: UPI Invoice is marked PAID!")
 
-    print("\n🎉 ALL 14 TESTS (STRIPE + FREEPAY ZERO-FEE UPI GATEWAY) PASSED 100%!")
+        # 6. Test Explicit Confirmation / UTR endpoint (/api/v1/payments/upi/confirm-paid)
+        test_upi_inv_2_id = str(uuid.uuid4())
+        async with AsyncSessionLocal() as session:
+            test_upi_inv_2 = Invoice(
+                id=test_upi_inv_2_id,
+                business_profile_id=test_bp_id,
+                customer_id=test_customer_id,
+                invoice_number=f"INV-CONFIRM-{uuid.uuid4().hex[:6].upper()}",
+                date=date.today(),
+                due_date=date.today(),
+                status="unpaid",
+                subtotal=1500.0,
+                grand_total=1500.0,
+            )
+            session.add(test_upi_inv_2)
+            await session.commit()
+
+        res_qr2 = await client.post("/api/v1/payments/upi/create-qr", json={"invoice_id": test_upi_inv_2_id})
+        assert res_qr2.status_code == 200
+        tn2 = res_qr2.json()["tn"]
+
+        res_confirm = await client.post(
+            "/api/v1/payments/upi/confirm-paid",
+            json={"tn": tn2, "utr": "412345678901"},
+        )
+        assert res_confirm.status_code == 200
+        assert res_confirm.json()["status"] == "success"
+
+        res_status_confirm = await client.get(f"/api/v1/payments/upi/status/{tn2}")
+        assert res_status_confirm.status_code == 200
+        assert res_status_confirm.json()["status"] == "paid"
+        print("✅ 15. Explicit UPI Confirmation & UTR verified: status=paid")
+
+    print("\n🎉 ALL 15 TESTS (STRIPE + FREEPAY ZERO-FEE UPI GATEWAY + UTR CONFIRM) PASSED 100%!")
 
 if __name__ == "__main__":
     asyncio.run(run_tests())

@@ -28,6 +28,8 @@ from app.schemas.payment import (
     UpiCreateQrResponse,
     UpiStatusResponse,
     UpiWebhookRequest,
+    UpiConfirmPaidRequest,
+    PublicCashConfirmRequest,
 )
 from app.services.razorpay_service import create_order, verify_signature
 from app.services.stripe_service import (
@@ -473,13 +475,19 @@ async def upi_payment_webhook(
 
 @router.post("/upi/simulate-test")
 async def simulate_upi_payment(
-    tn: str,
+    tn: Optional[str] = None,
+    req: Optional[UpiConfirmPaidRequest] = None,
     db: AsyncSession = Depends(get_db),
 ):
     """
     Development & demo endpoint: triggers simulated settlement for a pending UPI QR order.
+    Supports either ?tn=<ref> query param or JSON payload {"tn": "<ref>"}.
     """
-    res = await db.execute(select(Payment).where(Payment.upi_tn == tn))
+    target_tn = (req.tn if req and req.tn else tn)
+    if not target_tn:
+        raise HTTPException(status_code=400, detail="Transaction note (tn) is required")
+
+    res = await db.execute(select(Payment).where(Payment.upi_tn == target_tn))
     payment = res.scalars().first()
     if not payment:
         raise HTTPException(status_code=404, detail="Transaction not found")
@@ -492,7 +500,83 @@ async def simulate_upi_payment(
         invoice.payment_method = "upi"
 
     await db.commit()
-    return {"status": "success", "message": f"Simulated UPI payment verified for {tn}"}
+    return {"status": "success", "message": f"Simulated UPI payment verified for {target_tn}"}
+
+
+@router.post("/upi/confirm-paid")
+async def confirm_upi_payment(
+    req: UpiConfirmPaidRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Explicitly confirms UPI payment when buyer or vendor clicks 'I Have Paid' / confirms settlement,
+    optionally recording the 12-digit UPI UTR / bank reference number.
+    Marks both Payment and Invoice as 'paid' instantly.
+    """
+    target_tn = req.tn.strip() if req.tn else None
+    if not target_tn:
+        raise HTTPException(status_code=400, detail="Transaction reference (tn) is required")
+
+    res = await db.execute(select(Payment).where(Payment.upi_tn == target_tn))
+    payment = res.scalars().first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Transaction not found or expired")
+
+    payment.status = "paid"
+    if req.utr and req.utr.strip():
+        payment.razorpay_payment_id = req.utr.strip()  # Store UTR in general reference field
+
+    inv_res = await db.execute(select(Invoice).where(Invoice.id == payment.invoice_id))
+    invoice = inv_res.scalars().first()
+    if invoice:
+        invoice.status = "paid"
+        invoice.payment_method = "upi"
+
+    await db.commit()
+    logger.info("Explicit UPI payment confirmation settled for invoice %s (tn=%s, utr=%s)", payment.invoice_id, target_tn, req.utr)
+    return {
+        "status": "success",
+        "message": "UPI payment confirmed and settled successfully",
+        "invoice_id": payment.invoice_id,
+        "payment_id": payment.id,
+    }
+
+
+@router.post("/public/confirm-cash")
+async def public_confirm_cash(
+    req: PublicCashConfirmRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Allows buyer or merchant to mark an invoice as paid via Cash."""
+    res = await db.execute(select(Invoice).where(Invoice.id == req.invoice_id))
+    invoice = res.scalars().first()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    invoice.status = "paid"
+    invoice.payment_method = "cash"
+
+    pay_res = await db.execute(
+        select(Payment).where(Payment.invoice_id == invoice.id, Payment.status == "pending")
+    )
+    payment = pay_res.scalars().first()
+    if payment:
+        payment.status = "paid"
+        payment.payment_method = "cash"
+    else:
+        payment = Payment(
+            business_profile_id=invoice.business_profile_id,
+            invoice_id=invoice.id,
+            amount=invoice.grand_total,
+            payment_method="cash",
+            currency="inr",
+            status="paid",
+        )
+        db.add(payment)
+
+    await db.commit()
+    logger.info("Invoice %s confirmed paid via Cash", invoice.id)
+    return {"status": "success", "message": "Invoice marked as paid in cash", "invoice_id": invoice.id}
 
 
 # ==========================================

@@ -65,6 +65,13 @@ class UpiWebhookRequest(BaseModel):
     app: Optional[str] = None
     timestamp: Optional[Union[int, str]] = None
 
+class UpiConfirmPaidRequest(BaseModel):
+    tn: str
+    utr: Optional[str] = None
+
+class PublicCashConfirmRequest(BaseModel):
+    invoice_id: str
+
 class PaymentResponse(BaseModel):
     id: Union[UUID, str]
     invoice_id: Union[UUID, str]
