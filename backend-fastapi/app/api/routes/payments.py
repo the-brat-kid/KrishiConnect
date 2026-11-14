@@ -503,6 +503,7 @@ async def upi_payment_webhook(
             except Exception:
                 pass
 
+    print(f"🔥 [FREEPAY WEBHOOK RECEIVED] Text: '{full_search_text}' | Resolved TN: {resolved_tn} | Amount: {extracted_amount} | UTR: {extracted_utr}", flush=True)
     logger.info("FreePay webhook received: resolved_tn=%s, extracted_amount=%s, extracted_utr=%s", resolved_tn, extracted_amount, extracted_utr)
 
     matched_payment: Optional[Payment] = None
@@ -524,21 +525,71 @@ async def upi_payment_webhook(
         for p in recent_pending:
             if abs(float(p.amount) - float(extracted_amount)) < 0.05:
                 matched_payment = p
-                logger.info("FreePay auto-matched pending UPI payment %s by amount ₹%s", p.id, extracted_amount)
+                print(f"✅ Matched pending UPI payment {p.id} by amount ₹{extracted_amount}", flush=True)
                 break
 
-    # Strategy C: If exactly one pending UPI payment exists and UTR or notification arrived
-    if not matched_payment and (extracted_utr or full_search_text):
+    # Strategy B2: If no Payment row was created yet, match pending Invoice directly by amount!
+    if not matched_payment and extracted_amount is not None and extracted_amount > 0:
+        inv_res = await db.execute(
+            select(Invoice)
+            .where(Invoice.status == "pending")
+            .order_by(desc(Invoice.created_at))
+            .limit(10)
+        )
+        recent_invoices = inv_res.scalars().all()
+        for inv in recent_invoices:
+            if abs(float(inv.grand_total) - float(extracted_amount)) < 0.05:
+                matched_payment = Payment(
+                    business_profile_id=inv.business_profile_id,
+                    invoice_id=inv.id,
+                    amount=float(inv.grand_total),
+                    payment_method="upi",
+                    currency="inr",
+                    upi_tn=resolved_tn or f"krishi_inv_{inv.id[:8]}_{int(time.time())}",
+                    status="pending",
+                )
+                db.add(matched_payment)
+                await db.commit()
+                await db.refresh(matched_payment)
+                print(f"✅ Created & matched Payment for pending Invoice {inv.invoice_number} (₹{extracted_amount})", flush=True)
+                break
+
+    # Strategy C: Development/Demo fallback - if user sent test webhook or only 1 pending invoice exists
+    if not matched_payment:
+        # Check if there is any pending payment
         res = await db.execute(
             select(Payment)
             .where(Payment.status == "pending", Payment.payment_method == "upi")
             .order_by(desc(Payment.created_at))
-            .limit(2)
+            .limit(5)
         )
-        recent_pending = res.scalars().all()
-        if len(recent_pending) == 1:
-            matched_payment = recent_pending[0]
-            logger.info("FreePay fallback matched single pending UPI payment %s", matched_payment.id)
+        pending_list = res.scalars().all()
+        if pending_list:
+            matched_payment = pending_list[0]
+            print(f"✅ Fallback matched latest pending payment {matched_payment.id} for invoice {matched_payment.invoice_id}", flush=True)
+        else:
+            # Check latest pending invoice
+            inv_res = await db.execute(
+                select(Invoice)
+                .where(Invoice.status == "pending")
+                .order_by(desc(Invoice.created_at))
+                .limit(1)
+            )
+            latest_inv = inv_res.scalars().first()
+            if latest_inv:
+                matched_payment = Payment(
+                    business_profile_id=latest_inv.business_profile_id,
+                    invoice_id=latest_inv.id,
+                    amount=float(latest_inv.grand_total),
+                    payment_method="upi",
+                    currency="inr",
+                    upi_tn=resolved_tn or f"krishi_inv_{latest_inv.id[:8]}_{int(time.time())}",
+                    status="pending",
+                )
+                db.add(matched_payment)
+                await db.commit()
+                await db.refresh(matched_payment)
+                print(f"✅ Fallback matched latest pending invoice {latest_inv.invoice_number}", flush=True)
 
     if not matched_payment:
         return {

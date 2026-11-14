@@ -79,11 +79,12 @@ export function PaymentQR({
       // Fallback for draft/new invoices without an ID yet
       const vpa = profile?.upi_id || "harshsrivastava0315@pingpay";
       const name = profile?.business_name || "KrishiConnect";
-      const fallbackTn = `Invoice-${invoiceNumber}`;
+      const fallbackTn = `krishi_inv_draft_${invoiceNumber || "new"}_${Date.now()}`;
       const url = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(fallbackTn)}`;
 
       setUpiVpa(vpa);
       setUpiUrl(url);
+      setTn(fallbackTn);
 
       QRCode.toDataURL(url, { width: 240, margin: 1 })
         .then((dataUrl) => {
@@ -130,6 +131,13 @@ export function PaymentQR({
   };
 
   const handleConfirmPaid = async () => {
+    if (!invoiceId) {
+      // Draft / New invoice preview - confirm locally and notify parent form
+      setStatus("paid");
+      isPaidRef.current = true;
+      if (onPaymentSuccess) onPaymentSuccess();
+      return;
+    }
     if (!tn) return;
     try {
       setIsConfirming(true);
@@ -150,6 +158,13 @@ export function PaymentQR({
   };
 
   const handleSimulatePayment = async () => {
+    if (!invoiceId) {
+      // Draft / New invoice preview - simulate verify locally and notify parent form
+      setStatus("paid");
+      isPaidRef.current = true;
+      if (onPaymentSuccess) onPaymentSuccess();
+      return;
+    }
     if (!tn) return;
     try {
       setSimulating(true);

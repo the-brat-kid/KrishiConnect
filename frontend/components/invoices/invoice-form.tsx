@@ -421,7 +421,11 @@ export function InvoiceForm() {
 
           {paymentMethod === 'upi' && (
             <div className="liquid-glass p-6 rounded-3xl border border-white/15 bg-black/40 backdrop-blur-2xl flex flex-col items-center justify-center gap-4 shadow-xl">
-              <PaymentQR amount={grandTotal} invoiceNumber="DRAFT" />
+              <PaymentQR
+                amount={grandTotal}
+                invoiceNumber="DRAFT"
+                onPaymentSuccess={() => setUpiPaymentConfirmed(true)}
+              />
 
               {!upiPaymentConfirmed ? (
                 <div className="w-full pt-4 border-t border-white/10 flex flex-col items-center gap-3">

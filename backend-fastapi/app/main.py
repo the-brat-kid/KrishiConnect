@@ -11,11 +11,26 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from sqlalchemy import text
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Auto-create all tables on startup (if they don't exist)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Ensure recently added columns exist on existing tables in all environments
+        for ddl in [
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR DEFAULT 'upi'",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS currency VARCHAR DEFAULT 'inr'",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS upi_tn VARCHAR",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_session_id VARCHAR",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR",
+            "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
+        ]:
+            try:
+                await conn.execute(text(ddl))
+            except Exception:
+                pass
     print("✅ Database tables verified/created successfully")
     yield
 
