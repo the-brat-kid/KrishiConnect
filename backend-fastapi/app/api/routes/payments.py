@@ -445,11 +445,16 @@ async def upi_payment_webhook(
     """
     FreePay Webhook Endpoint:
     Receives notification payloads from Android Listener (MacroDroid, GpayReader, Tasker, NotifyHook).
-    Extracts the unique transaction note (tn), updates the transaction, and marks invoice as Paid.
-    Supports JSON, form-data, or raw text payloads seamlessly.
+    Extracts transaction reference (tn), amount, and 12-digit UTR.
+    Matches either by explicit tn reference OR by matching pending payment amount within recent window.
+    Supports JSON, form-data, or raw text payloads seamlessly from GPay, PhonePe, Paytm, BHIM, and Bank SMS.
     """
     resolved_tn = None
+    extracted_utr = None
+    extracted_amount = None
     raw_body_text = ""
+    combined_fields = ""
+
     try:
         body_bytes = await request.body()
         raw_body_text = body_bytes.decode("utf-8", errors="ignore")
@@ -461,36 +466,112 @@ async def upi_payment_webhook(
         data = await request.json()
         if isinstance(data, dict):
             resolved_tn = data.get("tn")
-            if not resolved_tn and data.get("note"):
-                match = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+)", str(data.get("note")))
-                resolved_tn = match.group(0) if match else None
+            combined_fields = f"{data.get('note', '')} {data.get('text', '')} {data.get('title', '')} {data.get('message', '')} {data.get('content', '')} {data.get('notification', '')} {data.get('body', '')}"
+            if data.get("amount"):
+                try:
+                    extracted_amount = float(str(data.get("amount")).replace(",", "").strip())
+                except Exception:
+                    pass
     except Exception:
         pass
 
-    # 2. Fallback: Search directly in raw body text
-    if not resolved_tn and raw_body_text:
-        match = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+)", raw_body_text)
-        resolved_tn = match.group(0) if match else None
+    full_search_text = f"{combined_fields} {raw_body_text}".strip()
 
-    if not resolved_tn:
-        return {"status": "ignored", "message": "No matching transaction reference found in payload"}
+    # 2. Extract transaction note if present (krishi_inv_... or user_id_...)
+    if not resolved_tn and full_search_text:
+        match_tn = re.search(r"(krishi_inv_[a-zA-Z0-9_-]+|user_id_[a-zA-Z0-9_-]+|inv_[a-zA-Z0-9_-]+)", full_search_text, re.IGNORECASE)
+        resolved_tn = match_tn.group(0) if match_tn else None
 
-    res = await db.execute(select(Payment).where(Payment.upi_tn == resolved_tn))
-    payment = res.scalars().first()
-    if not payment:
-        return {"status": "not_found", "message": "Transaction not found or already processed"}
+    # 3. Extract 12-digit UPI UTR / RRN (e.g. 432109876543)
+    if full_search_text:
+        utr_match = re.search(r"\b([0-9]{12})\b", full_search_text)
+        if utr_match:
+            extracted_utr = utr_match.group(1)
 
-    payment.status = "paid"
+    # 4. Extract amount if not parsed yet (e.g. ₹500, Rs. 500.00, INR 1,500.00, received 500)
+    if extracted_amount is None and full_search_text:
+        amt_matches = re.findall(r"(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d{1,2})?)", full_search_text, re.IGNORECASE)
+        if not amt_matches:
+            amt_matches = re.findall(r"([\d,]+(?:\.\d{1,2})?)\s*(?:₹|rs\.?|inr)", full_search_text, re.IGNORECASE)
+        if not amt_matches:
+            amt_matches = re.findall(r"(?:received|credited|sent|paid)\s+(?:amount\s+of\s+)?(?:₹|rs\.?|inr)?\s*([\d,]+(?:\.\d{1,2})?)", full_search_text, re.IGNORECASE)
+        
+        if amt_matches:
+            try:
+                cleaned = amt_matches[0].replace(",", "")
+                extracted_amount = float(cleaned)
+            except Exception:
+                pass
 
-    inv_res = await db.execute(select(Invoice).where(Invoice.id == payment.invoice_id))
+    logger.info("FreePay webhook received: resolved_tn=%s, extracted_amount=%s, extracted_utr=%s", resolved_tn, extracted_amount, extracted_utr)
+
+    matched_payment: Optional[Payment] = None
+
+    # Strategy A: Match by explicit transaction note
+    if resolved_tn:
+        res = await db.execute(select(Payment).where(Payment.upi_tn == resolved_tn))
+        matched_payment = res.scalars().first()
+
+    # Strategy B: Match by recent pending UPI payment with matching amount (essential for GPay/PhonePe personal notifications)
+    if not matched_payment and extracted_amount is not None and extracted_amount > 0:
+        res = await db.execute(
+            select(Payment)
+            .where(Payment.status == "pending", Payment.payment_method == "upi")
+            .order_by(desc(Payment.created_at))
+            .limit(10)
+        )
+        recent_pending = res.scalars().all()
+        for p in recent_pending:
+            if abs(float(p.amount) - float(extracted_amount)) < 0.05:
+                matched_payment = p
+                logger.info("FreePay auto-matched pending UPI payment %s by amount ₹%s", p.id, extracted_amount)
+                break
+
+    # Strategy C: If exactly one pending UPI payment exists and UTR or notification arrived
+    if not matched_payment and (extracted_utr or full_search_text):
+        res = await db.execute(
+            select(Payment)
+            .where(Payment.status == "pending", Payment.payment_method == "upi")
+            .order_by(desc(Payment.created_at))
+            .limit(2)
+        )
+        recent_pending = res.scalars().all()
+        if len(recent_pending) == 1:
+            matched_payment = recent_pending[0]
+            logger.info("FreePay fallback matched single pending UPI payment %s", matched_payment.id)
+
+    if not matched_payment:
+        return {
+            "status": "ignored",
+            "message": "No matching pending transaction found for payload",
+            "debug": {
+                "resolved_tn": resolved_tn,
+                "extracted_amount": extracted_amount,
+                "extracted_utr": extracted_utr,
+            }
+        }
+
+    # Settle payment & invoice
+    matched_payment.status = "paid"
+    if extracted_utr:
+        matched_payment.razorpay_payment_id = extracted_utr
+
+    inv_res = await db.execute(select(Invoice).where(Invoice.id == matched_payment.invoice_id))
     invoice = inv_res.scalars().first()
     if invoice:
         invoice.status = "paid"
         invoice.payment_method = "upi"
 
     await db.commit()
-    logger.info("FreePay UPI settled transaction %s for invoice %s", resolved_tn, payment.invoice_id)
-    return {"status": "success", "message": "Transaction updated and invoice settled successfully"}
+    logger.info("FreePay UPI successfully settled invoice %s (tn=%s, amount=%s, utr=%s)", matched_payment.invoice_id, matched_payment.upi_tn, matched_payment.amount, extracted_utr)
+
+    return {
+        "status": "success",
+        "message": "Transaction verified and invoice settled successfully",
+        "invoice_id": matched_payment.invoice_id,
+        "amount": matched_payment.amount,
+        "utr": extracted_utr,
+    }
 
 
 @router.post("/upi/simulate-test")
