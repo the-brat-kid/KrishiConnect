@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, delete
 from sqlalchemy.orm import selectinload
 from typing import Optional, List
 
@@ -11,6 +11,7 @@ from app.models.invoice_item import InvoiceItem
 from app.models.business_profile import BusinessProfile
 from app.models.user import User
 from app.models.customer import Customer
+from app.models.payment import Payment
 from app.schemas.invoice import InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceStatusUpdate
 from app.services.invoice_service import generate_invoice_number
 from app.services.pdf_service import generate_invoice_pdf
@@ -188,10 +189,12 @@ async def delete_invoice(
     db: AsyncSession = Depends(get_db)
 ):
     invoice = await get_invoice(id, profile, db)
+    # Delete associated payments to prevent foreign key errors
+    await db.execute(delete(Payment).where(Payment.invoice_id == id))
     await db.delete(invoice)
     await db.commit()
     await log_audit("delete_invoice", current_user.id, profile.id, "invoice", id, {})
-    return {"detail": "Invoice deleted"}
+    return {"detail": "Invoice deleted successfully"}
 
 @router.patch("/{id}/status")
 async def update_invoice_status(

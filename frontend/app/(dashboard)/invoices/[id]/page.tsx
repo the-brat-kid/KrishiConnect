@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useInvoice, useUpdateInvoiceStatus } from "@/hooks/use-invoices";
+import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from "@/hooks/use-invoices";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { useCustomers } from "@/hooks/use-customers";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import {
   Clock,
   ShieldCheck,
   Share2,
+  Trash2,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
@@ -34,11 +35,29 @@ export default function InvoiceDetailPage() {
   const { data: profile } = useBusinessProfile();
   const { data: customers } = useCustomers();
   const { mutateAsync: updateStatus } = useUpdateInvoiceStatus();
+  const { mutateAsync: deleteInvoice } = useDeleteInvoice();
 
   const [isClient, setIsClient] = useState(false);
   const [showUpiQR, setShowUpiQR] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
+
+  const handleDeleteInvoice = async () => {
+    if (!invoice) return;
+    if (!window.confirm(`Are you sure you want to delete invoice #${invoice.invoice_number}? This cannot be undone.`)) {
+      return;
+    }
+    try {
+      setIsDeleting(true);
+      await deleteInvoice(invoice.id);
+      router.push("/invoices");
+    } catch (err: any) {
+      alert("Failed to delete invoice: " + (err?.response?.data?.detail || err.message));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     setIsClient(true);
@@ -137,6 +156,16 @@ export default function InvoiceDetailPage() {
                 </button>
               </PDFDownloadLink>
             )}
+
+            <button
+              onClick={handleDeleteInvoice}
+              disabled={isDeleting}
+              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-500/20 border-rose-500/30 transition-all cursor-pointer"
+              title="Delete invoice"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+              <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+            </button>
           </div>
         </div>
       </div>

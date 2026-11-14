@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useInvoices } from "@/hooks/use-invoices";
+import { useInvoices, useDeleteInvoice } from "@/hooks/use-invoices";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import {
@@ -19,6 +19,7 @@ import {
   ArrowRight,
   TrendingUp,
   FileSpreadsheet,
+  Trash2,
 } from "lucide-react";
 
 const statusStyles: Record<string, string> = {
@@ -30,7 +31,23 @@ const statusStyles: Record<string, string> = {
 
 export default function InvoicesPage() {
   const { data: invoices, isLoading } = useInvoices();
+  const { mutateAsync: deleteInvoice } = useDeleteInvoice();
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteInvoice = async (id: string, invoiceNumber: string) => {
+    if (!window.confirm(`Are you sure you want to delete invoice #${invoiceNumber}?`)) {
+      return;
+    }
+    try {
+      setDeletingId(id);
+      await deleteInvoice(id);
+    } catch (err: any) {
+      alert("Failed to delete invoice: " + (err?.response?.data?.detail || err.message));
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleCopyPayLink = (invoiceId: string) => {
     if (typeof window !== "undefined") {
@@ -278,6 +295,14 @@ export default function InvoicesPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
+                        <button
+                          onClick={() => handleDeleteInvoice(inv.id, inv.invoice_number)}
+                          disabled={deletingId === inv.id}
+                          title="Delete Invoice"
+                          className="btn-liquid-glass p-2 rounded-xl text-muted-foreground hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
