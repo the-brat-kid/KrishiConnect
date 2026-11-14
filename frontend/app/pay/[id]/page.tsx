@@ -434,7 +434,7 @@ export default function PublicPaymentPage() {
                         ) : (
                           <CheckCircle2 className="w-4 h-4 text-white" />
                         )}
-                        <span>I Have Paid in Cash (Confirm)</span>
+                        <span>Confirm Cash Payment</span>
                       </button>
                     </div>
                   )}

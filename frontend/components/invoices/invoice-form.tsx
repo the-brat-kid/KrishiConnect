@@ -420,31 +420,17 @@ export function InvoiceForm() {
           </div>
 
           {paymentMethod === 'upi' && (
-            <div className="liquid-glass p-6 rounded-3xl border border-white/15 bg-black/40 backdrop-blur-2xl flex flex-col items-center justify-center gap-4 shadow-xl">
+            <div className="flex flex-col items-center justify-center gap-3 w-full">
               <PaymentQR
                 amount={grandTotal}
                 invoiceNumber="DRAFT"
                 onPaymentSuccess={() => setUpiPaymentConfirmed(true)}
               />
 
-              {!upiPaymentConfirmed ? (
-                <div className="w-full pt-4 border-t border-white/10 flex flex-col items-center gap-3">
-                  <p className="text-xs text-muted-foreground text-center">
-                    Invoice will stay <strong className="text-amber-400">Unpaid</strong> until you confirm payment has been received.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setUpiPaymentConfirmed(true)}
-                    className="btn-liquid-glass-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white shadow-[0_0_15px_rgba(20,122,77,0.4)]"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Payment Received</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs">
+              {upiPaymentConfirmed && (
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium animate-in fade-in">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Payment confirmed: invoice will be stamped as Paid</span>
+                  <span>Payment confirmed • Invoice will be saved as Paid</span>
                 </div>
               )}
             </div>

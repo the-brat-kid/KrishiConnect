@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Try parsing the body for diagnostics
     let parsed: any = null;
     try {
       parsed = JSON.parse(rawBody);
@@ -39,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       status: "received",
-      message: "Webhook delivered to KrishiConnect edge router. If using local FastAPI backend, please point companion app to your Cloudflare Tunnel URL.",
+      message: "Webhook delivered to KrishiConnect edge router.",
       payload: parsed,
       timestamp: new Date().toISOString(),
     });
@@ -52,21 +51,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  const backendUrl =
-    process.env.BACKEND_URL ||
-    process.env.BACKEND_INTERNAL_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "";
   return NextResponse.json({
     status: "active",
-    message: "KrishiConnect FreePay UPI Webhook endpoint is live.",
-    backend_url: backendUrl,
+    message: "KrishiConnect UPI Webhook endpoint is live.",
     endpoints: {
       post_webhook: "/api/v1/payments/upi/webhook",
       post_direct: "/webhook/payment",
-    },
-  });
-}
     },
   });
 }
