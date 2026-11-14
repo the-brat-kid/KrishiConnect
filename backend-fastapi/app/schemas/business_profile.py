@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 class BusinessProfileBase(BaseModel):
@@ -21,6 +21,6 @@ class BusinessProfileUpdate(BaseModel):
     logo_base64: Optional[str] = None
 
 class BusinessProfileResponse(BusinessProfileBase):
-    id: UUID
+    id: Union[UUID, str]
     class Config:
         from_attributes = True

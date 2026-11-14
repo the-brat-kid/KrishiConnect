@@ -59,8 +59,16 @@ export default function SettingsPage() {
               <Input value={formData.gst_number} onChange={(e) => setFormData({...formData, gst_number: e.target.value})} />
             </div>
             <div className="space-y-2">
-              <Label>UPI ID (for payments)</Label>
-              <Input value={formData.upi_id} onChange={(e) => setFormData({...formData, upi_id: e.target.value})} />
+              <Label htmlFor="upi_id">UPI ID (for payments &amp; FreePay QR)</Label>
+              <Input
+                id="upi_id"
+                placeholder="e.g. yourname@pingpay, username@okaxis, or 9876543210@upi"
+                value={formData.upi_id}
+                onChange={(e) => setFormData({...formData, upi_id: e.target.value})}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                All customer QR codes and FreePay real-time UPI settlements will automatically route to this UPI ID.
+              </p>
             </div>
           </CardContent>
           <CardFooter>

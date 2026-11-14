@@ -40,6 +40,8 @@ class StripeVerifyResponse(BaseModel):
 
 class UpiCreateQrRequest(BaseModel):
     invoice_id: Union[UUID, str]
+    upi_vpa: Optional[str] = None
+    upi_name: Optional[str] = None
 
 class UpiCreateQrResponse(BaseModel):
     tn: str

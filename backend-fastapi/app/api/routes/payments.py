@@ -360,16 +360,29 @@ async def create_upi_qr_order(
     timestamp = int(time.time())
     tn = f"krishi_inv_{invoice.id[:8]}_{timestamp}"
 
-    upi_vpa = (
-        (invoice.business_profile.upi_id if invoice.business_profile and invoice.business_profile.upi_id else None)
-        or settings.MERCHANT_UPI_ID
-        or "harshsrivastava0315@pingpay"
-    )
-    upi_name = (
-        (invoice.business_profile.business_name if invoice.business_profile and invoice.business_profile.business_name else None)
-        or settings.MERCHANT_UPI_NAME
-        or "KrishiConnect"
-    )
+    # 1. Caller passed explicit upi_vpa
+    upi_vpa = req.upi_vpa.strip() if req.upi_vpa and req.upi_vpa.strip() else None
+    upi_name = req.upi_name.strip() if req.upi_name and req.upi_name.strip() else None
+
+    # 2. User's business profile in DB (editable via Settings)
+    if not upi_vpa or not upi_name:
+        bp = invoice.business_profile
+        if not bp and invoice.business_profile_id:
+            bp_res = await db.execute(
+                select(BusinessProfile).where(BusinessProfile.id == invoice.business_profile_id)
+            )
+            bp = bp_res.scalars().first()
+
+        if not upi_vpa and bp and bp.upi_id and bp.upi_id.strip():
+            upi_vpa = bp.upi_id.strip()
+        if not upi_name and bp and bp.business_name and bp.business_name.strip():
+            upi_name = bp.business_name.strip()
+
+    # 3. System defaults
+    if not upi_vpa:
+        upi_vpa = settings.MERCHANT_UPI_ID or "harshsrivastava0315@pingpay"
+    if not upi_name:
+        upi_name = settings.MERCHANT_UPI_NAME or "KrishiConnect"
 
     amount = float(invoice.grand_total)
 

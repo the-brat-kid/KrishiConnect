@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import QRCode from "qrcode";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { formatCurrency } from "@/lib/utils";
@@ -41,6 +42,8 @@ export function PaymentQR({
         try {
           const res = await axios.post(`${API_BASE_URL}/api/v1/payments/upi/create-qr`, {
             invoice_id: invoiceId,
+            upi_vpa: profile?.upi_id?.trim() || undefined,
+            upi_name: profile?.business_name?.trim() || undefined,
           });
           if (!isSubscribed) return;
 
@@ -167,6 +170,12 @@ export function PaymentQR({
       <div className="space-y-1">
         <div className="font-mono font-bold text-base text-slate-900">{formatCurrency(amount)}</div>
         <p className="text-[11px] font-mono text-slate-500 break-all">{upiVpa}</p>
+        <Link
+          href="/settings"
+          className="text-[10px] text-emerald-600 hover:text-emerald-700 underline font-medium block"
+        >
+          Change UPI ID in Settings
+        </Link>
         {tn && <p className="text-[10px] text-slate-400 font-mono">Ref: {tn}</p>}
       </div>
 
