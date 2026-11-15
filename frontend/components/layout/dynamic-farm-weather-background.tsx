@@ -29,7 +29,7 @@ export function DynamicFarmWeatherBackground({
       </div>
 
       {/* 3. Soft Ambient Legibility Vignette - Ensures UI cards and text remain razor-sharp */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-background/55 dark:from-black/80 dark:via-black/25 dark:to-black/60 backdrop-blur-[0.5px] transition-colors duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-background/55 dark:from-black/80 dark:via-black/25 dark:to-black/60 backdrop-blur-[0.5px]" />
     </div>
   );
 }

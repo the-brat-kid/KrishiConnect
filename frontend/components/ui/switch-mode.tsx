@@ -28,22 +28,13 @@ export const SwitchMode: FC<SwitchModeProps> = ({
   className = "",
 }) => {
   const [mounted, setMounted] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   useEffect(() => {
-    requestAnimationFrame(() => setMounted(true));
+    setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div
-        style={{ width, height }}
-        className={`rounded-full border-2 border-transparent opacity-0 ${className}`}
-      />
-    );
-  }
-
-  const isDark = resolvedTheme === "dark";
+  const isDark = mounted ? (resolvedTheme === "dark" || theme === "dark") : true;
   const iconSize = Math.max(14, Math.round(height * 0.46));
   const knobTravel = width - height;
 

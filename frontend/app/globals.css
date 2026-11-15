@@ -56,6 +56,14 @@
   }
 }
 
+html.dark {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+}
+
 @layer base {
   * {
     @apply border-border;
