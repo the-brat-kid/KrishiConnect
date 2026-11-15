@@ -20,7 +20,6 @@ export class AIService {
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }]
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (msg.content[0] as any).text;
   }
 
