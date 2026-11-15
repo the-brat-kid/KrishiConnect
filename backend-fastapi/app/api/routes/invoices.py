@@ -16,7 +16,11 @@ from app.schemas.invoice import InvoiceCreate, InvoiceUpdate, InvoiceResponse, I
 from app.services.invoice_service import generate_invoice_number
 from app.services.pdf_service import generate_invoice_pdf
 from app.services.audit_service import log_audit
-from app.services.email_service import send_invoice_email_background
+from app.services.email_service import send_invoice_email, send_invoice_email_background
+from pydantic import BaseModel
+
+class InvoiceEmailRequest(BaseModel):
+    email: Optional[str] = None
 
 router = APIRouter()
 
@@ -225,12 +229,14 @@ async def download_invoice_pdf(
     return Response(content=pdf_buffer.getvalue(), media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename={invoice.invoice_number}.pdf"})
 
 
-# --- NEW EMAIL ENDPOINT ---
+# --- EMAIL ENDPOINT ---
 @router.post("/{invoice_id}/send-email")
 async def trigger_email(
     invoice_id: str, 
-    email: str, 
     background_tasks: BackgroundTasks,
+    email: Optional[str] = Query(None),
+    payload: Optional[InvoiceEmailRequest] = None,
+    sync: bool = Query(False),
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
@@ -245,7 +251,16 @@ async def trigger_email(
         if not invoice:
             raise HTTPException(status_code=404, detail="Invoice not found")
 
-        # Extract real amount and invoice number
+        recipient_email = (
+            email or 
+            (payload.email if payload else None) or 
+            (invoice.customer.email if invoice.customer else None) or 
+            ""
+        ).strip()
+
+        if not recipient_email or "@" not in recipient_email:
+            raise HTTPException(status_code=400, detail="A valid recipient email address is required.")
+
         amount = float(invoice.grand_total or 0.0)
         invoice_number = invoice.invoice_number or "INV"
 
@@ -253,10 +268,22 @@ async def trigger_email(
         pdf_buffer = generate_invoice_pdf(invoice, profile, invoice.customer)
         pdf_bytes = pdf_buffer.getvalue()
 
-        # Adding to background tasks ensures the API responds immediately.
-        background_tasks.add_task(send_invoice_email_background, email, invoice_number, amount, pdf_bytes)
-
-        return {"status": "queued", "message": f"Email to {email} has been queued for sending"}
+        if sync:
+            await send_invoice_email(recipient_email, invoice_number, amount, pdf_bytes)
+            return {
+                "status": "sent",
+                "recipient": recipient_email,
+                "invoice_number": invoice_number,
+                "message": f"Invoice #{invoice_number} sent with attached PDF to {recipient_email}."
+            }
+        else:
+            background_tasks.add_task(send_invoice_email_background, recipient_email, invoice_number, amount, pdf_bytes)
+            return {
+                "status": "queued",
+                "recipient": recipient_email,
+                "invoice_number": invoice_number,
+                "message": f"Invoice #{invoice_number} email dispatch to {recipient_email} has been queued with PDF attachment."
+            }
     except HTTPException:
         raise
     except Exception as exc:

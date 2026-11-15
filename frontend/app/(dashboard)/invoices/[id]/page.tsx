@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice } from "@/hooks/use-invoices";
+import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice, useSendInvoiceEmail } from "@/hooks/use-invoices";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { useCustomers } from "@/hooks/use-customers";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Share2,
   Trash2,
+  Mail,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
@@ -36,12 +37,35 @@ export default function InvoiceDetailPage() {
   const { data: customers } = useCustomers();
   const { mutateAsync: updateStatus } = useUpdateInvoiceStatus();
   const { mutateAsync: deleteInvoice } = useDeleteInvoice();
+  const { mutateAsync: sendInvoiceEmail } = useSendInvoiceEmail();
 
   const [isClient, setIsClient] = useState(false);
   const [showUpiQR, setShowUpiQR] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
+
+  const handleSendEmail = async () => {
+    if (!invoice) return;
+    const defaultEmail = customer?.email || "";
+    const targetEmail = window.prompt(
+      `Send Invoice #${invoice.invoice_number} with PDF attachment to:`,
+      defaultEmail
+    );
+    if (!targetEmail || !targetEmail.trim()) return;
+
+    try {
+      setIsSendingEmail(true);
+      const res = await sendInvoiceEmail({ id: invoice.id, email: targetEmail.trim() });
+      setVerificationMessage(res?.message || `Invoice PDF successfully emailed to ${targetEmail.trim()}`);
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err?.message || "Failed to send email";
+      alert(`Error sending email: ${msg}`);
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
 
   const handleDeleteInvoice = async () => {
     if (!invoice) return;
@@ -143,6 +167,20 @@ export default function InvoiceDetailPage() {
             >
               <Printer className="h-3.5 w-3.5 text-muted-foreground" />
               <span>Print</span>
+            </button>
+
+            <button
+              onClick={handleSendEmail}
+              disabled={isSendingEmail}
+              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all disabled:opacity-50"
+              title="Email invoice with attached PDF"
+            >
+              {isSendingEmail ? (
+                <Loader2 className="h-3.5 w-3.5 text-emerald-400 animate-spin" />
+              ) : (
+                <Mail className="h-3.5 w-3.5 text-emerald-400" />
+              )}
+              <span>{isSendingEmail ? "Sending..." : "Email PDF"}</span>
             </button>
 
             {isClient && profile && (

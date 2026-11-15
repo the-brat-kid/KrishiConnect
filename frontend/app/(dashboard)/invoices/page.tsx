@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useInvoices, useDeleteInvoice } from "@/hooks/use-invoices";
+import { useInvoices, useDeleteInvoice, useSendInvoiceEmail } from "@/hooks/use-invoices";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import {
@@ -32,8 +32,10 @@ const statusStyles: Record<string, string> = {
 export default function InvoicesPage() {
   const { data: invoices, isLoading } = useInvoices();
   const { mutateAsync: deleteInvoice } = useDeleteInvoice();
+  const { mutateAsync: sendInvoiceEmail } = useSendInvoiceEmail();
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
 
   const handleDeleteInvoice = async (id: string, invoiceNumber: string) => {
     if (!window.confirm(`Are you sure you want to delete invoice #${invoiceNumber}?`)) {
@@ -57,25 +59,20 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleSendEmail = async (invoiceId: string, defaultEmail?: string) => {
-    const customerEmail = window.prompt("Enter customer email address to send this invoice:", defaultEmail || "");
-    if (!customerEmail) return;
+  const handleSendEmail = async (invoiceId: string, invoiceNumber: string, defaultEmail?: string) => {
+    const customerEmail = window.prompt(`Enter recipient email to send Invoice #${invoiceNumber} (PDF attached):`, defaultEmail || "");
+    if (!customerEmail || !customerEmail.trim()) return;
 
     try {
-      const token = localStorage.getItem("access_token");
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiBaseUrl}/api/v1/invoices/${invoiceId}/send-email?email=${customerEmail}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        alert("Invoice email dispatch started in the background!");
-      } else {
-        alert("Failed to send email. Check backend logs.");
-      }
-    } catch (error) {
+      setSendingEmailId(invoiceId);
+      const res = await sendInvoiceEmail({ id: invoiceId, email: customerEmail.trim() });
+      alert(res?.message || `Invoice #${invoiceNumber} and PDF attachment sent successfully!`);
+    } catch (error: any) {
       console.error("Email error:", error);
-      alert("An error occurred while sending the email.");
+      const errMsg = error?.response?.data?.detail || error?.message || "Failed to send email.";
+      alert(`Email sending failed: ${errMsg}`);
+    } finally {
+      setSendingEmailId(null);
     }
   };
 
@@ -282,11 +279,16 @@ export default function InvoicesPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleSendEmail(inv.id, inv.customer?.email)}
-                          title="Send Invoice via Email"
-                          className="btn-liquid-glass p-2 rounded-xl text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => handleSendEmail(inv.id, inv.invoice_number, inv.customer?.email)}
+                          disabled={sendingEmailId === inv.id}
+                          title="Send Invoice PDF via Email"
+                          className="btn-liquid-glass p-2 rounded-xl text-muted-foreground hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
                         >
-                          <Mail className="w-4 h-4" />
+                          {sendingEmailId === inv.id ? (
+                            <span className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin inline-block" />
+                          ) : (
+                            <Mail className="w-4 h-4" />
+                          )}
                         </button>
                         <Link
                           href={`/invoices/${inv.id}`}

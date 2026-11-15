@@ -60,3 +60,13 @@ export function useDeleteInvoice() {
     },
   });
 }
+
+export function useSendInvoiceEmail() {
+  return useMutation({
+    mutationFn: async ({ id, email, sync = true }: { id: string; email?: string; sync?: boolean }) => {
+      const query = sync ? '?sync=true' : '';
+      const { data } = await api.post(`/invoices/${id}/send-email${query}`, { email });
+      return data;
+    },
+  });
+}

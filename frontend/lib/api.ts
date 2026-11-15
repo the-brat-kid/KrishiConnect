@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return `${process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '')}/api/v1`;
+  }
+  if (typeof window !== 'undefined') {
+    return '/api/v1';
+  }
+  return 'http://localhost:8000/api/v1';
+};
 
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,7 +37,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) throw new Error('No refresh token');
         
-        const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
+        const response = await axios.post(`${getBaseUrl()}/auth/refresh`, {
           refresh_token: refreshToken
         });
         
