@@ -176,73 +176,96 @@ html.light {
 /* Inspired by Nixtio's Lodge Booking Landscape Design          */
 /* ============================================================ */
 
+/* Living Cinematic Ken-Burns Pan & Breathe */
 @keyframes lodgeBreathe {
-  0%, 100% {
+  0% {
     transform: scale(1) translate3d(0, 0, 0);
   }
+  25% {
+    transform: scale(1.04) translate3d(-0.8%, -0.5%, 0);
+  }
   50% {
-    transform: scale(1.035) translate3d(-0.4%, -0.3%, 0);
+    transform: scale(1.06) translate3d(0.5%, -1%, 0);
+  }
+  75% {
+    transform: scale(1.03) translate3d(-0.3%, 0.4%, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
   }
 }
 
 .animate-lodge-breathe {
-  animation: lodgeBreathe 28s ease-in-out infinite;
+  animation: lodgeBreathe 22s ease-in-out infinite;
   will-change: transform;
 }
 
-/* Drifting Atmospheric Mountain Mist Layers */
+/* Drifting Atmospheric Mountain Mist Layers with Rolling Fog Density */
 @keyframes mistDriftSlow {
   0% {
-    transform: translate3d(-15%, 0, 0);
+    transform: translate3d(-20%, 0, 0) scaleY(1);
+    opacity: 0.35;
   }
   50% {
-    transform: translate3d(10%, -6px, 0);
+    transform: translate3d(15%, -12px, 0) scaleY(1.15);
+    opacity: 0.65;
   }
   100% {
-    transform: translate3d(-15%, 0, 0);
+    transform: translate3d(-20%, 0, 0) scaleY(1);
+    opacity: 0.35;
   }
 }
 
 @keyframes mistDriftFast {
   0% {
-    transform: translate3d(12%, 0, 0);
+    transform: translate3d(18%, 0, 0) scaleY(1.1);
+    opacity: 0.3;
   }
   50% {
-    transform: translate3d(-12%, 8px, 0);
+    transform: translate3d(-18%, 14px, 0) scaleY(0.95);
+    opacity: 0.55;
   }
   100% {
-    transform: translate3d(12%, 0, 0);
+    transform: translate3d(18%, 0, 0) scaleY(1.1);
+    opacity: 0.3;
   }
 }
 
 .animate-mist-slow {
-  animation: mistDriftSlow 36s ease-in-out infinite;
-  will-change: transform;
+  animation: mistDriftSlow 30s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .animate-mist-fast {
-  animation: mistDriftFast 24s ease-in-out infinite;
-  will-change: transform;
+  animation: mistDriftFast 20s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
-/* Floating Warm Cabin Embers & Fireflies */
+/* Floating Warm Cabin Embers & Fireflies with Luminescent Twinkling */
 @keyframes emberFloat {
   0% {
     transform: translate3d(0, 0, 0) scale(0.6);
     opacity: 0;
   }
-  15% {
-    opacity: var(--ember-opacity, 0.75);
+  12% {
+    opacity: var(--ember-opacity, 0.8);
+    filter: brightness(1.2);
   }
-  50% {
-    transform: translate3d(var(--ember-sway, 25px), -45vh, 0) scale(1.05);
-    opacity: var(--ember-opacity, 0.9);
+  35% {
+    opacity: calc(var(--ember-opacity, 0.8) * 0.55);
+    filter: brightness(0.85);
   }
-  85% {
-    opacity: var(--ember-opacity, 0.6);
+  55% {
+    transform: translate3d(var(--ember-sway, 28px), -45vh, 0) scale(1.15);
+    opacity: var(--ember-opacity, 0.95);
+    filter: brightness(1.4);
+  }
+  75% {
+    opacity: calc(var(--ember-opacity, 0.8) * 0.65);
+    filter: brightness(0.9);
   }
   100% {
-    transform: translate3d(calc(var(--ember-sway, 25px) * -0.7), -90vh, 0) scale(0.5);
+    transform: translate3d(calc(var(--ember-sway, 28px) * -0.8), -92vh, 0) scale(0.5);
     opacity: 0;
   }
 }
@@ -255,6 +278,66 @@ html.light {
   box-shadow: 0 0 10px 2px rgba(245, 158, 11, 0.55), 0 0 22px 5px rgba(217, 119, 6, 0.25);
   animation: emberFloat var(--ember-duration, 14s) ease-in-out infinite;
   animation-delay: var(--ember-delay, 0s);
+  will-change: transform, opacity;
+}
+
+/* Cinematic Shooting Star / Meteor Streaks */
+@keyframes meteorPass {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-28deg) scaleX(0);
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.9;
+    transform: translate3d(15vw, 15vh, 0) rotate(-28deg) scaleX(1);
+  }
+  5% {
+    opacity: 0;
+    transform: translate3d(35vw, 35vh, 0) rotate(-28deg) scaleX(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(35vw, 35vh, 0) rotate(-28deg);
+  }
+}
+
+.lodge-meteor {
+  position: absolute;
+  top: 8%;
+  left: 15%;
+  width: 150px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 65%, #67e8f9 100%);
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.8));
+  opacity: 0;
+  animation: meteorPass 14s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.lodge-meteor-delayed {
+  top: 14%;
+  left: 55%;
+  width: 110px;
+  animation-delay: 7.5s;
+  animation-duration: 17s;
+}
+
+/* Warm Volumetric Hearth / Campfire Breathing Pulse */
+@keyframes hearthPulse {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1.05;
+    transform: scale(1.05);
+  }
+}
+
+.animate-hearth-pulse {
+  animation: hearthPulse 7s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
