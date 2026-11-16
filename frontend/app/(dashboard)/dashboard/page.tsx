@@ -300,8 +300,8 @@ export default function DashboardPage() {
       </div>
 
       {/* 2. SECTION: Today's Mandi Baselines (Blended Liquid Glass Container) */}
-      <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
-        <CardHeader className="pb-4 border-b border-white/10">
+      <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden">
+        <CardHeader className="pb-4 border-b border-white/10 dark:border-white/[0.07]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
@@ -577,8 +577,8 @@ export default function DashboardPage() {
       {/* 4. SECTION: Freight Corridors & 5. Procurement Share */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Freight Corridors */}
-        <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)]">
-          <CardHeader className="pb-3 border-b border-white/10">
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+          <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <Truck className="w-4 h-4 text-primary" />
@@ -597,7 +597,7 @@ export default function DashboardPage() {
             {freightCorridors.map((c) => (
               <div
                 key={c.route}
-                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-md"
+                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
                 <div>
                   <p className="text-xs font-bold text-foreground">{c.route}</p>
@@ -615,8 +615,8 @@ export default function DashboardPage() {
         </Card>
 
         {/* Procurement Requirements */}
-        <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)]">
-          <CardHeader className="pb-3 border-b border-white/10">
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+          <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary" />
@@ -635,7 +635,7 @@ export default function DashboardPage() {
             {procurementRequirements.map((p) => (
               <div
                 key={p.entity}
-                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-md"
+                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
                 <div>
                   <p className="text-xs font-bold text-foreground">{p.entity}</p>
