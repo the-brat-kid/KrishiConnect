@@ -138,12 +138,14 @@ export default function DashboardPage() {
   const { currentRegionDef } = useLanguage();
   const displayName = user?.name || user?.full_name || businessProfile?.business_name || "Kisan";
 
-  // Live Mandi Query Hook
+  // Live Mandi Query Hook (automatically reflects active State/Region)
   const {
     data: cropRatesData,
     isFetching: ratesFetching,
     refetch: refetchRates,
-  } = useCropRates();
+  } = useCropRates(
+    currentRegionDef?.name === "All India" ? undefined : currentRegionDef?.name
+  );
 
   const [selectedCropModal, setSelectedCropModal] = useState<{
     name: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
@@ -61,6 +61,13 @@ export default function RegisterPage() {
   const [userState, setUserState] = useState(initialRegion);
   const [district, setDistrict] = useState(PAN_INDIA_REGIONS[initialRegion]?.[0] || "Khordha (Bhubaneswar)");
   const [address, setAddress] = useState("");
+
+  useEffect(() => {
+    if (currentRegionDef?.name && PAN_INDIA_REGIONS[currentRegionDef.name]) {
+      setUserState(currentRegionDef.name);
+      setDistrict(PAN_INDIA_REGIONS[currentRegionDef.name][0]);
+    }
+  }, [currentRegionDef?.name]);
 
   // Optional fields
   const [showOptional, setShowOptional] = useState(false);

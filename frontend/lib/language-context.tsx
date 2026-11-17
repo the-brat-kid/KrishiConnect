@@ -4,16 +4,22 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { usePathname } from "next/navigation";
 
 export type RegionId =
-  | "odisha"
+  | "all_india"
   | "maharashtra"
   | "punjab"
+  | "haryana"
   | "gujarat"
-  | "karnataka"
-  | "tamil_nadu"
-  | "andhra_telangana"
-  | "west_bengal"
   | "uttar_pradesh"
-  | "rajasthan_haryana"
+  | "madhya_pradesh"
+  | "karnataka"
+  | "andhra_pradesh"
+  | "telangana"
+  | "west_bengal"
+  | "rajasthan"
+  | "bihar"
+  | "odisha"
+  | "himachal_pradesh"
+  | "tamil_nadu"
   | "kerala";
 
 export type LanguageCode =
@@ -40,10 +46,19 @@ export interface RegionDefinition {
 }
 
 export const REGIONS: Record<RegionId, RegionDefinition> = {
+  all_india: {
+    id: "all_india",
+    name: "All India",
+    nativeName: "All India",
+    flag: "🇮🇳",
+    defaultLang: "en",
+    supportedLangs: ["en", "hi"],
+    primaryHubs: ["National APMC"],
+  },
   odisha: {
     id: "odisha",
     name: "Odisha",
-    nativeName: "ଓଡ଼ିଶା",
+    nativeName: "Odisha",
     flag: "🌾",
     defaultLang: "or",
     supportedLangs: ["or", "hi", "en"],
@@ -52,92 +67,137 @@ export const REGIONS: Record<RegionId, RegionDefinition> = {
   maharashtra: {
     id: "maharashtra",
     name: "Maharashtra",
-    nativeName: "महाराष्ट्र",
+    nativeName: "Maharashtra",
     flag: "🧅",
     defaultLang: "mr",
     supportedLangs: ["mr", "hi", "en"],
-    primaryHubs: ["Lasalgaon", "Pune", "Nashik", "Nagpur"],
+    primaryHubs: ["Nashik", "Pune", "Lasalgaon", "Nagpur"],
   },
   punjab: {
     id: "punjab",
     name: "Punjab",
-    nativeName: "ਪੰਜਾਬ",
+    nativeName: "Punjab",
     flag: "🌾",
     defaultLang: "pa",
     supportedLangs: ["pa", "hi", "en"],
-    primaryHubs: ["Khanna", "Ludhiana", "Bathinda", "Amritsar"],
+    primaryHubs: ["Khanna", "Ludhiana", "Amritsar", "Bathinda"],
+  },
+  haryana: {
+    id: "haryana",
+    name: "Haryana",
+    nativeName: "Haryana",
+    flag: "🌾",
+    defaultLang: "hi",
+    supportedLangs: ["hi", "en", "pa"],
+    primaryHubs: ["Karnal", "Sonipat", "Sirsa", "Hisar"],
   },
   gujarat: {
     id: "gujarat",
     name: "Gujarat",
-    nativeName: "ગુજરાત",
+    nativeName: "Gujarat",
     flag: "🌱",
     defaultLang: "gu",
     supportedLangs: ["gu", "hi", "en"],
-    primaryHubs: ["Unjha", "Rajkot", "Gondal", "Surat"],
+    primaryHubs: ["Unjha", "Deesa", "Rajkot", "Surat"],
+  },
+  uttar_pradesh: {
+    id: "uttar_pradesh",
+    name: "Uttar Pradesh",
+    nativeName: "Uttar Pradesh",
+    flag: "🚜",
+    defaultLang: "hi",
+    supportedLangs: ["hi", "en"],
+    primaryHubs: ["Agra", "Kanpur", "Varanasi", "Lucknow"],
+  },
+  madhya_pradesh: {
+    id: "madhya_pradesh",
+    name: "Madhya Pradesh",
+    nativeName: "Madhya Pradesh",
+    flag: "🌱",
+    defaultLang: "hi",
+    supportedLangs: ["hi", "en"],
+    primaryHubs: ["Indore", "Ujjain", "Bhopal", "Neemuch"],
   },
   karnataka: {
     id: "karnataka",
     name: "Karnataka",
-    nativeName: "ಕರ್ನಾಟಕ",
+    nativeName: "Karnataka",
     flag: "☕",
     defaultLang: "kn",
     supportedLangs: ["kn", "en", "hi"],
-    primaryHubs: ["Bengaluru", "Hubballi", "Mysuru", "Davanagere"],
+    primaryHubs: ["Bengaluru", "Kolar", "Hubballi", "Mysuru"],
   },
-  tamil_nadu: {
-    id: "tamil_nadu",
-    name: "Tamil Nadu",
-    nativeName: "தமிழ்நாடு",
-    flag: "🍌",
-    defaultLang: "ta",
-    supportedLangs: ["ta", "en"],
-    primaryHubs: ["Koyambedu", "Madurai", "Tiruchirappalli", "Erode"],
-  },
-  andhra_telangana: {
-    id: "andhra_telangana",
-    name: "Andhra Pradesh & Telangana",
-    nativeName: "ఆంధ్రప్రదేశ్ & తెలంగాణ",
+  andhra_pradesh: {
+    id: "andhra_pradesh",
+    name: "Andhra Pradesh",
+    nativeName: "Andhra Pradesh",
     flag: "🌶️",
     defaultLang: "te",
     supportedLangs: ["te", "hi", "en"],
-    primaryHubs: ["Guntur", "Warangal", "Nizamabad", "Vijayawada"],
+    primaryHubs: ["Guntur", "Vijayawada", "Kurnool", "Tirupati"],
+  },
+  telangana: {
+    id: "telangana",
+    name: "Telangana",
+    nativeName: "Telangana",
+    flag: "🌶️",
+    defaultLang: "te",
+    supportedLangs: ["te", "hi", "en"],
+    primaryHubs: ["Hyderabad", "Warangal", "Nizamabad", "Khammam"],
   },
   west_bengal: {
     id: "west_bengal",
     name: "West Bengal",
-    nativeName: "পশ্চিমবঙ্গ",
+    nativeName: "West Bengal",
     flag: "🥔",
     defaultLang: "bn",
     supportedLangs: ["bn", "hi", "en"],
-    primaryHubs: ["Burdwan", "Siliguri", "Howrah", "Malda"],
+    primaryHubs: ["Kolkata", "Hooghly", "Burdwan", "Siliguri"],
   },
-  uttar_pradesh: {
-    id: "uttar_pradesh",
-    name: "Uttar Pradesh & Bihar",
-    nativeName: "उत्तर प्रदेश व बिहार",
-    flag: "🚜",
-    defaultLang: "hi",
-    supportedLangs: ["hi", "en"],
-    primaryHubs: ["Kanpur", "Varanasi", "Lucknow", "Patna"],
-  },
-  rajasthan_haryana: {
-    id: "rajasthan_haryana",
-    name: "Rajasthan & Haryana",
-    nativeName: "राजस्थान व हरियाणा",
+  rajasthan: {
+    id: "rajasthan",
+    name: "Rajasthan",
+    nativeName: "Rajasthan",
     flag: "🌾",
     defaultLang: "hi",
     supportedLangs: ["hi", "en"],
-    primaryHubs: ["Karnal", "Sirsa", "Jaipur", "Kota"],
+    primaryHubs: ["Jaipur", "Jodhpur", "Kota", "Alwar"],
+  },
+  bihar: {
+    id: "bihar",
+    name: "Bihar",
+    nativeName: "Bihar",
+    flag: "🌽",
+    defaultLang: "hi",
+    supportedLangs: ["hi", "en"],
+    primaryHubs: ["Patna", "Purnia", "Muzaffarpur", "Darbhanga"],
+  },
+  himachal_pradesh: {
+    id: "himachal_pradesh",
+    name: "Himachal Pradesh",
+    nativeName: "Himachal Pradesh",
+    flag: "🍎",
+    defaultLang: "hi",
+    supportedLangs: ["hi", "en"],
+    primaryHubs: ["Shimla", "Solan", "Kullu", "Mandi"],
+  },
+  tamil_nadu: {
+    id: "tamil_nadu",
+    name: "Tamil Nadu",
+    nativeName: "Tamil Nadu",
+    flag: "🍌",
+    defaultLang: "ta",
+    supportedLangs: ["ta", "en"],
+    primaryHubs: ["Chennai", "Coimbatore", "Dindigul", "Madurai"],
   },
   kerala: {
     id: "kerala",
     name: "Kerala",
-    nativeName: "കേരളം",
+    nativeName: "Kerala",
     flag: "🌴",
     defaultLang: "ml",
     supportedLangs: ["ml", "en"],
-    primaryHubs: ["Kochi", "Kozhikode", "Kottayam"],
+    primaryHubs: ["Kochi", "Kozhikode", "Wayanad", "Thrissur"],
   },
 };
 
@@ -1234,12 +1294,13 @@ export function applyNativeSiteTranslation(targetLang: LanguageCode) {
       if (currentNode.nodeValue !== original) {
         currentNode.nodeValue = original;
       }
-    } else if (phrases.length > 0) {
-      // Replace known phrases
+    } else {
       let replaced = original;
-      for (const phrase of phrases) {
-        if (replaced.includes(phrase)) {
-          replaced = replaced.split(phrase).join(dict[phrase]);
+      if (phrases.length > 0) {
+        for (const phrase of phrases) {
+          if (replaced.includes(phrase)) {
+            replaced = replaced.split(phrase).join(dict[phrase]);
+          }
         }
       }
       if (currentNode.nodeValue !== replaced) {
@@ -1252,8 +1313,8 @@ export function applyNativeSiteTranslation(targetLang: LanguageCode) {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [region, setRegionState] = useState<RegionId>("odisha");
-  const [language, setLanguageState] = useState<LanguageCode>("or");
+  const [region, setRegionState] = useState<RegionId>("all_india");
+  const [language, setLanguageState] = useState<LanguageCode>("en");
   const pathname = usePathname();
 
   // Load from localStorage on mount & initialize Native DOM translation
@@ -1262,21 +1323,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const savedRegion = localStorage.getItem(STORAGE_KEY_REGION) as RegionId | null;
       const savedLang = localStorage.getItem(STORAGE_KEY_LANG) as LanguageCode | null;
 
-      let initialLang: LanguageCode = "or";
-      if (savedRegion && REGIONS[savedRegion]) {
-        setRegionState(savedRegion);
-        const regionDef = REGIONS[savedRegion];
+      let initialRegion: RegionId = "all_india";
+      let initialLang: LanguageCode = "en";
 
-        if (savedLang && regionDef.supportedLangs.includes(savedLang)) {
-          initialLang = savedLang;
-        } else {
-          initialLang = regionDef.defaultLang;
-        }
-      } else {
-        setRegionState("odisha");
-        initialLang = "or";
+      if (savedRegion && REGIONS[savedRegion]) {
+        initialRegion = savedRegion;
+        const regionDef = REGIONS[savedRegion];
+        initialLang = savedLang && regionDef.supportedLangs.includes(savedLang)
+          ? savedLang
+          : regionDef.defaultLang;
       }
 
+      setRegionState(initialRegion);
       setLanguageState(initialLang);
       if (typeof document !== "undefined") {
         document.documentElement.lang = initialLang;
@@ -1333,7 +1391,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch (e) {}
 
     const regionDef = REGIONS[newRegion];
-    if (!regionDef.supportedLangs.includes(language)) {
+    if (regionDef?.defaultLang) {
       setLanguage(regionDef.defaultLang);
     }
   };
@@ -1350,7 +1408,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     applyNativeSiteTranslation(newLang);
   };
 
-  const currentRegionDef = REGIONS[region] || REGIONS.odisha;
+  const currentRegionDef = REGIONS[region] || REGIONS.all_india || REGIONS.odisha;
   const availableLanguages = currentRegionDef.supportedLangs;
 
   // Translation helper with parameter interpolation and graceful fallbacks

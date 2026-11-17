@@ -38,17 +38,20 @@ export interface CropRatesResponse {
 }
 
 export function useCropRates(state?: string) {
+  const isAll = !state || state.toLowerCase() === "all" || state.toLowerCase() === "all india" || state.toLowerCase() === "pan-india";
+  const cleanKey = isAll ? "all" : state;
+
   return useQuery<CropRatesResponse>({
-    queryKey: ["crop-rates", state || "all"],
+    queryKey: ["crop-rates", cleanKey],
     queryFn: async () => {
-      const url = state && state !== "All" ? `/api/crop-rates?state=${encodeURIComponent(state)}` : "/api/crop-rates";
+      const url = !isAll ? `/api/crop-rates?state=${encodeURIComponent(state!)}` : "/api/crop-rates";
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error("Failed to fetch daily crop rates");
       }
       return res.json();
     },
-    staleTime: 1000 * 60 * 15, // 15 minutes fresh
+    staleTime: 1000 * 60 * 5, // 5 minutes fresh
     refetchOnWindowFocus: false,
   });
 }

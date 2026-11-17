@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Tilt } from "@/components/core/tilt";
 import { useCropRates, CropRateItem } from "@/hooks/use-crop-rates";
+import { useLanguage, REGIONS, RegionId } from "@/lib/language-context";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,22 +35,46 @@ const INDIAN_STATES = [
   "Punjab",
   "Haryana",
   "Gujarat",
-  "Andhra Pradesh",
-  "Telangana",
   "Uttar Pradesh",
   "Madhya Pradesh",
   "Karnataka",
+  "Andhra Pradesh",
+  "Telangana",
   "West Bengal",
+  "Rajasthan",
+  "Bihar",
   "Odisha",
   "Himachal Pradesh",
+  "Tamil Nadu",
   "Kerala",
 ];
 
 export default function DailyCropRatesPage() {
-  const [selectedState, setSelectedState] = useState<string>("All India");
+  const { currentRegionDef, setRegion } = useLanguage();
+  const [selectedState, setSelectedState] = useState<string>(
+    currentRegionDef?.name || "All India"
+  );
+
+  // Sync state whenever region changes globally in header or login
+  useEffect(() => {
+    if (currentRegionDef?.name && currentRegionDef.name !== selectedState) {
+      setSelectedState(currentRegionDef.name);
+    }
+  }, [currentRegionDef?.name]);
+
   const { data, isLoading, isError, refetch, isFetching } = useCropRates(
     selectedState === "All India" ? undefined : selectedState
   );
+
+  const handleStateChange = (newState: string) => {
+    setSelectedState(newState);
+    const matched = Object.values(REGIONS).find(
+      (r) => r.name.toLowerCase() === newState.toLowerCase()
+    );
+    if (matched) {
+      setRegion(matched.id);
+    }
+  };
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -292,12 +317,12 @@ export default function DailyCropRatesPage() {
             {/* State Filter Dropdown */}
             <select
               value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
+              onChange={(e) => handleStateChange(e.target.value)}
               className="h-9 rounded-xl border border-emerald-500/30 bg-card px-3 text-xs font-semibold text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-xs"
             >
               {INDIAN_STATES.map((state) => (
                 <option key={state} value={state}>
-                  📍 {state}
+                  {state}
                 </option>
               ))}
             </select>

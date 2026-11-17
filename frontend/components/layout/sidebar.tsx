@@ -103,7 +103,7 @@ export function Sidebar({ isMobile = false, onNavigate }: SidebarProps) {
               KrishiConnect
             </span>
             <span className="text-[10px] font-semibold text-[#8E8D8A] mt-0.5 tracking-tight">
-              {currentRegionDef.name} ({currentRegionDef.nativeName}) Mandi OS
+              {currentRegionDef.name} Mandi OS
             </span>
           </div>
         </Link>
