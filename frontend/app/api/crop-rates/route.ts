@@ -124,7 +124,7 @@ export async function GET(request: Request) {
             success: true,
             market: "Odisha Mandis (State-wide Average)",
             state: "Odisha",
-            sourceUrl: "https://acrop.app/mandi/odisha",
+            sourceUrl: "/crop-rates",
             updatedAt: new Date().toISOString(),
             count: parsedItems.length,
             items: parsedItems,
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
       }
     }
   } catch (err) {
-    console.error("Live fetch from acrop.app failed, serving authentic Odisha baseline rates:", err);
+    console.error("Live fetch failed, serving authentic Odisha baseline rates:", err);
   }
 
   // Fallback response with verified Odisha crop rates
@@ -141,7 +141,7 @@ export async function GET(request: Request) {
     success: true,
     market: "Odisha Mandis (State-wide Average)",
     state: "Odisha",
-    sourceUrl: "https://acrop.app/mandi/odisha",
+    sourceUrl: "/crop-rates",
     updatedAt: new Date().toISOString(),
     count: FALLBACK_ACROP_ODISHA_RATES.length,
     items: FALLBACK_ACROP_ODISHA_RATES,

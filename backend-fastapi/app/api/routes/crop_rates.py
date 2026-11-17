@@ -18,8 +18,8 @@ _history_cache: Dict[str, Any] = {
     "last_fetched": 0
 }
 
-SOURCE_URL = "https://acrop.app/mandi/odisha"
-HISTORY_SOURCE_URL = "https://acrop.app/mandi/odisha"
+SOURCE_URL = "/crop-rates"
+HISTORY_SOURCE_URL = "/rate-trends"
 
 # Authentic baseline data extracted directly from acrop.app/mandi/odisha
 BASELINE_ODISHA_CROPS = [

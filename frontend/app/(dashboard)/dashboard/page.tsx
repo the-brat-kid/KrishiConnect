@@ -318,7 +318,7 @@ export default function DashboardPage() {
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                <span>Wholesale modal auction rates across Odisha Mandis (acrop.app).</span>
+                <span>Wholesale modal auction rates across Odisha APMC Mandis.</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 font-mono">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   {lastUpdatedText}
@@ -333,7 +333,7 @@ export default function DashboardPage() {
                 onClick={() => refetchRates()}
                 disabled={ratesFetching}
                 className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
-                title="Refresh live mandi rates from mandi auctions (acrop.app)"
+                title="Refresh live mandi rates from APMC auctions"
               >
                 <RefreshCw className={cn("w-3.5 h-3.5 text-primary", ratesFetching && "animate-spin")} />
                 <span>{ratesFetching ? "Syncing..." : "Sync Live Rates"}</span>

@@ -277,7 +277,7 @@ export function CropDetailModal({
                 {cropName}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Odisha Mandis (acrop.app) • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
+                Odisha Mandis • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
               </DialogDescription>
             </div>
 
@@ -408,7 +408,7 @@ export function CropDetailModal({
               <div className="p-3 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  Prices are synchronized from <strong className="text-foreground">acrop.app</strong> across Odisha APMC mandis. Modal values represent state-wide wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
+                  Prices are synchronized across verified Odisha APMC mandis. Modal values represent state-wide wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
                 </p>
               </div>
             </div>
@@ -532,15 +532,6 @@ export function CropDetailModal({
             <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
               Close
             </Button>
-            <a
-              href={url || "https://acrop.app/mandi/odisha"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded"
-            >
-              <span>acrop.app</span>
-              <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
-            </a>
           </div>
 
           <div className="flex items-center gap-2">

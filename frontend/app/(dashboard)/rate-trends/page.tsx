@@ -110,7 +110,7 @@ export default function RateTrendsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <MapPin className="h-3 w-3" /> Odisha Mandis • 7-Day History (acrop.app)
+              <MapPin className="h-3 w-3" /> Odisha Mandis • 7-Day History
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -122,7 +122,7 @@ export default function RateTrendsPage() {
             7-Day Rate Trends
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Historical price analytics and weekly rate volatility across Odisha commodities from acrop.app.
+            Historical price analytics and weekly rate volatility across Odisha commodities.
           </p>
         </div>
 
@@ -132,25 +132,11 @@ export default function RateTrendsPage() {
             onClick={() => refetch()}
             disabled={isFetching}
             className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all group"
-            title="Refresh 7-day rate trends from acrop.app"
+            title="Refresh 7-day rate trends"
           >
             <RefreshCw className={`h-4 w-4 text-emerald-400 group-hover:scale-110 transition-transform ${isFetching ? "animate-spin text-emerald-400" : ""}`} />
             <span>{isFetching ? "Updating..." : "Refresh Trends"}</span>
           </button>
-          <a
-            href="https://acrop.app/mandi/odisha"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex"
-          >
-            <button
-              type="button"
-              className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground/90 hover:text-white transition-all group"
-            >
-              <span>acrop.app/mandi/odisha</span>
-              <ExternalLink className="h-3.5 w-3.5 text-emerald-400/80 group-hover:text-emerald-400 transition-colors" />
-            </button>
-          </a>
         </div>
       </div>
 
@@ -368,7 +354,7 @@ export default function RateTrendsPage() {
         {isLoading ? (
           <Card className="p-8 text-center">
             <RefreshCw className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Fetching 7-day rate trends for Odisha mandis (acrop.app)...</p>
+            <p className="text-sm text-muted-foreground">Fetching 7-day rate trends for Odisha mandis...</p>
           </Card>
         ) : isError ? (
           <Card className="p-8 text-center border-destructive/30 bg-destructive/5">

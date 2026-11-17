@@ -99,7 +99,7 @@ export default function DailyCropRatesPage() {
             <div className="badge-liquid-glass-emerald">
               <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
               <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-emerald-400" /> Odisha Mandis • State-wide Rates (acrop.app)
+                <MapPin className="h-3 w-3 text-emerald-400" /> Odisha Mandis • State-wide Rates
               </span>
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function DailyCropRatesPage() {
             Daily Crop Rates
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Live wholesale mandi rates across Odisha mandis powered by acrop.app (₹/Quintal & ₹/Kg).
+            Live wholesale mandi rates across Odisha APMC mandis (₹/Quintal & ₹/Kg).
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export default function DailyCropRatesPage() {
             onClick={() => refetch()}
             disabled={isFetching}
             className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all group"
-            title="Refresh latest live mandi rates from acrop.app"
+            title="Refresh latest live mandi rates"
           >
             <RefreshCw
               className={`h-4 w-4 text-emerald-400 group-hover:scale-110 transition-transform ${
@@ -127,20 +127,6 @@ export default function DailyCropRatesPage() {
             />
             <span>{isFetching ? "Updating..." : "Refresh Rates"}</span>
           </button>
-          <a
-            href="https://acrop.app/mandi/odisha"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex"
-          >
-            <button
-              type="button"
-              className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground/90 hover:text-white transition-all group"
-            >
-              <span>acrop.app/mandi/odisha</span>
-              <ExternalLink className="h-3.5 w-3.5 text-emerald-400/80 group-hover:text-emerald-400 transition-colors" />
-            </button>
-          </a>
         </div>
       </div>
 
@@ -155,7 +141,7 @@ export default function DailyCropRatesPage() {
             <div className="text-2xl font-bold">
               <AnimatedNumber value={items.length || 40} suffix=" Crops" springOptions={{ bounce: 0, duration: 1600 }} />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">State-wide modal coverage via acrop.app</p>
+            <p className="text-xs text-muted-foreground mt-1">State-wide APMC modal coverage</p>
           </CardContent>
         </Card>
 
@@ -196,7 +182,7 @@ export default function DailyCropRatesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live acrop.app Sync
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live Mandi Feed Active
             </div>
             <p className="text-xs text-muted-foreground mt-1">Last synced: {lastUpdatedFormatted}</p>
           </CardContent>
@@ -208,7 +194,7 @@ export default function DailyCropRatesPage() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="pb-3 pt-4">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary" /> Essential Staples in Odisha Today (acrop.app)
+              <Store className="h-4 w-4 text-primary" /> Essential Staples in Odisha Today
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
@@ -333,7 +319,7 @@ export default function DailyCropRatesPage() {
           <div className="flex flex-col items-center justify-center gap-3">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm font-medium text-muted-foreground">
-              Fetching live Odisha mandi rates from acrop.app...
+              Fetching live Odisha mandi rates...
             </p>
           </div>
         </Card>
@@ -362,8 +348,7 @@ export default function DailyCropRatesPage() {
                 <TableHead>Commodity / Category</TableHead>
                 <TableHead>Wholesale Rate (₹/Kg)</TableHead>
                 <TableHead>Mandi Rate (₹/Quintal)</TableHead>
-                <TableHead>Odisha Mandi Coverage</TableHead>
-                <TableHead className="text-right">Market Source</TableHead>
+                <TableHead className="text-right">Odisha Mandi Coverage</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -414,14 +399,8 @@ export default function DailyCropRatesPage() {
                       : `₹${(item.priceNum * 100).toLocaleString("en-IN")}`}
                     <span className="text-xs text-muted-foreground font-normal ml-1">/quintal</span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">
+                  <TableCell className="text-muted-foreground text-xs text-right">
                     {item.mandi_info || "Odisha Mandi Average"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className="badge-liquid-glass-emerald">
-                      <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-                      <span>acrop.app</span>
-                    </span>
                   </TableCell>
                 </TableRow>
               ))}

@@ -224,7 +224,7 @@ export async function GET(request: Request) {
         success: true,
         market: "Odisha Mandis (State-wide Average)",
         state: "Odisha",
-        sourceUrl: "https://acrop.app/mandi/odisha",
+        sourceUrl: "/rate-trends",
         startDate: allDates[0],
         endDate: allDates[allDates.length - 1],
         rawColumns: allDates,
@@ -234,14 +234,14 @@ export async function GET(request: Request) {
       });
     }
   } catch (err) {
-    console.error("History fetch from acrop.app failed, serving baseline:", err);
+    console.error("History fetch failed, serving baseline:", err);
   }
 
   return NextResponse.json({
     success: true,
     market: "Odisha Mandis (State-wide Average)",
     state: "Odisha",
-    sourceUrl: "https://acrop.app/mandi/odisha",
+    sourceUrl: "/rate-trends",
     startDate: DEFAULT_COLUMNS[0],
     endDate: DEFAULT_COLUMNS[DEFAULT_COLUMNS.length - 1],
     rawColumns: DEFAULT_COLUMNS,
