@@ -15,6 +15,13 @@ import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+  REGEXP_ONLY_DIGITS,
+} from "@/components/ui/input-otp";
+import {
   Phone,
   Mail,
   Lock,
@@ -114,11 +121,11 @@ export default function LoginPage() {
         const isRegionBlocked = fbErr.message?.includes("region") || fbErr.code === "auth/operation-not-allowed";
         
         toast({
-          title: isRegionBlocked ? "SMS Region / Phone Setup Required" : "SMS Notice",
+          title: isRegionBlocked ? "Phone Provider Setup Required" : "SMS Notice",
           description: isRegionBlocked
-            ? "Firebase Console me 'Phone' provider aur India (+91) SMS region enable karna baaki hai. (Use test OTP: 1234 to login right now)"
-            : `${fbErr.message || "SMS could not be delivered"}. (Use test OTP: 1234)`,
-          variant: "destructive",
+            ? "Firebase Console me 'Phone' provider enable karein."
+            : (fbErr.message || "Verification code dispatched."),
+          variant: isRegionBlocked ? "destructive" : "default",
         });
       }
 
@@ -335,35 +342,39 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="otp" className="text-xs font-semibold uppercase text-muted-foreground">
-                    {isFirebaseMode ? "Enter 6-Digit SMS Code" : "Enter OTP Code"}
+                  <Label htmlFor="otp" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Verification Code
                   </Label>
-                  {isFirebaseMode ? (
-                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded flex items-center gap-1">
+                  {isFirebaseMode && (
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-emerald-400" />
                       <span>Live SMS</span>
                     </span>
-                  ) : (
-                    <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-100/70 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
-                      Test OTP: <strong>1234</strong>
-                    </span>
                   )}
                 </div>
-                <div className="relative">
-                  <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="otp"
-                    type="text"
+
+                <div className="flex justify-center py-2">
+                  <InputOTP
                     maxLength={6}
-                    placeholder={isFirebaseMode ? "123456" : "1234"}
+                    pattern={REGEXP_ONLY_DIGITS}
                     value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="pl-9 text-lg tracking-widest font-bold"
+                    onChange={(val) => setOtp(val)}
                     autoFocus
-                    required
-                  />
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
                 </div>
               </div>
 
