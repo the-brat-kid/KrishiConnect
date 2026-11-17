@@ -20,6 +20,7 @@ import {
   Warehouse,
   Phone,
   Copyright,
+  FlaskConical,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -41,6 +42,7 @@ const MENU_GROUPS = [
     title: "Farm Operations",
     routes: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/soil-health", label: "Soil Health Check", icon: FlaskConical, badge: "New" },
       { href: "/cold-storage", label: "Cold Storage", icon: Warehouse, badge: "New" },
       { href: "/crop-planner", label: "Next Season Planner", icon: Sprout, badge: "New" },
       { href: "/weather", label: "Farm Weather & Map", icon: CloudSun, badge: "Live" },

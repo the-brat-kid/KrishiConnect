@@ -8,3 +8,4 @@ from app.models.invoice_item import InvoiceItem
 from app.models.payment import Payment
 from app.models.expense import Expense
 from app.models.cold_storage import ColdStorageFacility, ColdStorageBooking
+from app.models.soil_health import SoilHealthLab, SoilHealthAppointment

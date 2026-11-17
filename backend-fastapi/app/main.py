@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import engine
 from app.models import Base
-from app.api.routes import auth, dashboard, customers, products, invoices, payments, expenses, reports, business_profile, crop_rates, cold_storage
+from app.api.routes import auth, dashboard, customers, products, invoices, payments, expenses, reports, business_profile, crop_rates, cold_storage, soil_health
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter
@@ -85,6 +85,7 @@ app.include_router(reports.router, prefix=f"{settings.API_V1_STR}/reports", tags
 app.include_router(business_profile.router, prefix=f"{settings.API_V1_STR}/business-profile", tags=["business-profile"])
 app.include_router(crop_rates.router, prefix=f"{settings.API_V1_STR}/crop-rates", tags=["crop-rates"])
 app.include_router(cold_storage.router, prefix=f"{settings.API_V1_STR}/cold-storage", tags=["cold-storage"])
+app.include_router(soil_health.router, prefix=f"{settings.API_V1_STR}/soil-health", tags=["soil-health"])
 
 @app.get("/")
 def root():
