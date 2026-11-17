@@ -222,8 +222,8 @@ export async function GET(request: Request) {
     if (parsedItems.length >= 3 && allDates.length >= 3) {
       return NextResponse.json({
         success: true,
-        market: "Odisha Mandis (State-wide Average)",
-        state: "Odisha",
+        market: "Pan-India APMC Mandis (National Benchmark)",
+        state: "Pan-India",
         sourceUrl: "/rate-trends",
         startDate: allDates[0],
         endDate: allDates[allDates.length - 1],
@@ -239,8 +239,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     success: true,
-    market: "Odisha Mandis (State-wide Average)",
-    state: "Odisha",
+    market: "Pan-India APMC Mandis (National Benchmark)",
+    state: "Pan-India",
     sourceUrl: "/rate-trends",
     startDate: DEFAULT_COLUMNS[0],
     endDate: DEFAULT_COLUMNS[DEFAULT_COLUMNS.length - 1],

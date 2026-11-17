@@ -360,7 +360,7 @@ export default function CustomersPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-foreground">Paddy, Tomato, Onion, Chilli</div>
-                <p className="text-xs text-muted-foreground mt-1">Daily buying enquiries active in Odisha</p>
+                <p className="text-xs text-muted-foreground mt-1">Daily buying enquiries active across Pan-India mandis</p>
               </CardContent>
             </Card>
 

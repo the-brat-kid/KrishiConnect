@@ -610,14 +610,14 @@ export default function ProductsPage() {
             <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 flex items-center gap-1 font-semibold text-xs">
               <Gavel className="w-3 h-3 text-emerald-600" /> Auto-Bidding Mandi Exchange
             </Badge>
-            <span className="text-xs text-muted-foreground font-mono">Bhubaneswar APMC</span>
+            <span className="text-xs text-muted-foreground font-mono">Pan-India APMC</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Package className="h-8 w-8 text-primary" />
             Crops Inventory & Live Auto-Bidding
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage your crop stock, pre-populate verified daily mandi rates, and list lots for automated competitive buyer auctions.
+            Manage your crop stock, pre-populate verified daily mandi rates, and list lots for automated competitive buyer auctions across India.
           </p>
         </div>
 
@@ -670,7 +670,7 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">100% Calibrated</div>
-            <p className="text-xs text-muted-foreground mt-0.5">Pre-populated with today&apos;s Bhubaneswar modal rates</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Pre-populated with today&apos;s verified APMC modal rates</p>
           </CardContent>
         </Card>
       </div>
@@ -915,9 +915,9 @@ export default function ProductsPage() {
           <DialogHeader className="p-5 pb-3 border-b bg-muted/20">
             <div className="flex items-center gap-2 mb-1">
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold">
-                Odisha APMC Calibrated
+                National APMC Calibrated
               </Badge>
-              <span className="text-xs text-muted-foreground font-mono">Bhubaneswar Daily Rates</span>
+              <span className="text-xs text-muted-foreground font-mono">Pan-India Daily Rates</span>
             </div>
             <DialogTitle className="text-xl font-bold text-foreground">
               Add Crop to Inventory & Live Bidding
@@ -1039,7 +1039,7 @@ export default function ProductsPage() {
                       List for Live Auto-Bidding / Mandi Auction
                     </span>
                     <span className="text-[11px] text-muted-foreground">
-                      Verified Odisha buyers will place competitive bids above your base rate.
+                      Verified national buyers will place competitive bids above your base rate.
                     </span>
                   </div>
                 </div>

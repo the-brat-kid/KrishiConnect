@@ -34,24 +34,117 @@ import { ViewOnMap } from "@/components/ui/view-on-map";
 interface MandiOption {
   id: string;
   name: string;
+  state: string;
   district: string;
   address: string;
   lat: number;
   lon: number;
 }
 
-const ODISHA_MANDIS: MandiOption[] = [
+const PAN_INDIA_MANDIS: MandiOption[] = [
   {
     id: "bhubaneswar",
     name: "Bhubaneswar APMC Mandi",
+    state: "Odisha",
     district: "Khordha",
     address: "APMC Mandi Yard, Unit 1, Bhubaneswar, Odisha 751009, India",
     lat: 20.2961,
     lon: 85.8245,
   },
   {
+    id: "delhi",
+    name: "Delhi Azadpur APMC Mandi",
+    state: "Delhi NCR",
+    district: "North Delhi",
+    address: "Azadpur Subzi Mandi, GTK Road, Delhi 110033, India",
+    lat: 28.7118,
+    lon: 77.1777,
+  },
+  {
+    id: "nashik",
+    name: "Nashik (Pimpalgaon) APMC Mandi",
+    state: "Maharashtra",
+    district: "Nashik",
+    address: "Pimpalgaon Baswant APMC Market, Nashik, Maharashtra 422209, India",
+    lat: 20.1706,
+    lon: 73.9859,
+  },
+  {
+    id: "khanna",
+    name: "Khanna Grain Market",
+    state: "Punjab",
+    district: "Ludhiana",
+    address: "Asia's Largest Grain Market Yard, GT Road, Khanna, Punjab 141401, India",
+    lat: 30.7067,
+    lon: 76.2201,
+  },
+  {
+    id: "indore",
+    name: "Indore (Choithram) Mandi",
+    state: "Madhya Pradesh",
+    district: "Indore",
+    address: "Choithram Mandi, Manik Bagh Road, Indore, MP 452014, India",
+    lat: 22.6868,
+    lon: 75.8427,
+  },
+  {
+    id: "guntur",
+    name: "Guntur Mirchi Yard",
+    state: "Andhra Pradesh",
+    district: "Guntur",
+    address: "Agriculture Market Committee, Mirchi Yard, Guntur, AP 522004, India",
+    lat: 16.3067,
+    lon: 80.4365,
+  },
+  {
+    id: "deesa",
+    name: "Deesa Agricultural APMC",
+    state: "Gujarat",
+    district: "Banaskantha",
+    address: "APMC Market Yard, Highway Road, Deesa, Gujarat 385535, India",
+    lat: 24.2586,
+    lon: 72.1793,
+  },
+  {
+    id: "kolar",
+    name: "Kolar Tomato APMC Market",
+    state: "Karnataka",
+    district: "Kolar",
+    address: "APMC Yard, Bangarpet Road, Kolar, Karnataka 563101, India",
+    lat: 13.1378,
+    lon: 78.1291,
+  },
+  {
+    id: "kolkata",
+    name: "Kolkata (Posta / Koley) Mandi",
+    state: "West Bengal",
+    district: "Kolkata",
+    address: "Posta Wholesale Market, Kolkata, West Bengal 700007, India",
+    lat: 22.5851,
+    lon: 88.3541,
+  },
+  {
+    id: "shimla",
+    name: "Shimla (Dhalli) Apple Mandi",
+    state: "Himachal Pradesh",
+    district: "Shimla",
+    address: "APMC Subzi Mandi, Dhalli, Shimla, HP 171012, India",
+    lat: 31.1114,
+    lon: 77.2023,
+  },
+  {
+    id: "jaipur",
+    name: "Jaipur (Muhana) Mandi",
+    state: "Rajasthan",
+    district: "Jaipur",
+    address: "Muhana Mandi Terminal Market, Sanganer, Jaipur, Rajasthan 302029, India",
+    lat: 26.7825,
+    lon: 75.7483,
+  },
+  {
     id: "cuttack",
     name: "Cuttack Malgodown Mandi",
+    state: "Odisha",
     district: "Cuttack",
     address: "Malgodown Wholesale Market, Cuttack, Odisha 753003, India",
     lat: 20.4625,
@@ -60,34 +153,11 @@ const ODISHA_MANDIS: MandiOption[] = [
   {
     id: "sambalpur",
     name: "Sambalpur Grain Mandi",
+    state: "Odisha",
     district: "Sambalpur",
     address: "RMC Yard, Khetrajpur, Sambalpur, Odisha 768003, India",
     lat: 21.4669,
     lon: 83.9812,
-  },
-  {
-    id: "bargarh",
-    name: "Bargarh Agricultural Mandi",
-    district: "Bargarh (Rice Bowl)",
-    address: "Regulated Market Committee Yard, Bargarh, Odisha 768028, India",
-    lat: 21.3340,
-    lon: 83.6163,
-  },
-  {
-    id: "berhampur",
-    name: "Berhampur RMC Mandi",
-    district: "Ganjam",
-    address: "RMC Mandi Complex, Aska Road, Berhampur, Odisha 760001, India",
-    lat: 19.3150,
-    lon: 84.7941,
-  },
-  {
-    id: "balasore",
-    name: "Balasore APMC Mandi",
-    district: "Balasore",
-    address: "APMC Yard, Remuna Golei, Balasore, Odisha 756019, India",
-    lat: 21.4934,
-    lon: 86.9135,
   },
 ];
 
@@ -143,7 +213,7 @@ interface WeatherApiResponse {
 }
 
 export default function FarmWeatherPage() {
-  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(ODISHA_MANDIS[0]);
+  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(PAN_INDIA_MANDIS[0]);
   const [weatherData, setWeatherData] = useState<WeatherApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -209,7 +279,7 @@ export default function FarmWeatherPage() {
             Farm Weather & Rain Probability Intelligence
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Live precipitation risk, hour-by-hour rain probability, spray window forecasting, and geospatial mandi cargo routing for Odisha.
+            Live precipitation risk, hour-by-hour rain probability, spray window forecasting, and geospatial mandi cargo routing across Pan-India agricultural zones.
           </p>
         </div>
 
@@ -490,14 +560,14 @@ export default function FarmWeatherPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
                 <Compass className="w-4 h-4 text-primary" />
-                Select Odisha APMC Mandi
+                Select Pan-India APMC Mandi Hub
               </CardTitle>
               <CardDescription className="text-xs">
-                Switch real-time meteorological models across major regional agricultural markets.
+                Switch real-time meteorological models across major national agricultural markets.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {ODISHA_MANDIS.map((mandi) => {
+            <CardContent className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+              {PAN_INDIA_MANDIS.map((mandi) => {
                 const isSelected = selectedMandi.id === mandi.id;
                 return (
                   <button
@@ -512,7 +582,7 @@ export default function FarmWeatherPage() {
                   >
                     <div>
                       <p className="text-xs font-bold text-foreground">{mandi.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{mandi.district} District</p>
+                      <p className="text-[11px] text-muted-foreground">{mandi.district}, {mandi.state}</p>
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-bold text-primary">

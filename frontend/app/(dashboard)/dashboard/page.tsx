@@ -6,6 +6,7 @@ import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Tilt } from "@/components/core/tilt";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { useCropRates } from "@/hooks/use-crop-rates";
 import { useCropHistory } from "@/hooks/use-crop-history";
 import { StatsCards } from "@/components/dashboard/stats-cards";
@@ -134,6 +135,7 @@ function CropIcon({ image, alt, emoji }: { image: string; alt: string; emoji: st
 
 export default function DashboardPage() {
   const { user, businessProfile } = useAuth();
+  const { currentRegionDef } = useLanguage();
   const displayName = user?.name || user?.full_name || businessProfile?.business_name || "Kisan";
 
   // Live Mandi Query Hook
@@ -247,7 +249,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              Bhubaneswar APMC Live Operations
+              {currentRegionDef.primaryHubs[0] || "National"} APMC Live Operations
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-editorial">
@@ -307,7 +309,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Store className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                  <span>Today&apos;s Mandi Baselines (Bhubaneswar APMC)</span>
+                  <span>Today&apos;s Mandi Baselines ({currentRegionDef.primaryHubs[0] || "National"} APMC)</span>
                 </CardTitle>
 
                 {/* Blended Liquid Glass Live Badge */}
@@ -318,7 +320,7 @@ export default function DashboardPage() {
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                <span>Wholesale modal auction rates across Odisha APMC Mandis.</span>
+                <span>Wholesale modal auction rates across {currentRegionDef.name} & National APMC Mandis.</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 font-mono">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   {lastUpdatedText}
@@ -343,7 +345,7 @@ export default function DashboardPage() {
                 href="/crop-rates"
                 className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
               >
-                <span>View all 40+ Odisha crops</span>
+                <span>View all 40+ Pan-India crops</span>
                 <ArrowRight className="w-3.5 h-3.5 text-primary" />
               </Link>
             </div>
@@ -438,7 +440,7 @@ export default function DashboardPage() {
                   <BarChart2 className="w-4 h-4 text-primary" />
                   Wholesale vs Retail Price Spread (₹/kg)
                 </span>
-                <span className="text-[11px] text-muted-foreground">Bhubaneswar Yard</span>
+                <span className="text-[11px] text-muted-foreground">{currentRegionDef.primaryHubs[0] || "National"} Yard</span>
               </div>
 
               <div className="w-full h-64 pt-2 min-w-0 overflow-hidden">
@@ -478,7 +480,7 @@ export default function DashboardPage() {
                 <span>7-Day Rate Volatility & Market Trajectory</span>
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground mt-1">
-                Weekly price movement history for staple commodities across Odisha markets.
+                Weekly price movement history for staple commodities across {currentRegionDef.name} & National markets.
               </CardDescription>
             </div>
             <Link
@@ -503,8 +505,8 @@ export default function DashboardPage() {
                 <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
                   <div className="space-y-1">
                     <span className="text-xs font-bold text-foreground">Top Weekly Gainer</span>
-                    <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">Tomato (Bilati)</p>
-                    <p className="text-xs text-muted-foreground">High institutional demand from Cuttack</p>
+                    <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">Tomato</p>
+                    <p className="text-xs text-muted-foreground">High institutional demand across APMC hubs</p>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
@@ -517,8 +519,8 @@ export default function DashboardPage() {
                 <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
                   <div className="space-y-1">
                     <span className="text-xs font-bold text-foreground">Weekly Value Drop</span>
-                    <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400">Onion Big (Piaja)</p>
-                    <p className="text-xs text-muted-foreground">Fresh Nasik arrivals into Bhubaneswar</p>
+                    <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400">Onion Big</p>
+                    <p className="text-xs text-muted-foreground">Fresh harvest arrivals from key production hubs</p>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-black text-rose-600 dark:text-rose-400">

@@ -86,7 +86,7 @@ export default function CopyrightPage() {
             2. APMC Mandi Data Attribution & Open Public Licensing
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            KrishiConnect compiles agricultural market prices from verified public mandi feeds, Odisha State Agricultural Marketing Boards (OSAMB), and APMC disclosures. While public factual commodity modal prices are public information, our normalized data models, real-time trend analytics, and proprietary valuation indices represent original compilations under Section 13 of the Indian Copyright Act, 1957.
+            KrishiConnect compiles agricultural market prices from verified public mandi feeds, the BhumiAI National Agricultural Price Index, State Agricultural Marketing Boards, and APMC disclosures. While public factual commodity modal prices are public information, our normalized data models, real-time trend analytics, and proprietary valuation indices represent original compilations under Section 13 of the Indian Copyright Act, 1957.
           </p>
         </section>
 

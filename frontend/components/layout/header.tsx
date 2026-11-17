@@ -136,7 +136,7 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
               {displayName}
             </DropdownMenuLabel>
             <DropdownMenuLabel className="font-normal text-xs text-muted-foreground -mt-1 truncate">
-              {user?.email || "Odisha Mandi Account"}
+              {user?.email || "Pan-India Mandi Account"}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="cursor-pointer text-xs">

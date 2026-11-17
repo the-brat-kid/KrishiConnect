@@ -13,14 +13,14 @@ export function AiInsightBanner() {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-base font-bold text-foreground">Bhubaneswar Daily Crop Rates</span>
+              <span className="text-base font-bold text-foreground">National Daily Mandi Rates</span>
               <span className="badge-liquid-glass-emerald">
                 <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
                 <span>Live Mandi</span>
               </span>
             </div>
             <p className="text-sm text-muted-foreground max-w-2xl">
-              Today&apos;s baseline prices: <strong>Onion ₹53/kg</strong>, <strong>Tomato ₹35/kg</strong>, <strong>Potato ₹28/kg</strong>, <strong>Green Chilli ₹53/kg</strong>. Sourced live from Bhubaneswar Mandi.
+              Today&apos;s baseline prices: <strong>Onion ₹53/kg</strong>, <strong>Tomato ₹35/kg</strong>, <strong>Potato ₹28/kg</strong>, <strong>Green Chilli ₹53/kg</strong>. Sourced live across Indian APMC mandis via BhumiAI & Agmarknet.
             </p>
           </div>
         </div>

@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Tilt } from "@/components/core/tilt";
 import { useCropRates, CropRateItem } from "@/hooks/use-crop-rates";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
+  TrendingDown,
+  Minus,
   RefreshCw,
   Search,
   ExternalLink,
@@ -23,20 +24,42 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
-  Layers,
+  Sparkles,
+  Globe2,
 } from "lucide-react";
 
+const INDIAN_STATES = [
+  "All India",
+  "Maharashtra",
+  "Punjab",
+  "Haryana",
+  "Gujarat",
+  "Andhra Pradesh",
+  "Telangana",
+  "Uttar Pradesh",
+  "Madhya Pradesh",
+  "Karnataka",
+  "West Bengal",
+  "Odisha",
+  "Himachal Pradesh",
+  "Kerala",
+];
+
 export default function DailyCropRatesPage() {
-  const { data, isLoading, isError, refetch, isFetching } = useCropRates();
+  const [selectedState, setSelectedState] = useState<string>("All India");
+  const { data, isLoading, isError, refetch, isFetching } = useCropRates(
+    selectedState === "All India" ? undefined : selectedState
+  );
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">("name");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [selectedCropModal, setSelectedCropModal] = useState<CropRateItem | null>(null);
 
-  const items = data?.items || [];
+  const items = useMemo(() => data?.items || [], [data?.items]);
 
-  // Distinct categories available in items
+  // Distinct categories
   const categories = useMemo(() => {
     const set = new Set<string>();
     items.forEach((item) => {
@@ -52,18 +75,23 @@ export default function DailyCropRatesPage() {
       .filter((item) => {
         const matchesSearch =
           item.name.toLowerCase().includes(search.toLowerCase().trim()) ||
-          (item.category && item.category.toLowerCase().includes(search.toLowerCase().trim()));
+          (item.category && item.category.toLowerCase().includes(search.toLowerCase().trim())) ||
+          (item.state && item.state.toLowerCase().includes(search.toLowerCase().trim())) ||
+          (item.market && item.market.toLowerCase().includes(search.toLowerCase().trim()));
         const matchesCategory =
           selectedCategory === "All" ||
           (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase());
-        return matchesSearch && matchesCategory;
+        const matchesState =
+          selectedState === "All India" ||
+          (item.state && item.state.toLowerCase().includes(selectedState.toLowerCase()));
+        return matchesSearch && matchesCategory && matchesState;
       })
       .sort((a, b) => {
         if (sortBy === "price-asc") return a.priceNum - b.priceNum;
         if (sortBy === "price-desc") return b.priceNum - a.priceNum;
         return a.name.localeCompare(b.name);
       });
-  }, [items, search, selectedCategory, sortBy]);
+  }, [items, search, selectedCategory, selectedState, sortBy]);
 
   // Key stats
   const averagePrice = useMemo(() => {
@@ -72,9 +100,9 @@ export default function DailyCropRatesPage() {
     return Math.round(sum / items.length);
   }, [items]);
 
-  // Key staples for quick card
+  // Key staples
   const staples = useMemo(() => {
-    const targets = ["Potato", "Onion", "Tomato", "Green Chilli", "Brinjal", "Ginger"];
+    const targets = ["Onion", "Tomato", "Wheat", "Potato", "Chilli", "Cumin", "Paddy"];
     return targets
       .map((name) => items.find((i) => i.name.toLowerCase().includes(name.toLowerCase())))
       .filter(Boolean) as CropRateItem[];
@@ -95,20 +123,32 @@ export default function DailyCropRatesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <div className="badge-liquid-glass-emerald">
               <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
               <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-emerald-400" /> Odisha Mandis • State-wide Rates
+                <Globe2 className="h-3 w-3 text-emerald-400" /> Pan-India Live Mandi Network
               </span>
             </div>
+
+            <a
+              href="https://bhumiai.in/prices"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 text-[11px] font-semibold transition-colors"
+            >
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span>BhumiAI Price Feed (bhumiai.in/prices)</span>
+              <ExternalLink className="w-3 h-3 ml-0.5" />
+            </a>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5 font-plus-jakarta">
             <Store className="h-8 w-8 text-primary" />
-            Daily Crop Rates
+            Pan-India Daily Crop Rates
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Live wholesale mandi rates across Odisha APMC mandis (₹/Quintal & ₹/Kg).
+            Real-time wholesale modal prices across 28 states & 2,400+ APMC mandis (₹/Quintal & ₹/Kg).
           </p>
         </div>
 
@@ -125,7 +165,7 @@ export default function DailyCropRatesPage() {
                 isFetching ? "animate-spin text-emerald-400" : ""
               }`}
             />
-            <span>{isFetching ? "Updating..." : "Refresh Rates"}</span>
+            <span>{isFetching ? "Syncing..." : "Refresh Live Feed"}</span>
           </button>
         </div>
       </div>
@@ -134,20 +174,20 @@ export default function DailyCropRatesPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Odisha Mandi Commodities</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">National Mandi Commodities</CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <AnimatedNumber value={items.length || 40} suffix=" Crops" springOptions={{ bounce: 0, duration: 1600 }} />
+              <AnimatedNumber value={items.length || 24} suffix=" Crops" springOptions={{ bounce: 0, duration: 1600 }} />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">State-wide APMC modal coverage</p>
+            <p className="text-xs text-muted-foreground mt-1">Pan-India APMC modal coverage</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Wholesale Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. National Wholesale Rate</CardTitle>
             <IndianRupee className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -162,27 +202,25 @@ export default function DailyCropRatesPage() {
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Key Staples (Potato / Onion)</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-blue-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Trade State</CardTitle>
+            <MapPin className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-semibold flex items-center justify-between">
-              <span>Potato: <span className="text-foreground font-bold">₹{items.find((i) => i.name.toLowerCase().includes("potato"))?.priceNum || 20}/kg</span></span>
-              <span className="text-muted-foreground font-normal">|</span>
-              <span>Onion: <span className="text-foreground font-bold">₹{items.find((i) => i.name.toLowerCase().includes("onion"))?.priceNum || 32}/kg</span></span>
+            <div className="text-lg font-bold text-foreground truncate">
+              {selectedState}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Odisha Mandis wholesale median</p>
+            <p className="text-xs text-muted-foreground mt-1">Filtered across key APMC clusters</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Data Feed Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">BhumiAI Feed Status</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live Mandi Feed Active
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live Agmarknet Sync Active
             </div>
             <p className="text-xs text-muted-foreground mt-1">Last synced: {lastUpdatedFormatted}</p>
           </CardContent>
@@ -194,18 +232,18 @@ export default function DailyCropRatesPage() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="pb-3 pt-4">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary" /> Essential Staples in Odisha Today
+              <Store className="h-4 w-4 text-primary" /> National Benchmark Staples (All India Median)
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               {staples.slice(0, 6).map((staple) => (
-                <Tilt key={staple.name} rotationFactor={8} isRevese className="cursor-pointer">
+                <Tilt key={staple.id} rotationFactor={8} isRevese className="cursor-pointer">
                   <div
                     onClick={() => setSelectedCropModal(staple)}
                     style={{ borderRadius: "10px" }}
                     className="flex items-center gap-3 p-2.5 rounded-lg bg-card border shadow-xs hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group h-full"
-                    title={`Click to view price history and profit projection for ${staple.name}`}
+                    title={`Click to view price history for ${staple.name}`}
                   >
                     {staple.image ? (
                       <img
@@ -221,15 +259,13 @@ export default function DailyCropRatesPage() {
                     )}
                     <div className="min-w-0">
                       <p className="font-medium text-xs truncate group-hover:text-primary transition-colors">
-                        {staple.name}
+                        {staple.name.split("(")[0]}
                       </p>
                       <p className="text-sm font-bold text-primary">
                         {staple.price}{" "}
                         <span className="text-[10px] text-muted-foreground font-normal">/{staple.unit}</span>
                       </p>
-                      {staple.price_quintal && (
-                        <p className="text-[10px] text-muted-foreground">₹{staple.price_quintal}/qtl</p>
-                      )}
+                      <p className="text-[10px] text-muted-foreground truncate">{staple.market}</p>
                     </div>
                   </div>
                 </Tilt>
@@ -239,38 +275,49 @@ export default function DailyCropRatesPage() {
         </Card>
       )}
 
-      {/* Controls: Search, Category Filters, Sort, View */}
-      <div className="space-y-3">
+      {/* Controls: Search, State Picker, Category Filters, Sort, View */}
+      <div className="space-y-3.5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search crop or category (e.g. Tomato, Ginger, Cereals)..."
+              placeholder="Search crop, state or mandi (e.g. Lasalgaon, Onion, Guntur)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 rounded-xl border border-white/15 bg-white/[0.05] dark:bg-black/30 backdrop-blur-2xl text-foreground placeholder:text-muted-foreground shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+              className="pl-9 rounded-xl border border-white/15 bg-white/[0.05] dark:bg-black/30 backdrop-blur-2xl text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* State Filter Dropdown */}
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="h-9 rounded-xl border border-emerald-500/30 bg-card px-3 text-xs font-semibold text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-xs"
+            >
+              {INDIAN_STATES.map((state) => (
+                <option key={state} value={state}>
+                  📍 {state}
+                </option>
+              ))}
+            </select>
+
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="h-9 rounded-xl border border-white/15 bg-white/[0.05] dark:bg-black/30 backdrop-blur-2xl px-3 text-xs font-semibold text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+              className="h-9 rounded-xl border border-white/15 bg-card px-3 text-xs font-semibold text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             >
-              <option value="name" className="bg-[#1C1C1E] text-white">Sort: Name (A to Z)</option>
-              <option value="price-asc" className="bg-[#1C1C1E] text-white">Price: Low to High</option>
-              <option value="price-desc" className="bg-[#1C1C1E] text-white">Price: High to Low</option>
+              <option value="name">Sort: Name (A to Z)</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
             </select>
 
-            <div className="flex items-center p-1 rounded-xl bg-white/[0.05] dark:bg-black/30 backdrop-blur-2xl border border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
+            <div className="flex items-center p-1 rounded-xl bg-white/[0.05] dark:bg-black/30 backdrop-blur-2xl border border-white/15">
               <button
                 type="button"
                 onClick={() => setViewMode("table")}
                 className={`h-7 px-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                  viewMode === "table"
-                    ? "btn-liquid-glass text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                  viewMode === "table" ? "btn-liquid-glass text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <ListIcon className="h-3.5 w-3.5 text-emerald-400" />
@@ -280,9 +327,7 @@ export default function DailyCropRatesPage() {
                 type="button"
                 onClick={() => setViewMode("grid")}
                 className={`h-7 px-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                  viewMode === "grid"
-                    ? "btn-liquid-glass text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                  viewMode === "grid" ? "btn-liquid-glass text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <LayoutGrid className="h-3.5 w-3.5 text-emerald-400" />
@@ -302,7 +347,7 @@ export default function DailyCropRatesPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 rounded-lg font-medium transition-all flex-shrink-0 ${
                   selectedCategory === cat
-                    ? "bg-primary text-primary-foreground shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                     : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
                 }`}
               >
@@ -319,7 +364,7 @@ export default function DailyCropRatesPage() {
           <div className="flex flex-col items-center justify-center gap-3">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm font-medium text-muted-foreground">
-              Fetching live Odisha mandi rates...
+              Fetching live Pan-India APMC mandi rates from BhumiAI & Agmarknet...
             </p>
           </div>
         </Card>
@@ -328,7 +373,7 @@ export default function DailyCropRatesPage() {
           <div className="flex flex-col items-center justify-center gap-2">
             <p className="font-semibold text-destructive">Unable to fetch live rates</p>
             <p className="text-xs text-muted-foreground max-w-md">
-              The external market rate service could not be contacted directly. Please check your network connection or try refreshing.
+              Please check your network connection or try refreshing.
             </p>
             <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-3">
               Retry
@@ -337,7 +382,7 @@ export default function DailyCropRatesPage() {
         </Card>
       ) : filteredItems.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-muted-foreground">No crops or commodities found matching &quot;{search}&quot;.</p>
+          <p className="text-muted-foreground">No commodities found matching your filters.</p>
         </Card>
       ) : viewMode === "table" ? (
         <div className="rounded-2xl border border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
@@ -345,10 +390,11 @@ export default function DailyCropRatesPage() {
             <TableHeader className="bg-white/[0.04] dark:bg-white/[0.02] border-b border-white/10">
               <TableRow className="border-b border-white/10 hover:bg-transparent">
                 <TableHead className="w-16">Item</TableHead>
-                <TableHead>Commodity / Category</TableHead>
+                <TableHead>Commodity / Variety</TableHead>
+                <TableHead>State & Market APMC</TableHead>
                 <TableHead>Wholesale Rate (₹/Kg)</TableHead>
-                <TableHead>Mandi Rate (₹/Quintal)</TableHead>
-                <TableHead className="text-right">Odisha Mandi Coverage</TableHead>
+                <TableHead>Modal Rate (₹/Quintal)</TableHead>
+                <TableHead>Arrivals & Trend</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -357,7 +403,7 @@ export default function DailyCropRatesPage() {
                   key={item.id}
                   onClick={() => setSelectedCropModal(item)}
                   className="hover:bg-white/[0.06] border-b border-white/5 transition-colors cursor-pointer group"
-                  title="Click to view 7-day price history & future profit projection"
+                  title="Click to view full price details & projections"
                 >
                   <TableCell className="py-2.5">
                     {item.image ? (
@@ -380,27 +426,63 @@ export default function DailyCropRatesPage() {
                       <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
                         {item.name}
                       </span>
-                      {item.category && (
-                        <span className="text-[11px] text-muted-foreground">
-                          {item.category}
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[11px] text-muted-foreground">{item.category}</span>
+                        {item.variety && (
+                          <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.2 rounded">
+                            {item.variety}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-foreground flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-emerald-500" />
+                        {item.market || "APMC Market"}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{item.state}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-bold text-sm text-foreground">
+                      {item.price}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm text-primary">
+                        {item.price_quintal}
+                      </span>
+                      {item.min_price && item.max_price && (
+                        <span className="text-[10px] text-muted-foreground">
+                          Range: {item.min_price} – {item.max_price}
                         </span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-base font-bold text-primary">
-                      {item.price}
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-1">/{item.unit}</span>
-                  </TableCell>
-                  <TableCell className="text-foreground/90 font-semibold">
-                    {item.price_quintal
-                      ? (item.price_quintal.startsWith("₹") ? item.price_quintal : `₹${item.price_quintal}`)
-                      : `₹${(item.priceNum * 100).toLocaleString("en-IN")}`}
-                    <span className="text-xs text-muted-foreground font-normal ml-1">/quintal</span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs text-right">
-                    {item.mandi_info || "Odisha Mandi Average"}
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-foreground">
+                        {item.arrivals || "Steady Influx"}
+                      </span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        {item.trend === "up" ? (
+                          <span className="text-[11px] text-emerald-400 flex items-center gap-0.5">
+                            <TrendingUp className="w-3 h-3" /> Rising
+                          </span>
+                        ) : item.trend === "down" ? (
+                          <span className="text-[11px] text-red-400 flex items-center gap-0.5">
+                            <TrendingDown className="w-3 h-3" /> Softening
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                            <Minus className="w-3 h-3" /> Stable
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -408,70 +490,79 @@ export default function DailyCropRatesPage() {
           </Table>
         </div>
       ) : (
-        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredItems.map((item) => (
             <Card
               key={item.id}
               onClick={() => setSelectedCropModal(item)}
-              className="overflow-hidden hover:shadow-md transition-all cursor-pointer hover:border-primary/50 bg-card group"
-              title={`Click to view price history & profit projection for ${item.name}`}
+              className="p-4 hover:border-primary/50 transition-all cursor-pointer group shadow-xs flex flex-col justify-between"
             >
-              <CardContent className="p-4 flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-xl bg-muted/50 p-2 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <span className="text-3xl">{item.emoji || "🌱"}</span>
-                  )}
-                </div>
-                <h3 className="font-bold text-sm text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                  {item.name}
-                </h3>
-                {item.category && (
-                  <Badge variant="outline" className="text-[10px] mt-1 text-muted-foreground">
-                    {item.category}
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2.5">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-12 h-12 object-contain rounded-xl bg-muted p-1"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xl">
+                        {item.emoji || "🌱"}
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-bold text-sm group-hover:text-primary transition-colors">
+                        {item.name}
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">{item.category}</p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] text-emerald-400 border-emerald-500/30">
+                    {item.state}
                   </Badge>
-                )}
-                <div className="mt-2 text-lg font-extrabold text-primary">
-                  {item.price} <span className="text-xs font-normal text-muted-foreground">/{item.unit}</span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  Mandi:{" "}
-                  <span className="font-semibold text-foreground">
-                    {item.price_quintal
-                      ? (item.price_quintal.startsWith("₹") ? item.price_quintal : `₹${item.price_quintal}`)
-                      : `₹${(item.priceNum * 100).toLocaleString("en-IN")}`}/qtl
-                  </span>
+
+                <div className="p-2.5 rounded-xl bg-muted/30 border border-border/50 mb-3 space-y-1">
+                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Market APMC:</span>
+                    <span className="font-semibold text-foreground">{item.market}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Wholesale:</span>
+                    <span className="font-bold text-foreground">{item.price}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Modal / Quintal:</span>
+                    <span className="font-bold text-primary">{item.price_quintal}</span>
+                  </div>
                 </div>
-                <span className="mt-3 badge-liquid-glass-emerald text-[10px]">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-                  <span>{item.mandi_info?.split(" ")[0] || "Odisha"} Mandi</span>
-                </span>
-              </CardContent>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t text-[11px] text-muted-foreground">
+                <span>Arrivals: {item.arrivals || "Regular"}</span>
+                <span className="text-primary font-medium group-hover:underline">View Analytics →</span>
+              </div>
             </Card>
           ))}
         </div>
       )}
 
-      {/* Commodity Intelligence Modal (Price History & Next-Season Profitability) */}
+      {/* Crop Detail Modal */}
       {selectedCropModal && (
         <CropDetailModal
           isOpen={!!selectedCropModal}
           onClose={() => setSelectedCropModal(null)}
           cropName={selectedCropModal.name}
-          currentPrice={selectedCropModal.price}
+          currentPrice={selectedCropModal.priceNum || selectedCropModal.price}
           retailPrice={selectedCropModal.retailPrice}
-          unit={selectedCropModal.unit}
+          unit={selectedCropModal.unit || "kg"}
           category={selectedCropModal.category}
           priceQuintal={selectedCropModal.price_quintal}
-          mandiInfo={selectedCropModal.mandi_info}
+          mandiInfo={selectedCropModal.mandi_info || `${selectedCropModal.market || "APMC"}, ${selectedCropModal.state || "India"}`}
           url={selectedCropModal.url}
         />
       )}

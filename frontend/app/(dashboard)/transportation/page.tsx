@@ -22,28 +22,36 @@ import {
   ArrowRight,
   Info,
   CheckCircle2,
+  Globe2,
 } from "lucide-react";
 
 interface Corridor {
   id: string;
   name: string;
+  origin: string;
   destination: string;
+  region: "North" | "South" | "East" | "West" | "Central" | "National";
   distance: number;
   highway: string;
   typicalCommodity: string;
 }
 
 const PRESET_CORRIDORS: Corridor[] = [
-  { id: "cuttack", name: "Cuttack Mandi Hub", destination: "Cuttack, Odisha", distance: 28, highway: "NH-16", typicalCommodity: "Daily Vegetables, Greens" },
-  { id: "puri", name: "Puri Coastal Market", destination: "Puri, Odisha", distance: 60, highway: "NH-316", typicalCommodity: "Coconut, Vegetables, Fish" },
-  { id: "berhampur", name: "Berhampur Mandi", destination: "Berhampur, Odisha", distance: 170, highway: "NH-16", typicalCommodity: "Pulses, Vegetables, Grains" },
-  { id: "balasore", name: "Balasore Mandi", destination: "Balasore, Odisha", distance: 205, highway: "NH-16", typicalCommodity: "Paddy, Betel Leaf, Tomato" },
-  { id: "sambalpur", name: "Sambalpur Agri Market", destination: "Sambalpur, Odisha", distance: 280, highway: "NH-55", typicalCommodity: "Paddy, Groundnut, Chillies" },
-  { id: "kolkata", name: "Kolkata Posta / Koley Mandi", destination: "Kolkata, West Bengal", distance: 440, highway: "NH-16", typicalCommodity: "Vegetables, Betel, Fruits" },
-  { id: "ranchi", name: "Ranchi Daily Market", destination: "Ranchi, Jharkhand", distance: 500, highway: "NH-20 / NH-55", typicalCommodity: "Seasonal Vegetables, Pulses" },
-  { id: "raipur", name: "Raipur Agri Mandi", destination: "Raipur, Chhattisgarh", distance: 550, highway: "NH-53", typicalCommodity: "Paddy, Pulses, Spices" },
-  { id: "hyderabad", name: "Hyderabad Bowenpally", destination: "Hyderabad, Telangana", distance: 1050, highway: "NH-16 / NH-65", typicalCommodity: "Ginger, Spices, Perishables" },
-  { id: "delhi", name: "Delhi Azadpur Mandi", destination: "Delhi NCR", distance: 1520, highway: "NH-19 / NH-16", typicalCommodity: "Bulk Agricultural Consignments" },
+  { id: "delhi-agra", name: "Delhi Azadpur – Agra Potato Hub", origin: "Delhi NCR", destination: "Agra, Uttar Pradesh", region: "North", distance: 210, highway: "Yamuna Expressway", typicalCommodity: "Potato, Seasonal Vegetables" },
+  { id: "khanna-delhi", name: "Khanna Grain Market – Delhi Azadpur", origin: "Khanna, Punjab", destination: "Delhi NCR", region: "North", distance: 310, highway: "NH-44", typicalCommodity: "Wheat, Basmati Paddy, Maize" },
+  { id: "shimla-delhi", name: "Shimla Apple Belt – Delhi NCR", origin: "Shimla, Himachal Pradesh", destination: "Delhi NCR", region: "North", distance: 345, highway: "NH-5 / NH-44", typicalCommodity: "Apples, Stone Fruits, Garlic" },
+  { id: "nashik-mumbai", name: "Nashik Onion Hub – Mumbai Vashi APMC", origin: "Nashik, Maharashtra", destination: "Mumbai, Maharashtra", region: "West", distance: 165, highway: "NH-160 / Samruddhi Exp", typicalCommodity: "Onions, Table Grapes, Tomatoes" },
+  { id: "deesa-ahmedabad", name: "Deesa Potato Belt – Ahmedabad APMC", origin: "Deesa, Gujarat", destination: "Ahmedabad, Gujarat", region: "West", distance: 150, highway: "NH-27", typicalCommodity: "Processing Potatoes, Castor, Mustard" },
+  { id: "pune-bengaluru", name: "Pune APMC – Bengaluru Yeshwanthpur", origin: "Pune, Maharashtra", destination: "Bengaluru, Karnataka", region: "South", distance: 840, highway: "NH-48", typicalCommodity: "Pomegranates, Vegetables, Sugar" },
+  { id: "guntur-hyderabad", name: "Guntur Mirchi Yard – Hyderabad Bowenpally", origin: "Guntur, Andhra Pradesh", destination: "Hyderabad, Telangana", region: "South", distance: 275, highway: "NH-65", typicalCommodity: "Red Chillies, Turmeric, Cotton" },
+  { id: "kolar-chennai", name: "Kolar Tomato Belt – Chennai Koyambedu", origin: "Kolar, Karnataka", destination: "Chennai, Tamil Nadu", region: "South", distance: 280, highway: "NH-75 / NH-48", typicalCommodity: "Fresh Tomatoes, Vegetables, Mangoes" },
+  { id: "indore-mumbai", name: "Indore Mandi – Mumbai Nhava Sheva", origin: "Indore, Madhya Pradesh", destination: "Mumbai, Maharashtra", region: "Central", distance: 590, highway: "NH-52 / NH-60", typicalCommodity: "Soybean, Garlic, Wheat, Pulses" },
+  { id: "bbsr-kolkata", name: "Bhubaneswar / Cuttack – Kolkata Posta Mandi", origin: "Bhubaneswar, Odisha", destination: "Kolkata, West Bengal", region: "East", distance: 440, highway: "NH-16", typicalCommodity: "Vegetables, Betel Leaf, Fish, Rice" },
+  { id: "cuttack-sambalpur", name: "Cuttack Mandi – Sambalpur APMC", origin: "Cuttack, Odisha", destination: "Sambalpur, Odisha", region: "East", distance: 260, highway: "NH-55", typicalCommodity: "Paddy, Groundnut, Green Chillies" },
+  { id: "hooghly-kolkata", name: "Hooghly Agro Hub – Kolkata Koley Market", origin: "Hooghly, West Bengal", destination: "Kolkata, West Bengal", region: "East", distance: 110, highway: "NH-19", typicalCommodity: "Jyoti Potato, Jute, Seasonal Greens" },
+  { id: "patna-kolkata", name: "Patna Bazaar Samiti – Kolkata APMC", origin: "Patna, Bihar", destination: "Kolkata, West Bengal", region: "East", distance: 580, highway: "NH-19 / NH-2", typicalCommodity: "Maize, Makhana, Litchi, Mango" },
+  { id: "bbsr-hyderabad", name: "Bhubaneswar APMC – Hyderabad Bowenpally", origin: "Bhubaneswar, Odisha", destination: "Hyderabad, Telangana", region: "National", distance: 1050, highway: "NH-16 / NH-65", typicalCommodity: "Ginger, Turmeric, Coastal Produce" },
+  { id: "bbsr-delhi", name: "Odisha Coastal Hub – Delhi Azadpur Mandi", origin: "Bhubaneswar, Odisha", destination: "Delhi NCR", region: "National", distance: 1520, highway: "NH-19 / NH-16", typicalCommodity: "Bulk Agricultural Consignments" },
 ];
 
 const TRUCK_TYPES = [
@@ -56,7 +64,7 @@ const TRUCK_TYPES = [
     perKmMin: 26,
     perKmMax: 32,
     tollPer100Km: 150,
-    description: "Best for farm gate to local Bhubaneswar / Cuttack mandi supply",
+    description: "Best for farm gate to local district APMC mandi runs",
   },
   {
     id: "canter-14",
@@ -67,7 +75,7 @@ const TRUCK_TYPES = [
     perKmMin: 36,
     perKmMax: 44,
     tollPer100Km: 280,
-    description: "Ideal for regional intra-state mandi hauls (Puri, Balasore, Berhampur)",
+    description: "Ideal for regional intra-state mandi hauls & inter-district trade",
   },
   {
     id: "truck-19",
@@ -78,7 +86,7 @@ const TRUCK_TYPES = [
     perKmMin: 48,
     perKmMax: 58,
     tollPer100Km: 450,
-    description: "Standard truck for inter-district & neighbouring state bulk cargo",
+    description: "Standard truck for inter-state bulk grain, onion, and vegetable transport",
   },
   {
     id: "taurus-multi",
@@ -89,42 +97,58 @@ const TRUCK_TYPES = [
     perKmMin: 65,
     perKmMax: 85,
     tollPer100Km: 750,
-    description: "Heavy commercial long-haul for grain, paddy and interstate bulk",
+    description: "Heavy commercial long-haul for grain, paddy, fertiliser and national bulk freight",
   },
   {
     id: "reefer-cold",
-    name: "Reefer / Refrigerated Truck",
+    name: "Reefer / Refrigerated Cold-Chain Truck",
     capacityText: "3.0 – 10.0 MT",
     maxWeight: 10,
     baseFare: 8000,
     perKmMin: 58,
     perKmMax: 76,
     tollPer100Km: 450,
-    description: "Cold-chain temperature controlled for perishable tomatoes, mushrooms, fruits",
+    description: "Temperature controlled (0°C to 12°C) for perishable fruits, tomatoes, capsicum & dairy",
   },
 ];
 
+const POPULAR_ORIGINS = [
+  "Delhi NCR",
+  "Mumbai, Maharashtra",
+  "Nashik, Maharashtra",
+  "Bhubaneswar, Odisha",
+  "Kolkata, West Bengal",
+  "Bengaluru, Karnataka",
+  "Hyderabad, Telangana",
+  "Khanna, Punjab",
+  "Ahmedabad, Gujarat",
+  "Indore, Madhya Pradesh",
+  "Patna, Bihar",
+  "Shimla, Himachal Pradesh",
+];
+
 export default function TransportationPage() {
-  const [fromCity, setFromCity] = useState("Bhubaneswar, Odisha");
-  const [selectedCorridorId, setSelectedCorridorId] = useState("cuttack");
+  const [fromCity, setFromCity] = useState("Delhi NCR");
+  const [selectedCorridorId, setSelectedCorridorId] = useState("delhi-agra");
   const [customDestination, setCustomDestination] = useState("");
   const [customDistance, setCustomDistance] = useState<number | "">("");
   const [commodity, setCommodity] = useState("Fruits & Vegetables (Fresh Mandi Harvest)");
-  const [weightMt, setWeightMt] = useState<number>(3);
+  const [weightMt, setWeightMt] = useState<number>(5);
   const [selectedTruckId, setSelectedTruckId] = useState("canter-14");
+  const [corridorRegionFilter, setCorridorRegionFilter] = useState<string>("All");
 
-  // Determine active destination and distance
+  // Determine active distance
   const activeDistance = useMemo(() => {
     if (selectedCorridorId === "custom") {
-      return typeof customDistance === "number" && customDistance > 0 ? customDistance : 50;
+      return typeof customDistance === "number" && customDistance > 0 ? customDistance : 150;
     }
     const c = PRESET_CORRIDORS.find((item) => item.id === selectedCorridorId);
-    return c ? c.distance : 50;
+    return c ? c.distance : 150;
   }, [selectedCorridorId, customDistance]);
 
   const activeDestination = useMemo(() => {
     if (selectedCorridorId === "custom") {
-      return customDestination || "Custom Destination";
+      return customDestination || "Custom Mandi Destination";
     }
     const c = PRESET_CORRIDORS.find((item) => item.id === selectedCorridorId);
     return c ? c.destination : "Mandi Destination";
@@ -134,7 +158,7 @@ export default function TransportationPage() {
     return TRUCK_TYPES.find((t) => t.id === selectedTruckId) || TRUCK_TYPES[1];
   }, [selectedTruckId]);
 
-  // Freight calculation based on TruckSuvidha logistics standards
+  // Freight calculation based on All India Transport commercial freight rates
   const calculation = useMemo(() => {
     const distance = Math.max(activeDistance, 10);
     const weight = Math.max(weightMt || 1, 0.5);
@@ -144,14 +168,14 @@ export default function TransportationPage() {
 
     // Commodity multiplier
     let factor = 1.0;
-    if (commodity.includes("Perishables") || commodity.includes("Cold Storage")) {
-      factor = 1.15;
-    } else if (commodity.includes("Seeds") || commodity.includes("Fertilizer")) {
+    if (commodity.includes("Perishables") || commodity.includes("Reefer")) {
+      factor = 1.18;
+    } else if (commodity.includes("Seeds") || commodity.includes("Fertilizers")) {
       factor = 1.05;
     }
 
     const estTolls = Math.round((distance / 100) * activeTruck.tollPer100Km);
-    const hamali = Math.round(weight * 180); // ~Rs 180 / MT loading/unloading
+    const hamali = Math.round(weight * 190); // ~Rs 190 / MT loading/unloading hamali
 
     const totalMin = Math.round(baseMin * factor + estTolls + hamali);
     const totalMax = Math.round(baseMax * factor + estTolls + hamali);
@@ -165,13 +189,13 @@ export default function TransportationPage() {
     const perKgMin = (totalMin / totalKg).toFixed(2);
     const perKgMax = (totalMax / totalKg).toFixed(2);
 
-    const hours = Math.round(distance / 40);
+    const hours = Math.round(distance / 45);
     const transitTime =
-      hours <= 2
-        ? "1 – 2 Hours (Same Day)"
-        : hours <= 8
-        ? `${hours - 1} – ${hours + 2} Hours (Same Day)`
-        : `${Math.ceil(hours / 24)} – ${Math.ceil(hours / 24) + 1} Days`;
+      hours <= 3
+        ? "2 – 4 Hours (Same Day)"
+        : hours <= 12
+        ? `${hours - 1} – ${hours + 3} Hours (Same Day / Overnight)`
+        : `${Math.ceil(hours / 24)} – ${Math.ceil(hours / 24) + 1} Days (Interstate)`;
 
     return {
       totalMin,
@@ -186,6 +210,13 @@ export default function TransportationPage() {
     };
   }, [activeDistance, weightMt, activeTruck, commodity]);
 
+  const filteredCorridors = useMemo(() => {
+    if (corridorRegionFilter === "All") return PRESET_CORRIDORS;
+    return PRESET_CORRIDORS.filter(
+      (c) => c.region === corridorRegionFilter || (corridorRegionFilter === "National" && c.distance > 800)
+    );
+  }, [corridorRegionFilter]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -193,27 +224,30 @@ export default function TransportationPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Verified Mandi Logistics
+              <Globe2 className="h-3.5 w-3.5 text-emerald-600" /> Pan-India Verified Freight Network
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              All India Transport Service
             </Badge>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Truck className="h-8 w-8 text-primary" />
-            Agricultural Transportation & Freight
+            Pan-India Agricultural Transportation & Freight
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Calculate mandi freight charges, vehicle hire rates, and book commercial transport online.
+            Calculate mandi freight charges, vehicle hire rates, and book nationwide commercial transport across 28 states.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <a
-            href="https://www.trukky.com/bhubaneswar-transport-services"
+            href="https://allindiatransport.in/bhubaneswar-transport-service.html"
             target="_blank"
             rel="noopener noreferrer"
           >
             <Button className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0052a3] text-white shadow-sm font-semibold">
               <Truck className="h-4 w-4" />
-              <span>Book Truck Online</span>
+              <span>Book All-India Transport</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </Button>
           </a>
@@ -224,7 +258,7 @@ export default function TransportationPage() {
             rel="noopener noreferrer"
           >
             <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-              <span>Freight Calculator</span>
+              <span>Freight Rate Engine</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </Button>
           </a>
@@ -242,25 +276,25 @@ export default function TransportationPage() {
                 Trip Route & Consignment Details
               </CardTitle>
               <CardDescription>
-                Specify pickup point, destination mandi, cargo type and truck size
+                Specify pickup point, destination APMC mandi, cargo type and truck capacity
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* From / Origin */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">From (Origin Mandi / Farm Gate)</Label>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">From (Origin Mandi / Farm Hub)</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                   <Input
                     value={fromCity}
                     onChange={(e) => setFromCity(e.target.value)}
-                    placeholder="Enter pickup city or hub..."
+                    placeholder="Enter pickup mandi or city (e.g. Nashik, Delhi, Bhubaneswar)..."
                     className="pl-9 bg-card font-medium"
                   />
                 </div>
-                {/* Quick origin buttons */}
+                {/* Quick origin buttons across Pan-India */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["Bhubaneswar, Odisha", "Cuttack, Odisha", "Puri, Odisha", "Sambalpur, Odisha"].map((city) => (
+                  {POPULAR_ORIGINS.slice(0, 8).map((city) => (
                     <button
                       key={city}
                       onClick={() => setFromCity(city)}
@@ -279,32 +313,60 @@ export default function TransportationPage() {
                 <Label className="text-xs font-semibold uppercase text-muted-foreground">To (Destination Mandi / Market)</Label>
                 <select
                   value={selectedCorridorId}
-                  onChange={(e) => setSelectedCorridorId(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedCorridorId(val);
+                    if (val !== "custom") {
+                      const found = PRESET_CORRIDORS.find((c) => c.id === val);
+                      if (found) setFromCity(found.origin);
+                    }
+                  }}
                   className="w-full h-10 rounded-md border border-input bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-medium"
                 >
-                  <optgroup label="Odisha Mandi Corridors">
-                    {PRESET_CORRIDORS.slice(0, 5).map((c) => (
+                  <optgroup label="North India Agri Corridors">
+                    {PRESET_CORRIDORS.filter((c) => c.region === "North").map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name} ({c.distance} km) • {c.highway}
                       </option>
                     ))}
                   </optgroup>
-                  <optgroup label="Interstate Agricultural Hubs">
-                    {PRESET_CORRIDORS.slice(5).map((c) => (
+                  <optgroup label="West India Agri Corridors">
+                    {PRESET_CORRIDORS.filter((c) => c.region === "West").map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name} ({c.distance} km) • {c.highway}
                       </option>
                     ))}
                   </optgroup>
-                  <option value="custom">-- Custom Destination & Distance --</option>
+                  <optgroup label="South India Agri Corridors">
+                    {PRESET_CORRIDORS.filter((c) => c.region === "South").map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.distance} km) • {c.highway}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="East & Central Agri Corridors">
+                    {PRESET_CORRIDORS.filter((c) => c.region === "East" || c.region === "Central").map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.distance} km) • {c.highway}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Pan-India National Corridors">
+                    {PRESET_CORRIDORS.filter((c) => c.region === "National").map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.distance} km) • {c.highway}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <option value="custom">-- Custom Pan-India Destination & Distance --</option>
                 </select>
 
                 {selectedCorridorId === "custom" && (
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <div>
-                      <Label className="text-xs text-muted-foreground">Destination City</Label>
+                      <Label className="text-xs text-muted-foreground">Destination Mandi / City</Label>
                       <Input
-                        placeholder="e.g. Rourkela"
+                        placeholder="e.g. Vashi Mumbai, Jaipur"
                         value={customDestination}
                         onChange={(e) => setCustomDestination(e.target.value)}
                         className="bg-card mt-1"
@@ -314,7 +376,7 @@ export default function TransportationPage() {
                       <Label className="text-xs text-muted-foreground">Road Distance (km)</Label>
                       <Input
                         type="number"
-                        placeholder="e.g. 330"
+                        placeholder="e.g. 420"
                         value={customDistance}
                         onChange={(e) => setCustomDistance(e.target.value ? parseFloat(e.target.value) : "")}
                         className="bg-card mt-1"
@@ -327,17 +389,18 @@ export default function TransportationPage() {
               {/* Commodity & Weight */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground">Crop / Material</Label>
+                  <Label className="text-xs font-semibold uppercase text-muted-foreground">Crop / Commodity</Label>
                   <select
                     value={commodity}
                     onChange={(e) => setCommodity(e.target.value)}
                     className="w-full h-10 rounded-md border border-input bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    <option value="Fruits & Vegetables (Fresh Mandi Harvest)">Fruits & Vegetables (Fresh Mandi)</option>
-                    <option value="Grains & Cereals (Paddy, Rice, Wheat)">Grains & Cereals (Paddy, Rice, Wheat)</option>
-                    <option value="Perishables (Cold-Chain Reefer Required)">Perishables (Cold Chain Required)</option>
-                    <option value="Seeds & Organic Fertilizers">Seeds & Fertilizers</option>
-                    <option value="Processed Agri Food Bags">Processed Agri Food Bags</option>
+                    <option value="Fruits & Vegetables (Fresh Mandi Harvest)">Fruits & Vegetables (Fresh Mandi Harvest)</option>
+                    <option value="Grains & Cereals (Paddy, Rice, Wheat, Maize)">Grains & Cereals (Paddy, Rice, Wheat, Maize)</option>
+                    <option value="Onions & Potatoes (Heavy Root Crop)">Onions & Potatoes (Heavy Root Crop)</option>
+                    <option value="Perishables & Horticulture (Reefer Cold Chain)">Perishables & Horticulture (Reefer Cold Chain)</option>
+                    <option value="Spices, Chillies & Oilseeds">Spices, Chillies & Oilseeds</option>
+                    <option value="Seeds & Organic Fertilizers">Seeds & Organic Fertilizers</option>
                   </select>
                 </div>
 
@@ -349,7 +412,7 @@ export default function TransportationPage() {
                   <Input
                     type="number"
                     min={0.5}
-                    max={30}
+                    max={40}
                     step={0.5}
                     value={weightMt}
                     onChange={(e) => setWeightMt(parseFloat(e.target.value) || 1)}
@@ -358,14 +421,14 @@ export default function TransportationPage() {
                   <div className="flex justify-between text-[11px] text-muted-foreground">
                     <span>1 MT (Mini Truck)</span>
                     <span>5 MT (Canter)</span>
-                    <span>15 MT+ (Taurus)</span>
+                    <span>15 MT+ (Taurus Multi-Axle)</span>
                   </div>
                 </div>
               </div>
 
               {/* Truck Type Selection */}
               <div className="space-y-2 pt-2">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Select Truck / Vehicle Type</Label>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">Select Truck / Vehicle Category</Label>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {TRUCK_TYPES.map((truck) => {
                     const isSelected = selectedTruckId === truck.id;
@@ -405,27 +468,27 @@ export default function TransportationPage() {
             <CardHeader className="pb-4 border-b bg-muted/30">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary font-bold text-xs">
-                  Freight Estimate
+                  Pan-India Freight Estimate
                 </Badge>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" /> {calculation.transitTime}
                 </span>
               </div>
 
-              {/* RATE KE SAAMNE BOOK BUTTON (DIRECT TRUKKY INTEGRATION) */}
+              {/* RATE KE SAAMNE BOOK BUTTON (ALL INDIA TRANSPORT INTEGRATION) */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-3 pt-1">
                 <div>
                   <CardTitle className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                     <AnimatedNumber value={calculation.totalMin} prefix="₹" springOptions={{ bounce: 0, duration: 1500 }} /> – <AnimatedNumber value={calculation.totalMax} prefix="₹" springOptions={{ bounce: 0, duration: 1500 }} />
                   </CardTitle>
                   <CardDescription className="text-xs mt-0.5">
-                    Estimated freight for <AnimatedNumber value={activeDistance} suffix=" km" springOptions={{ bounce: 0, duration: 1400 }} /> trip
+                    Estimated freight for <AnimatedNumber value={activeDistance} suffix=" km" springOptions={{ bounce: 0, duration: 1400 }} /> haul
                   </CardDescription>
                 </div>
 
                 {/* Booking Button right next to rate */}
                 <a
-                  href="https://www.trukky.com/bhubaneswar-transport-services"
+                  href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-shrink-0"
@@ -449,7 +512,7 @@ export default function TransportationPage() {
                     </span>
                   </div>
                   <a
-                    href="https://www.trukky.com/bhubaneswar-transport-services"
+                    href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] font-semibold text-[#0066cc] underline hover:text-[#0052a3] inline-flex items-center gap-0.5"
@@ -469,7 +532,7 @@ export default function TransportationPage() {
                   </div>
                 </div>
                 <p className="text-[11px] text-emerald-800/80 pt-1 border-t border-emerald-500/15">
-                  Farmers can factor this ₹{calculation.perKg} / kg transport cost directly into their mandi sales price.
+                  Producers can factor this ₹{calculation.perKg} / kg transport cost directly into their inter-mandi sales quote.
                 </p>
               </div>
 
@@ -481,7 +544,7 @@ export default function TransportationPage() {
                   <span className="font-semibold text-foreground"><AnimatedNumber value={calculation.baseMin} prefix="₹" springOptions={{ bounce: 0, duration: 1400 }} /> – <AnimatedNumber value={calculation.baseMax} prefix="₹" springOptions={{ bounce: 0, duration: 1400 }} /></span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b text-xs">
-                  <span className="text-muted-foreground">Highway Tolls & FASTag (Est.)</span>
+                  <span className="text-muted-foreground">National Highway Tolls & FASTag (Est.)</span>
                   <span className="font-semibold text-foreground"><AnimatedNumber value={calculation.estTolls} prefix="₹" springOptions={{ bounce: 0, duration: 1400 }} /></span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b text-xs">
@@ -489,41 +552,44 @@ export default function TransportationPage() {
                   <span className="font-semibold text-foreground"><AnimatedNumber value={calculation.hamali} prefix="₹" springOptions={{ bounce: 0, duration: 1400 }} /></span>
                 </div>
                 <div className="flex justify-between py-1.5 text-xs">
-                  <span className="text-muted-foreground">Estimated Trip Distance</span>
+                  <span className="text-muted-foreground">Estimated Route Distance</span>
                   <span className="font-semibold text-primary"><AnimatedNumber value={activeDistance} suffix=" km" springOptions={{ bounce: 0, duration: 1400 }} /></span>
                 </div>
               </div>
 
-              {/* Dedicated Online Booking Card */}
+              {/* Dedicated Online Booking Card with All India Transport */}
               <div className="pt-2">
                 <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 space-y-3 shadow-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-[#004d99] flex items-center gap-1.5">
-                      <Truck className="h-4 w-4 text-[#0066cc]" /> Commercial Transport & Booking
+                      <Truck className="h-4 w-4 text-[#0066cc]" /> All India Transport Service (AIT)
                     </span>
                     <Badge variant="outline" className="border-[#0066cc] text-[#0066cc] text-[10px] bg-white font-semibold">
-                      Online Booking
+                      Pan-India Dispatch
                     </Badge>
                   </div>
                   <p className="text-xs text-[#003366] leading-relaxed">
-                    Book verified commercial trucks in Bhubaneswar from <strong>₹1.3/Kg</strong>. Full Truck Load (FTL) and Part Load (PTL) available with live GPS tracking, insurance, and 100% placement assurance.
+                    Book verified commercial trucks across India from <strong>₹1.3/Kg</strong>. Full Truck Load (FTL), Part Load (PTL), and Reefer fleets with live GPS tracking, in-transit transit insurance, and guaranteed vehicle placement across all states.
                   </p>
                   <a
-                    href="https://www.trukky.com/bhubaneswar-transport-services"
+                    href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
                   >
                     <Button className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white flex items-center justify-center gap-2 text-sm h-10 shadow-sm font-semibold">
-                      <span>Book Truck Online</span>
+                      <span>Book All India Commercial Truck</span>
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   </a>
                   <div className="flex items-center justify-between text-[11px] text-[#004d99] pt-1">
-                    <span className="flex items-center gap-1">
-                      <PhoneCall className="h-3 w-3 text-[#0066cc]" /> Call: +91 72278 72278
-                    </span>
-                    <span className="text-muted-foreground">Instant Live Pricing</span>
+                    <a
+                      href="tel:+919310123456"
+                      className="flex items-center gap-1 hover:underline font-medium"
+                    >
+                      <PhoneCall className="h-3 w-3 text-[#0066cc]" /> 24/7 Helpline: +91 9310-123456
+                    </a>
+                    <span className="text-muted-foreground">Pan-India Branch Network</span>
                   </div>
                 </div>
               </div>
@@ -533,7 +599,7 @@ export default function TransportationPage() {
                 <div className="p-3 rounded-lg bg-[#fff8f5] border border-[#fbd4c2]/70 flex items-center justify-between text-xs text-[#7c2d0f]">
                   <div>
                     <span className="font-semibold block">Need rate verification?</span>
-                    <span className="text-[11px] text-muted-foreground">Check distance and live rates</span>
+                    <span className="text-[11px] text-muted-foreground">TruckSuvidha National Freight Engine</span>
                   </div>
                   <a
                     href="https://trucksuvidha.com/FreightCalculator.aspx"
@@ -558,40 +624,62 @@ export default function TransportationPage() {
           <div>
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Navigation className="h-5 w-5 text-primary" />
-              Popular Agricultural Mandi Trade Corridors from Bhubaneswar
+              Pan-India Agricultural Mandi Freight Corridors
             </h2>
             <p className="text-xs text-muted-foreground">
-              Standard commercial freight benchmarks with direct online truck booking
+              National trade benchmarks with direct All India Transport freight booking
             </p>
           </div>
-          <Badge variant="outline" className="self-start sm:self-auto text-xs">
-            10 Regular Corridors
-          </Badge>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {["All", "North", "West", "South", "East", "National"].map((reg) => (
+              <Button
+                key={reg}
+                size="sm"
+                variant={corridorRegionFilter === reg ? "default" : "outline"}
+                onClick={() => setCorridorRegionFilter(reg)}
+                className="text-xs h-7 px-2.5"
+              >
+                {reg}
+              </Button>
+            ))}
+          </div>
         </div>
 
         <div className="rounded-lg border bg-card shadow-xs overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Destination Mandi</TableHead>
+                <TableHead>Corridor Route</TableHead>
+                <TableHead className="text-center">Region</TableHead>
                 <TableHead className="text-center">Distance</TableHead>
-                <TableHead>Highway Route</TableHead>
-                <TableHead>Typical Cargo</TableHead>
-                <TableHead className="text-center">Recommended Vehicle</TableHead>
+                <TableHead>National Highway</TableHead>
+                <TableHead>Primary Cargo</TableHead>
+                <TableHead className="text-center">Vehicle Class</TableHead>
                 <TableHead className="text-right">Est. Freight (5 MT)</TableHead>
                 <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {PRESET_CORRIDORS.map((corridor) => {
+              {filteredCorridors.map((corridor) => {
                 const est5Mt = Math.round(corridor.distance * 40 + 3500);
                 return (
                   <TableRow key={corridor.id} className="hover:bg-muted/40 transition-colors">
                     <TableCell className="font-semibold text-foreground">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
-                        <span>{corridor.name}</span>
+                        <div>
+                          <span>{corridor.name}</span>
+                          <span className="block text-[11px] font-normal text-muted-foreground">
+                            {corridor.origin} → {corridor.destination}
+                          </span>
+                        </div>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline" className="text-[10px]">
+                        {corridor.region}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-center font-medium text-foreground">
                       {corridor.distance} km
@@ -605,7 +693,7 @@ export default function TransportationPage() {
                       {corridor.typicalCommodity}
                     </TableCell>
                     <TableCell className="text-center text-xs">
-                      {corridor.distance < 100 ? "Tata Ace / 14ft Eicher" : corridor.distance < 300 ? "14ft - 19ft Truck" : "19ft / Taurus Multi-Axle"}
+                      {corridor.distance < 200 ? "Tata Ace / 14ft Eicher" : corridor.distance < 600 ? "14ft - 19ft Truck" : "19ft / Taurus Multi-Axle"}
                     </TableCell>
                     <TableCell className="text-right font-bold text-primary">
                       ₹{est5Mt.toLocaleString("en-IN")}
@@ -617,15 +705,15 @@ export default function TransportationPage() {
                           size="sm"
                           onClick={() => {
                             setSelectedCorridorId(corridor.id);
+                            setFromCity(corridor.origin);
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                           className="text-xs h-7 px-2 text-muted-foreground hover:text-foreground"
                         >
-                          Calculate
+                          Select
                         </Button>
-                        {/* Direct Booking Button right next to rate */}
                         <a
-                          href="https://www.trukky.com/bhubaneswar-transport-services"
+                          href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -633,7 +721,7 @@ export default function TransportationPage() {
                             size="sm"
                             className="text-xs h-7 px-2.5 bg-[#0066cc] hover:bg-[#0052a3] text-white font-semibold flex items-center gap-1 shadow-xs"
                           >
-                            <span>Book Truck</span>
+                            <span>Book</span>
                             <ExternalLink className="h-3 w-3" />
                           </Button>
                         </a>

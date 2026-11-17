@@ -277,7 +277,7 @@ export function CropDetailModal({
                 {cropName}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Odisha Mandis • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
+                National APMCs • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
               </DialogDescription>
             </div>
 
@@ -371,7 +371,7 @@ export function CropDetailModal({
               <div className="p-4 rounded-lg border border-border/80 bg-muted/10 space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-foreground">
                   <span>Price Progression (Past 7 Days)</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">Bhubaneswar Wholesale Modal (₹/{unit})</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">APMC Wholesale Modal (₹/{unit})</span>
                 </div>
                 <div className="h-44 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">
@@ -408,7 +408,7 @@ export function CropDetailModal({
               <div className="p-3 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  Prices are synchronized across verified Odisha APMC mandis. Modal values represent state-wide wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
+                  Prices are synchronized across verified National APMC mandis via BhumiAI & Agmarknet. Modal values represent wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
                 </p>
               </div>
             </div>

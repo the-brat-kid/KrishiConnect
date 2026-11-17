@@ -109,7 +109,7 @@ export default function HomePage() {
                 className="p-3 rounded-xl bg-muted/40 hover:bg-primary/10 hover:text-primary transition-colors flex flex-col gap-1 border border-border/40"
               >
                 <span className="text-foreground font-bold">Mandi Rates</span>
-                <span className="text-[10px] text-muted-foreground font-normal">Live Odisha APMC</span>
+                <span className="text-[10px] text-muted-foreground font-normal">Live Pan-India APMC</span>
               </Link>
               <Link
                 href="/transportation"
@@ -177,7 +177,7 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-muted-foreground w-fit">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="tracking-wider uppercase text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                Bhubaneswar APMC Live
+                National Mandi Live • 28 States
               </span>
             </div>
             <Link
@@ -198,7 +198,7 @@ export default function HomePage() {
 
           {/* Clean Subcopy */}
           <p className="text-sm sm:text-base text-muted-foreground font-normal leading-relaxed max-w-xl">
-            Odisha agricultural commerce simplified: verified daily mandi modal prices, calibrated freight routing, and instant digital GST billing for farmers and traders.
+            Pan-India agricultural commerce simplified: verified daily APMC mandi modal prices via BhumiAI & Agmarknet, nationwide freight routing, and instant digital GST billing for farmers and traders across 28 states.
           </p>
 
           {/* Phone-Compatible Focused Action Area */}
@@ -229,7 +229,7 @@ export default function HomePage() {
       {/* 3. Responsive Quiet Footer */}
       <footer className="relative z-20 w-full px-4 sm:px-12 md:px-16 py-4 sm:pb-6 sm:pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[11px] text-muted-foreground border-t border-border/40 sm:border-0 bg-background/40 sm:bg-transparent backdrop-blur-xs sm:backdrop-blur-none">
         <span className="text-center sm:text-left">
-          © {new Date().getFullYear()} KrishiConnect. Odisha Agrarian Exchange.
+          © {new Date().getFullYear()} KrishiConnect. Pan-India Agricultural Exchange OS.
         </span>
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           <Link href="/contact" className="hover:text-primary transition-colors font-medium">

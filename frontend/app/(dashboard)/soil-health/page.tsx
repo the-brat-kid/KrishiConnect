@@ -255,7 +255,7 @@ export default function SoilHealthPage() {
             Soil Health Check & Field Diagnostic
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Book an appointment for comprehensive 12-parameter soil fertility testing. Doorstep field sample pickup available across Odisha districts.
+            Book an appointment for comprehensive 12-parameter soil fertility testing. Doorstep field sample pickup available nationwide across key agricultural districts.
           </p>
         </div>
 

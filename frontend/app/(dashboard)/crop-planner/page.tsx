@@ -291,14 +291,14 @@ export default function CropPlannerPage() {
             <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 flex items-center gap-1 font-medium text-xs">
               <Sparkles className="h-3 w-3" /> Upcoming Season: Rabi 2026-27 Planning
             </Badge>
-            <span className="text-xs text-muted-foreground font-mono">Odisha Agro-Climatic Model</span>
+            <span className="text-xs text-muted-foreground font-mono">Pan-India Agro-Climatic Model</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Sprout className="h-8 w-8 text-primary" />
             Next Season Crop & Profitability Advisor
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Data-backed crop recommendations for the upcoming winter season in Odisha: compare cultivation costs, harvest yields, and net profits per acre.
+            Data-backed crop recommendations for the upcoming winter season: compare cultivation costs, harvest yields, and net profits per acre across Indian states.
           </p>
         </div>
 
@@ -408,7 +408,7 @@ export default function CropPlannerPage() {
 
               <div className="col-span-2 sm:col-span-1 p-3 rounded-lg border border-primary/20 bg-primary/5">
                 <span className="text-[10px] font-semibold uppercase text-primary block">
-                  Odisha Bonus Status
+                  National MSP & Bonus Status
                 </span>
                 <p className="text-sm font-extrabold text-foreground mt-0.5">
                   ₹3,100 / Qtl

@@ -4,17 +4,23 @@ export interface CropRateItem {
   id: string;
   name: string;
   category?: string;
+  state?: string;
+  market?: string;
   price: string;
   priceNum: number;
   price_quintal?: string;
   priceNumQuintal?: number;
   retailPrice: string;
   mallPrice?: string;
+  min_price?: string;
+  max_price?: string;
   unit: string;
   image: string;
   emoji?: string;
   mandi_info?: string;
   arrivals?: string;
+  variety?: string;
+  trend?: "up" | "down" | "stable";
   url?: string;
   date?: string;
 }
@@ -24,17 +30,19 @@ export interface CropRatesResponse {
   market: string;
   state: string;
   sourceUrl: string;
+  sourceAttribution?: string;
   updatedAt: string;
   count: number;
   items: CropRateItem[];
   error?: string;
 }
 
-export function useCropRates() {
+export function useCropRates(state?: string) {
   return useQuery<CropRatesResponse>({
-    queryKey: ["crop-rates"],
+    queryKey: ["crop-rates", state || "all"],
     queryFn: async () => {
-      const res = await fetch("/api/crop-rates");
+      const url = state && state !== "All" ? `/api/crop-rates?state=${encodeURIComponent(state)}` : "/api/crop-rates";
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error("Failed to fetch daily crop rates");
       }

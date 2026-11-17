@@ -13,8 +13,8 @@ export interface ViewOnMapProps {
 }
 
 export const ViewOnMap: React.FC<ViewOnMapProps> = ({
-  locationName = "Bhubaneswar APMC Mandi",
-  address = "APMC Mandi Yard, Unit 1, Bhubaneswar, Odisha 751009, India",
+  locationName = "APMC Mandi Hub",
+  address = "APMC Mandi Yard, India",
   mapImageUrl = "https://images.unsplash.com/photo-1526778548025-fa2f459cd5ce?q=80&w=2000&auto=format&fit=crop",
   className = "",
 }) => {

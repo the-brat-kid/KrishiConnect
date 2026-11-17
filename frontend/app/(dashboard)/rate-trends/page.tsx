@@ -110,7 +110,7 @@ export default function RateTrendsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <MapPin className="h-3 w-3" /> Odisha Mandis • 7-Day History
+              <MapPin className="h-3 w-3" /> Pan-India Mandis • 7-Day History
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -122,7 +122,7 @@ export default function RateTrendsPage() {
             7-Day Rate Trends
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Historical price analytics and weekly rate volatility across Odisha commodities.
+            Historical price analytics and weekly rate volatility across Pan-India APMC commodities.
           </p>
         </div>
 
@@ -354,7 +354,7 @@ export default function RateTrendsPage() {
         {isLoading ? (
           <Card className="p-8 text-center">
             <RefreshCw className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Fetching 7-day rate trends for Odisha mandis...</p>
+            <p className="text-sm text-muted-foreground">Fetching 7-day rate trends for Pan-India mandis...</p>
           </Card>
         ) : isError ? (
           <Card className="p-8 text-center border-destructive/30 bg-destructive/5">

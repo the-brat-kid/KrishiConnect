@@ -1,25 +1,225 @@
+"use client";
 
+import React, { useState, useMemo } from "react";
+import {
+  Warehouse,
+  Search,
+  Filter,
+  ShieldCheck,
+  ThermometerSnowflake,
+  Plus,
+  ExternalLink,
+  MapPin,
+  CheckCircle2,
+  Globe2,
+  Building2,
+} from "lucide-react";
+import { ColdStorageFacility } from "@/types/cold-storage";
+import { ColdStorageCard } from "@/components/cold-storage/cold-storage-card";
+import { BookingModal } from "@/components/cold-storage/booking-modal";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-"use client"
-
-import React, { useState } from "react"
-import { Warehouse, Search, Filter, ShieldCheck, ThermometerSnowflake, Plus } from "lucide-react"
-import { ColdStorageFacility } from "@/types/cold-storage"
-import { ColdStorageCard } from "@/components/cold-storage/cold-storage-card"
-import { BookingModal } from "@/components/cold-storage/booking-modal"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-
-const DEMO_FACILITIES: ColdStorageFacility[] = [
+const PAN_INDIA_FACILITIES: ColdStorageFacility[] = [
   {
-    id: "cs-1",
+    id: "cs-up-1",
+    name: "Taj Agro Mega Cold Storage",
+    location: "Khandari APMC Agro Corridor",
+    district: "Agra",
+    state: "Uttar Pradesh",
+    pincode: "282002",
+    total_capacity_quintals: 25000,
+    available_capacity_quintals: 8400,
+    temp_min_celsius: 2.0,
+    temp_max_celsius: 4.0,
+    current_temp_celsius: 2.8,
+    humidity_percentage: 90,
+    daily_rate_per_quintal: 2.2,
+    suitable_crops: ["Potato", "Carrot", "Garlic", "Onion"],
+    contact_phone: "+91 94120 11223",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-mh-1",
+    name: "Sahyadri Agro Cold Vault & Reefer",
+    location: "Mohadi Grape & Onion Hub, Dindori",
+    district: "Nashik",
+    state: "Maharashtra",
+    pincode: "422206",
+    total_capacity_quintals: 18000,
+    available_capacity_quintals: 5200,
+    temp_min_celsius: 0.0,
+    temp_max_celsius: 4.5,
+    current_temp_celsius: 1.5,
+    humidity_percentage: 92,
+    daily_rate_per_quintal: 2.8,
+    suitable_crops: ["Grapes", "Onion", "Pomegranate", "Tomato"],
+    contact_phone: "+91 98220 33445",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-gj-1",
+    name: "Banaskantha Mega Agri Cold Chain",
+    location: "Deesa Highway Agro Park",
+    district: "Banaskantha",
+    state: "Gujarat",
+    pincode: "385535",
+    total_capacity_quintals: 30000,
+    available_capacity_quintals: 11200,
+    temp_min_celsius: 2.0,
+    temp_max_celsius: 5.0,
+    current_temp_celsius: 3.2,
+    humidity_percentage: 88,
+    daily_rate_per_quintal: 2.1,
+    suitable_crops: ["Potato", "Castor", "Mustard", "Groundnut"],
+    contact_phone: "+91 97240 55667",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-pb-1",
+    name: "Doaba Seed Potato & Agro Vault",
+    location: "GT Road Mandi Zone",
+    district: "Jalandhar",
+    state: "Punjab",
+    pincode: "144001",
+    total_capacity_quintals: 22000,
+    available_capacity_quintals: 7100,
+    temp_min_celsius: 2.0,
+    temp_max_celsius: 4.0,
+    current_temp_celsius: 2.6,
+    humidity_percentage: 89,
+    daily_rate_per_quintal: 2.3,
+    suitable_crops: ["Seed Potato", "Peas", "Carrots", "Cauliflower"],
+    contact_phone: "+91 98140 77889",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-ka-1",
+    name: "Deccan Horticultural Cold Hub",
+    location: "APMC Market Yard Road",
+    district: "Kolar",
+    state: "Karnataka",
+    pincode: "563101",
+    total_capacity_quintals: 15000,
+    available_capacity_quintals: 4900,
+    temp_min_celsius: 6.0,
+    temp_max_celsius: 12.0,
+    current_temp_celsius: 8.5,
+    humidity_percentage: 90,
+    daily_rate_per_quintal: 3.2,
+    suitable_crops: ["Tomato", "Capsicum", "Beans", "Mango"],
+    contact_phone: "+91 94480 22334",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-ap-1",
+    name: "Guntur Chilli Export Cold Storage",
+    location: "Mirchi Yard Bypass, NH-16",
+    district: "Guntur",
+    state: "Andhra Pradesh",
+    pincode: "522004",
+    total_capacity_quintals: 20000,
+    available_capacity_quintals: 6300,
+    temp_min_celsius: 4.0,
+    temp_max_celsius: 10.0,
+    current_temp_celsius: 5.5,
+    humidity_percentage: 65,
+    daily_rate_per_quintal: 2.6,
+    suitable_crops: ["Dried Red Chilli", "Turmeric", "Coriander", "Tobacco"],
+    contact_phone: "+91 98480 44556",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-hp-1",
+    name: "Himalayan CA Controlled Atmosphere Vault",
+    location: "Theog Apple Hub, NH-5",
+    district: "Shimla",
+    state: "Himachal Pradesh",
+    pincode: "171201",
+    total_capacity_quintals: 14000,
+    available_capacity_quintals: 3800,
+    temp_min_celsius: -0.5,
+    temp_max_celsius: 2.0,
+    current_temp_celsius: 0.5,
+    humidity_percentage: 95,
+    daily_rate_per_quintal: 3.8,
+    suitable_crops: ["Apple", "Pears", "Plum", "Cherries"],
+    contact_phone: "+91 98160 88990",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-wb-1",
+    name: "Tarkeshwar Agri Cold Warehouse",
+    location: "Arambagh Road Mandi Link",
+    district: "Hooghly",
+    state: "West Bengal",
+    pincode: "712410",
+    total_capacity_quintals: 28000,
+    available_capacity_quintals: 9500,
+    temp_min_celsius: 2.0,
+    temp_max_celsius: 4.0,
+    current_temp_celsius: 3.0,
+    humidity_percentage: 88,
+    daily_rate_per_quintal: 2.0,
+    suitable_crops: ["Potato", "Pointed Gourd", "Ginger", "Turmeric"],
+    contact_phone: "+91 98300 66778",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-mp-1",
+    name: "Malwa Agro Fresh Cold Chambers",
+    location: "Sanwer Industrial APMC Belt",
+    district: "Indore",
+    state: "Madhya Pradesh",
+    pincode: "452001",
+    total_capacity_quintals: 16000,
+    available_capacity_quintals: 5800,
+    temp_min_celsius: 1.0,
+    temp_max_celsius: 5.0,
+    current_temp_celsius: 3.0,
+    humidity_percentage: 85,
+    daily_rate_per_quintal: 2.4,
+    suitable_crops: ["Garlic", "Onion", "Potato", "Soybean Seed"],
+    contact_phone: "+91 98270 33221",
+    has_backup_power: true,
+    has_cctv: true,
+    has_humidity_control: true,
+    is_active: true,
+  },
+  {
+    id: "cs-od-1",
     name: "Kalinga Agri-Tech Cold Storage",
     location: "Jagatpur Industrial Zone",
     district: "Cuttack",
     state: "Odisha",
     pincode: "754021",
-    total_capacity_quintals: 5000,
-    available_capacity_quintals: 1850,
+    total_capacity_quintals: 8000,
+    available_capacity_quintals: 3100,
     temp_min_celsius: 2.0,
     temp_max_celsius: 6.0,
     current_temp_celsius: 3.8,
@@ -33,14 +233,14 @@ const DEMO_FACILITIES: ColdStorageFacility[] = [
     is_active: true,
   },
   {
-    id: "cs-2",
+    id: "cs-od-2",
     name: "Utkal Mega Cold Chain & Logistics",
     location: "NH-16, Khandagiri Bypass",
     district: "Khordha",
     state: "Odisha",
     pincode: "751030",
-    total_capacity_quintals: 8000,
-    available_capacity_quintals: 4200,
+    total_capacity_quintals: 10000,
+    available_capacity_quintals: 4600,
     temp_min_celsius: 0.0,
     temp_max_celsius: 4.0,
     current_temp_celsius: 2.1,
@@ -53,44 +253,50 @@ const DEMO_FACILITIES: ColdStorageFacility[] = [
     has_humidity_control: true,
     is_active: true,
   },
-  {
-    id: "cs-3",
-    name: "Hirakud Farmers Agro Vault",
-    location: "Baraipali APMC Hub",
-    district: "Sambalpur",
-    state: "Odisha",
-    pincode: "768006",
-    total_capacity_quintals: 4500,
-    available_capacity_quintals: 620,
-    temp_min_celsius: 3.0,
-    temp_max_celsius: 8.0,
-    current_temp_celsius: 4.5,
-    humidity_percentage: 82,
-    daily_rate_per_quintal: 2.1,
-    suitable_crops: ["Potato", "Onion", "Garlic"],
-    contact_phone: "+91 99372 98765",
-    has_backup_power: true,
-    has_cctv: true,
-    has_humidity_control: false,
-    is_active: true,
-  },
-]
+];
+
+const STATES = [
+  "All India",
+  "Uttar Pradesh",
+  "Maharashtra",
+  "Gujarat",
+  "Punjab",
+  "Karnataka",
+  "Andhra Pradesh",
+  "Himachal Pradesh",
+  "West Bengal",
+  "Madhya Pradesh",
+  "Odisha",
+];
 
 export default function ColdStoragePage() {
-  const [facilities, setFacilities] = useState<ColdStorageFacility[]>(DEMO_FACILITIES)
-  const [search, setSearch] = useState("")
-  const [selectedDistrict, setSelectedDistrict] = useState("all")
-  const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [facilities] = useState<ColdStorageFacility[]>(PAN_INDIA_FACILITIES);
+  const [search, setSearch] = useState("");
+  const [selectedState, setSelectedState] = useState("All India");
+  const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredFacilities = facilities.filter((f) => {
-    const matchesSearch =
-      f.name.toLowerCase().includes(search.toLowerCase()) ||
-      f.location.toLowerCase().includes(search.toLowerCase()) ||
-      f.suitable_crops.some((c) => c.toLowerCase().includes(search.toLowerCase()))
-    const matchesDistrict = selectedDistrict === "all" || f.district.toLowerCase() === selectedDistrict.toLowerCase()
-    return matchesSearch && matchesDistrict
-  })
+  const filteredFacilities = useMemo(() => {
+    return facilities.filter((f) => {
+      const term = search.toLowerCase();
+      const matchesSearch =
+        f.name.toLowerCase().includes(term) ||
+        f.location.toLowerCase().includes(term) ||
+        f.district.toLowerCase().includes(term) ||
+        f.state.toLowerCase().includes(term) ||
+        f.suitable_crops.some((c) => c.toLowerCase().includes(term));
+      const matchesState = selectedState === "All India" || f.state.toLowerCase() === selectedState.toLowerCase();
+      return matchesSearch && matchesState;
+    });
+  }, [facilities, search, selectedState]);
+
+  const totalCapacity = useMemo(() => {
+    return facilities.reduce((sum, f) => sum + f.total_capacity_quintals, 0);
+  }, [facilities]);
+
+  const availableCapacity = useMemo(() => {
+    return facilities.reduce((sum, f) => sum + f.available_capacity_quintals, 0);
+  }, [facilities]);
 
   return (
     <div className="space-y-6 pb-12">
@@ -99,85 +305,109 @@ export default function ColdStoragePage() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-2">
             <ThermometerSnowflake className="h-3.5 w-3.5" />
-            <span>Preservation & Post-Harvest</span>
+            <span>National Post-Harvest Cold-Chain & Vault Network</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-editorial">
-            Cold Storage Network
+            Pan-India Cold Storage Network
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
-            Book temperature-controlled chambers, monitor humidity, and protect your harvest from mandi price drops.
+            Book temperature-controlled chambers, monitor telemetry live, and obtain WDRA e-NWR negotiable warehouse receipts across 10+ states.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-            <Plus className="h-4 w-4" />
-            <span>List New Facility</span>
-          </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <a
+            href="https://nccd.gov.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
+              <Globe2 className="h-3.5 w-3.5 text-emerald-600" />
+              <span>NCCD National Directory</span>
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </a>
+
+          <a
+            href="https://wdra.gov.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
+              <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+              <span>WDRA e-NWR Portal</span>
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </a>
         </div>
       </div>
 
       {/* Overview Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-card/60 border border-border/60 backdrop-blur-md">
-          <span className="text-xs text-muted-foreground font-medium">Total Network Capacity</span>
-          <p className="text-xl font-black text-foreground font-mono mt-1">17,500 Qtl</p>
+          <span className="text-xs text-muted-foreground font-medium">Pan-India Capacity</span>
+          <p className="text-xl font-black text-foreground font-mono mt-1">
+            {totalCapacity.toLocaleString("en-IN")} Qtl
+          </p>
         </div>
         <div className="p-4 rounded-xl bg-card/60 border border-border/60 backdrop-blur-md">
-          <span className="text-xs text-muted-foreground font-medium">Available Space</span>
-          <p className="text-xl font-black text-primary font-mono mt-1">6,670 Qtl</p>
+          <span className="text-xs text-muted-foreground font-medium">Available Chamber Space</span>
+          <p className="text-xl font-black text-primary font-mono mt-1">
+            {availableCapacity.toLocaleString("en-IN")} Qtl
+          </p>
         </div>
         <div className="p-4 rounded-xl bg-card/60 border border-border/60 backdrop-blur-md">
           <span className="text-xs text-muted-foreground font-medium">Average Daily Rent</span>
-          <p className="text-xl font-black text-foreground font-mono mt-1">₹2.53 /qtl</p>
+          <p className="text-xl font-black text-foreground font-mono mt-1">₹2.58 /qtl</p>
         </div>
         <div className="p-4 rounded-xl bg-card/60 border border-border/60 backdrop-blur-md">
-          <span className="text-xs text-muted-foreground font-medium">Odisha Active Hubs</span>
-          <p className="text-xl font-black text-emerald-500 font-mono mt-1">3 Districts</p>
+          <span className="text-xs text-muted-foreground font-medium">Active State Hubs</span>
+          <p className="text-xl font-black text-emerald-500 font-mono mt-1">10 States (Pan-India)</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by facility name, crop (e.g. Potato), or location..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by facility name, crop (e.g. Potato, Apple, Onion), or district..."
+              className="pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-xs text-muted-foreground whitespace-nowrap hidden sm:inline">State:</span>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="h-9 px-3 rounded-md border border-input bg-card text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full sm:w-auto"
+            >
+              {STATES.map((st) => (
+                <option key={st} value={st}>
+                  {st}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            size="sm"
-            variant={selectedDistrict === "all" ? "default" : "outline"}
-            onClick={() => setSelectedDistrict("all")}
-          >
-            All Odisha
-          </Button>
-          <Button
-            size="sm"
-            variant={selectedDistrict === "Cuttack" ? "default" : "outline"}
-            onClick={() => setSelectedDistrict("Cuttack")}
-          >
-            Cuttack
-          </Button>
-          <Button
-            size="sm"
-            variant={selectedDistrict === "Khordha" ? "default" : "outline"}
-            onClick={() => setSelectedDistrict("Khordha")}
-          >
-            Khordha
-          </Button>
-          <Button
-            size="sm"
-            variant={selectedDistrict === "Sambalpur" ? "default" : "outline"}
-            onClick={() => setSelectedDistrict("Sambalpur")}
-          >
-            Sambalpur
-          </Button>
+        {/* State Quick Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {STATES.map((st) => (
+            <Button
+              key={st}
+              size="sm"
+              variant={selectedState === st ? "default" : "outline"}
+              onClick={() => setSelectedState(st)}
+              className="text-xs h-7 px-2.5 flex-shrink-0"
+            >
+              {st}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -188,20 +418,28 @@ export default function ColdStoragePage() {
             key={fac.id}
             facility={fac}
             onBook={(f) => {
-              setBookingFacility(f)
-              setIsModalOpen(true)
+              setBookingFacility(f);
+              setIsModalOpen(true);
             }}
           />
         ))}
       </div>
+
+      {filteredFacilities.length === 0 && (
+        <div className="p-10 text-center rounded-xl border border-dashed text-muted-foreground">
+          <Warehouse className="h-10 w-10 mx-auto text-muted-foreground/60 mb-2" />
+          <p className="font-semibold text-sm">No cold storage facilities found</p>
+          <p className="text-xs mt-1">Try clearing your filters or searching for another crop/district.</p>
+        </div>
+      )}
 
       {/* Booking Dialog */}
       <BookingModal
         facility={bookingFacility}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => alert("Booking confirmed successfully!")}
+        onSuccess={() => alert("Chamber booking request submitted successfully! Facility manager will contact you.")}
       />
     </div>
-  )
+  );
 }

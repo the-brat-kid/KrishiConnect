@@ -51,7 +51,7 @@ export function BookingModal({ facility, isOpen, onClose, onSuccess }: BookingMo
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Book Cold Storage Chamber</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            {facility.name} • {facility.district}, Odisha
+            {facility.name} • {facility.district}, {facility.state}
           </DialogDescription>
         </DialogHeader>
 

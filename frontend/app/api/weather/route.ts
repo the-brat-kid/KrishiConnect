@@ -5,24 +5,117 @@ export const dynamic = "force-dynamic";
 interface MandiLocation {
   id: string;
   name: string;
+  state: string;
   district: string;
   address: string;
   lat: number;
   lon: number;
 }
 
-const ODISHA_MANDIS: Record<string, MandiLocation> = {
+const PAN_INDIA_MANDIS: Record<string, MandiLocation> = {
   bhubaneswar: {
     id: "bhubaneswar",
     name: "Bhubaneswar APMC Mandi",
+    state: "Odisha",
     district: "Khordha",
     address: "APMC Mandi Yard, Unit 1, Bhubaneswar, Odisha 751009, India",
     lat: 20.2961,
     lon: 85.8245,
   },
+  delhi: {
+    id: "delhi",
+    name: "Delhi Azadpur APMC Mandi",
+    state: "Delhi NCR",
+    district: "North Delhi",
+    address: "Azadpur Subzi Mandi, GTK Road, Delhi 110033, India",
+    lat: 28.7118,
+    lon: 77.1777,
+  },
+  nashik: {
+    id: "nashik",
+    name: "Nashik (Pimpalgaon) APMC Mandi",
+    state: "Maharashtra",
+    district: "Nashik",
+    address: "Pimpalgaon Baswant APMC Market, Nashik, Maharashtra 422209, India",
+    lat: 20.1706,
+    lon: 73.9859,
+  },
+  khanna: {
+    id: "khanna",
+    name: "Khanna Grain Market",
+    state: "Punjab",
+    district: "Ludhiana",
+    address: "Asia's Largest Grain Market Yard, GT Road, Khanna, Punjab 141401, India",
+    lat: 30.7067,
+    lon: 76.2201,
+  },
+  indore: {
+    id: "indore",
+    name: "Indore (Choithram) Mandi",
+    state: "Madhya Pradesh",
+    district: "Indore",
+    address: "Choithram Mandi, Manik Bagh Road, Indore, MP 452014, India",
+    lat: 22.6868,
+    lon: 75.8427,
+  },
+  guntur: {
+    id: "guntur",
+    name: "Guntur Mirchi Yard",
+    state: "Andhra Pradesh",
+    district: "Guntur",
+    address: "Agriculture Market Committee, Mirchi Yard, Guntur, AP 522004, India",
+    lat: 16.3067,
+    lon: 80.4365,
+  },
+  deesa: {
+    id: "deesa",
+    name: "Deesa Agricultural APMC",
+    state: "Gujarat",
+    district: "Banaskantha",
+    address: "APMC Market Yard, Highway Road, Deesa, Gujarat 385535, India",
+    lat: 24.2586,
+    lon: 72.1793,
+  },
+  kolar: {
+    id: "kolar",
+    name: "Kolar Tomato APMC Market",
+    state: "Karnataka",
+    district: "Kolar",
+    address: "APMC Yard, Bangarpet Road, Kolar, Karnataka 563101, India",
+    lat: 13.1378,
+    lon: 78.1291,
+  },
+  kolkata: {
+    id: "kolkata",
+    name: "Kolkata (Posta / Koley) Mandi",
+    state: "West Bengal",
+    district: "Kolkata",
+    address: "Posta Wholesale Market, Kolkata, West Bengal 700007, India",
+    lat: 22.5851,
+    lon: 88.3541,
+  },
+  shimla: {
+    id: "shimla",
+    name: "Shimla (Dhalli) Apple Mandi",
+    state: "Himachal Pradesh",
+    district: "Shimla",
+    address: "APMC Subzi Mandi, Dhalli, Shimla, HP 171012, India",
+    lat: 31.1114,
+    lon: 77.2023,
+  },
+  jaipur: {
+    id: "jaipur",
+    name: "Jaipur (Muhana) Mandi",
+    state: "Rajasthan",
+    district: "Jaipur",
+    address: "Muhana Mandi Terminal Market, Sanganer, Jaipur, Rajasthan 302029, India",
+    lat: 26.7825,
+    lon: 75.7483,
+  },
   cuttack: {
     id: "cuttack",
     name: "Cuttack Malgodown Mandi",
+    state: "Odisha",
     district: "Cuttack",
     address: "Malgodown Wholesale Market, Cuttack, Odisha 753003, India",
     lat: 20.4625,
@@ -31,34 +124,11 @@ const ODISHA_MANDIS: Record<string, MandiLocation> = {
   sambalpur: {
     id: "sambalpur",
     name: "Sambalpur Grain Mandi",
+    state: "Odisha",
     district: "Sambalpur",
     address: "RMC Yard, Khetrajpur, Sambalpur, Odisha 768003, India",
     lat: 21.4669,
     lon: 83.9812,
-  },
-  bargarh: {
-    id: "bargarh",
-    name: "Bargarh Agricultural Mandi",
-    district: "Bargarh (Rice Bowl)",
-    address: "Regulated Market Committee Yard, Bargarh, Odisha 768028, India",
-    lat: 21.3340,
-    lon: 83.6163,
-  },
-  berhampur: {
-    id: "berhampur",
-    name: "Berhampur RMC Mandi",
-    district: "Ganjam",
-    address: "RMC Mandi complex, Aska Road, Berhampur, Odisha 760001, India",
-    lat: 19.3150,
-    lon: 84.7941,
-  },
-  balasore: {
-    id: "balasore",
-    name: "Balasore APMC Mandi",
-    district: "Balasore",
-    address: "APMC Yard, Remuna Golei, Balasore, Odisha 756019, India",
-    lat: 21.4934,
-    lon: 86.9135,
   },
 };
 
@@ -78,7 +148,7 @@ function decodeWmoWeather(code: number): { condition: string; icon: string; advi
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const mandiKey = (searchParams.get("mandi") || "bhubaneswar").toLowerCase();
-  const mandi = ODISHA_MANDIS[mandiKey] || ODISHA_MANDIS.bhubaneswar;
+  const mandi = PAN_INDIA_MANDIS[mandiKey] || PAN_INDIA_MANDIS.bhubaneswar;
 
   try {
     const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${mandi.lat}&longitude=${mandi.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,wind_speed_10m,wind_direction_10m&hourly=precipitation_probability,precipitation,temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset&timezone=Asia/Kolkata`;

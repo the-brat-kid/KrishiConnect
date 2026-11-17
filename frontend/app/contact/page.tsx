@@ -147,7 +147,7 @@ export default function ContactUsPage() {
             Contact <span className="text-primary">KrishiConnect</span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Have questions about Odisha APMC mandi rates, GST digital billing, freight routing, or cold storage? Our support desk and platform engineers are here to assist you.
+            Have questions about Pan-India APMC mandi rates, GST digital billing, freight routing, or cold storage? Our support desk and platform engineers are here to assist you.
           </p>
         </div>
 

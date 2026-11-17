@@ -28,31 +28,38 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const ODISHA_DISTRICTS = [
-  "Khordha (Bhubaneswar)",
-  "Cuttack",
-  "Puri",
-  "Sambalpur",
-  "Balasore",
-  "Ganjam (Berhampur)",
-  "Bhadrak",
-  "Angul",
-  "Bargarh",
-  "Kalahandi",
-  "Koraput",
-  "Mayurbhanj",
-  "Sundargarh",
-  "Other / Outside Odisha",
-];
+const PAN_INDIA_REGIONS: Record<string, string[]> = {
+  "Odisha": ["Khordha (Bhubaneswar)", "Cuttack", "Sambalpur", "Puri", "Balasore", "Ganjam (Berhampur)", "Bargarh", "Kalahandi", "Koraput", "Bhadrak", "Angul", "Mayurbhanj"],
+  "Maharashtra": ["Nashik (Pimpalgaon/Lasalgaon)", "Pune (Gultekdi)", "Mumbai (Vashi APMC)", "Ahmednagar", "Nagpur (Kalamna)", "Kolhapur", "Solapur", "Jalgaon", "Amravati"],
+  "Punjab": ["Khanna (Asia's Largest)", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Firozpur", "Sangrur"],
+  "Haryana": ["Karnal", "Sonipat", "Kurukshetra", "Sirsa", "Ambala", "Hisar", "Panipat", "Rohtak"],
+  "Gujarat": ["Banaskantha (Deesa)", "Ahmedabad", "Surat", "Rajkot", "Mehsana", "Unjha (Spices Mandi)", "Junagadh", "Vadodara"],
+  "Uttar Pradesh": ["Agra", "Kanpur", "Varanasi", "Lucknow", "Barabanki", "Aligarh", "Bareilly", "Meerut", "Gorakhpur", "Prayagraj"],
+  "Madhya Pradesh": ["Indore (Choithram)", "Ujjain", "Bhopal (Karond)", "Neemuch", "Mandsaur", "Jabalpur", "Dewas", "Sehore"],
+  "Karnataka": ["Bengaluru (Yeshwanthpur)", "Kolar", "Hubballi", "Mysuru", "Belagavi", "Shimoga", "Davanagere", "Ballari"],
+  "Andhra Pradesh": ["Guntur (Mirchi Yard)", "Vijayawada", "Kurnool", "Visakhapatnam", "Tirupati", "East Godavari", "Anantapur"],
+  "Telangana": ["Hyderabad (Bowenpally)", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Mahbubnagar"],
+  "West Bengal": ["Kolkata (Posta/Koley)", "Hooghly", "Burdwan", "Nadia", "North 24 Parganas", "Siliguri", "Murshidabad"],
+  "Rajasthan": ["Jaipur (Muhana)", "Kota", "Jodhpur", "Alwar", "Sri Ganganagar", "Bikaner", "Bhilwara"],
+  "Bihar": ["Patna (Bazaar Samiti)", "Muzaffarpur", "Bhagalpur", "Gaya", "Purnia", "Darbhanga", "Begusarai"],
+  "Himachal Pradesh": ["Shimla (Dhalli)", "Solan", "Kullu", "Mandi", "Kangra"],
+  "Tamil Nadu": ["Chennai (Koyambedu)", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli", "Erode"],
+  "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Wayanad"],
+  "Delhi NCR": ["Delhi (Azadpur APMC)", "Delhi (Ghazipur)", "Delhi (Okhla)", "Noida", "Gurugram"],
+};
 
 export default function RegisterPage() {
+  const { currentRegionDef } = useLanguage();
+  const initialRegion = (currentRegionDef?.name && PAN_INDIA_REGIONS[currentRegionDef.name]) ? currentRegionDef.name : "Odisha";
+
   const [role, setRole] = useState<"Individual" | "Merchant" | "F&O Buyer">("Individual");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [district, setDistrict] = useState("Khordha (Bhubaneswar)");
+  const [userState, setUserState] = useState(initialRegion);
+  const [district, setDistrict] = useState(PAN_INDIA_REGIONS[initialRegion]?.[0] || "Khordha (Bhubaneswar)");
   const [address, setAddress] = useState("");
 
   // Optional fields
@@ -88,7 +95,7 @@ export default function RegisterPage() {
 
     // Auto-generate clean email if not supplied
     const finalEmail = email.trim() || `user_${cleanPhone}@krishiconnect.in`;
-    const finalAddress = address.trim() ? `${address.trim()}, ${district}` : `${district}, Odisha`;
+    const finalAddress = address.trim() ? `${address.trim()}, ${district}, ${userState}` : `${district}, ${userState}`;
 
     try {
       setIsLoading(true);
@@ -242,25 +249,50 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* District / Mandi */}
-        <div className="space-y-1.5">
-          <Label htmlFor="district" className="text-xs font-semibold uppercase text-muted-foreground">
-            Primary District / Mandi Hub
-          </Label>
-          <div className="relative">
-            <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
+        {/* State & District / Mandi */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="state" className="text-xs font-semibold uppercase text-muted-foreground">
+              State / Region
+            </Label>
             <select
-              id="district"
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="w-full h-10 pl-9 pr-3 rounded-md border border-input bg-card text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-medium"
+              id="state"
+              value={userState}
+              onChange={(e) => {
+                const newState = e.target.value;
+                setUserState(newState);
+                const firstDistrict = PAN_INDIA_REGIONS[newState]?.[0] || "Main Mandi Hub";
+                setDistrict(firstDistrict);
+              }}
+              className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-medium"
             >
-              {ODISHA_DISTRICTS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
+              {Object.keys(PAN_INDIA_REGIONS).map((st) => (
+                <option key={st} value={st}>
+                  {st}
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="district" className="text-xs font-semibold uppercase text-muted-foreground">
+              Mandi Hub / District
+            </Label>
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
+              <select
+                id="district"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full h-10 pl-9 pr-3 rounded-md border border-input bg-card text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-medium"
+              >
+                {(PAN_INDIA_REGIONS[userState] || []).map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
