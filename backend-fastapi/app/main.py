@@ -26,6 +26,9 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_session_id VARCHAR",
             "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR",
             "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
+            "CREATE INDEX IF NOT EXISTS ix_users_phone ON users (phone)",
+            "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_user_id ON cold_storage_bookings (user_id)",
+            "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_facility_id ON cold_storage_bookings (facility_id)",
         ]:
             try:
                 await conn.execute(text(ddl))

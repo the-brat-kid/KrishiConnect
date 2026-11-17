@@ -34,12 +34,10 @@ async def get_dashboard_stats(
     cust_q = select(func.count(Customer.id)).where(Customer.business_profile_id == profile.id)
     prod_q = select(func.count(Product.id)).where(Product.business_profile_id == profile.id)
 
-    # Execute queries concurrently over async connection
-    inv_res, cust_res, prod_res = await asyncio.gather(
-        db.execute(inv_stats_q),
-        db.execute(cust_q),
-        db.execute(prod_q),
-    )
+    # Execute queries efficiently on the async session
+    inv_res = await db.execute(inv_stats_q)
+    cust_res = await db.execute(cust_q)
+    prod_res = await db.execute(prod_q)
 
     inv_row = inv_res.one()
     total_customers = cust_res.scalar() or 0
