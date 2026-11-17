@@ -28,6 +28,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { ViewOnMap } from "@/components/ui/view-on-map";
 
 interface MandiOption {
@@ -278,20 +279,20 @@ export default function FarmWeatherPage() {
                 </div>
 
                 {/* Visual Rain Probability Progress Gauge */}
-                <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden border border-border/60">
-                  <div
-                    className={`h-full transition-all duration-700 ${
-                      (rain?.todayMaxProbability ?? 0) > 70
-                        ? "bg-red-500"
-                        : (rain?.todayMaxProbability ?? 0) > 40
-                        ? "bg-amber-500"
-                        : (rain?.todayMaxProbability ?? 0) > 20
-                        ? "bg-blue-500"
-                        : "bg-emerald-500"
-                    }`}
-                    style={{ width: `${Math.min(100, Math.max(5, rain?.todayMaxProbability ?? 0))}%` }}
-                  />
-                </div>
+                <Progress
+                  value={rain?.todayMaxProbability ?? 0}
+                  variant={
+                    (rain?.todayMaxProbability ?? 0) > 70
+                      ? "destructive"
+                      : (rain?.todayMaxProbability ?? 0) > 40
+                      ? "accent"
+                      : (rain?.todayMaxProbability ?? 0) > 20
+                      ? "primary"
+                      : "emerald"
+                  }
+                  size="sm"
+                  className="w-full"
+                />
               </div>
 
               {/* 4 Essential Agro-Meteorology Telemetry Metrics */}

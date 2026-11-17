@@ -24,7 +24,13 @@ import {
   SkeletonMandiRate,
   SkeletonTable,
 } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
+import {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress"
 import { PulsingLoader } from "@/components/ui/pulsing-loader"
 import { Button } from "@/components/ui/button"
 import { PullToRefresh } from "@/components/ui/pull-to-refresh"
@@ -297,6 +303,44 @@ export default function LoadersDemoPage() {
                   variant="accent"
                   size="lg"
                 />
+              </div>
+            </div>
+
+            {/* Modular Primitives Showcase */}
+            <div className="p-4 rounded-xl bg-muted/30 border border-border/40 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase text-muted-foreground">Modular Compound Primitives</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Flexible slot composition using ProgressTrack, ProgressIndicator, ProgressLabel, and ProgressValue.
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-500/20">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Compound API</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Progress value={progressVal} variant="primary" size="md">
+                  <div className="flex items-center justify-between mb-1">
+                    <ProgressLabel>Mandi Quota Allocated</ProgressLabel>
+                    <ProgressValue />
+                  </div>
+                  <ProgressTrack>
+                    <ProgressIndicator />
+                  </ProgressTrack>
+                </Progress>
+
+                <Progress value={Math.min(progressVal + 20, 100)} variant="emerald" size="lg">
+                  <div className="flex items-center justify-between mb-1">
+                    <ProgressLabel>Soil Health Index (Nitrogen / P / K)</ProgressLabel>
+                    <ProgressValue />
+                  </div>
+                  <ProgressTrack>
+                    <ProgressIndicator />
+                  </ProgressTrack>
+                </Progress>
               </div>
             </div>
           </CardContent>

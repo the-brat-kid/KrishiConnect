@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue } from "@/components/ui/progress";
 import api from "@/lib/api";
 
 const ODISHA_DISTRICTS = [
@@ -264,14 +265,21 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                     className="max-h-64 rounded-xl object-contain"
                   />
                   {isAnalyzing && (
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center text-white space-y-2">
-                      <div className="w-12 h-12 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-                      <span className="text-sm font-bold text-emerald-400">
-                        Gemini Vision AI scanning soil report...
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Extracting pH, NPK & Micronutrient values
-                      </span>
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center text-white space-y-3 p-6 text-center">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <Sparkles className="w-6 h-6 animate-pulse" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-bold text-white block">
+                          Gemini Vision AI Diagnostic in Progress
+                        </span>
+                        <span className="text-xs text-zinc-400 block mt-0.5">
+                          Extracting diagnostic pH, NPK, and micronutrient concentrations...
+                        </span>
+                      </div>
+                      <div className="w-full max-w-xs">
+                        <Progress indeterminate variant="emerald" size="xs" />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -466,15 +474,27 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                 </h3>
               </div>
 
-              <div className="flex items-center gap-3 self-start sm:self-center">
-                <div className="text-right">
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+              <div className="flex flex-col sm:items-end gap-1.5 self-start sm:self-center w-full sm:w-48">
+                <div className="flex items-baseline justify-between sm:justify-end gap-2 w-full">
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
                     Soil Health Score
                   </span>
-                  <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">
+                  <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                     {analysisResult.soil_health_score || 72}/100
                   </span>
                 </div>
+                <Progress
+                  value={analysisResult.soil_health_score || 72}
+                  variant={
+                    (analysisResult.soil_health_score || 72) >= 70
+                      ? "emerald"
+                      : (analysisResult.soil_health_score || 72) >= 50
+                      ? "accent"
+                      : "destructive"
+                  }
+                  size="sm"
+                  className="w-full"
+                />
               </div>
             </div>
 

@@ -498,6 +498,15 @@ button:not(:disabled):active,
   }
 }
 
+@keyframes progressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
 /* ============================================================ */
 /* APPLE LIQUID GLASS EFFECT FOR BUTTONS & CONTAINERS           */
 /* ============================================================ */
