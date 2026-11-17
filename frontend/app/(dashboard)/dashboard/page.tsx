@@ -240,7 +240,7 @@ export default function DashboardPage() {
     : "Live Auction";
 
   return (
-    <div className="space-y-8 pb-12 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-12 max-w-7xl mx-auto w-full min-w-0 overflow-x-hidden">
       {/* 1. Header Bar: Personalized Greeting & Liquid Glass Quick Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>
@@ -351,9 +351,9 @@ export default function DashboardPage() {
         </CardHeader>
 
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-w-0">
             {/* Left Column: 3D Tilt Crop Cards with Enlarged Liquid Glass Icons */}
-            <div className="lg:col-span-6 space-y-3">
+            <div className="lg:col-span-6 space-y-3 min-w-0">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                   Commodity Modal Rates
@@ -432,7 +432,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Right Column: Comparative Price Graph (Blended Liquid Glass Container) */}
-            <div className="lg:col-span-6 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)]">
+            <div className="lg:col-span-6 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)] min-w-0 overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <BarChart2 className="w-4 h-4 text-primary" />
@@ -441,7 +441,7 @@ export default function DashboardPage() {
                 <span className="text-[11px] text-muted-foreground">Bhubaneswar Yard</span>
               </div>
 
-              <div className="w-full h-64 pt-2">
+              <div className="w-full h-64 pt-2 min-w-0 overflow-hidden">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={mandiChartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
@@ -492,9 +492,9 @@ export default function DashboardPage() {
         </CardHeader>
 
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-w-0">
             {/* Left Column: Vertical Volatility Highlights */}
-            <div className="lg:col-span-5 space-y-3">
+            <div className="lg:col-span-5 space-y-3 min-w-0">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
                 Weekly Volatility Breakdown
               </span>
@@ -531,12 +531,12 @@ export default function DashboardPage() {
             </div>
 
             {/* Right Column: Weekly Price Trend */}
-            <div className="lg:col-span-7 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)]">
+            <div className="lg:col-span-7 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)] min-w-0 overflow-hidden">
               <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 7-Day Price Fluctuation (₹/kg)
               </span>
-              <div className="w-full h-56 pt-2">
+              <div className="w-full h-56 pt-2 min-w-0 overflow-hidden">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={[
@@ -575,9 +575,9 @@ export default function DashboardPage() {
       </Card>
 
       {/* 4. SECTION: Freight Corridors & 5. Procurement Share */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
         {/* Freight Corridors */}
-        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
           <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -615,7 +615,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Procurement Requirements */}
-        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
           <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">

@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background relative selection:bg-primary/25 selection:text-primary">
+    <div className="flex h-screen overflow-hidden bg-background relative selection:bg-primary/25 selection:text-primary max-w-[100vw]">
       {/* Living dynamic farm & weather background with real photography */}
       <DynamicFarmWeatherBackground showControls={true} />
 
@@ -45,12 +45,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main Content Area */}
-      <div className="relative z-10 flex flex-1 flex-col overflow-hidden w-full">
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden w-full min-w-0 max-w-full">
         {/* Top Bar with Liquid Glass Styling */}
-        <div className="flex items-center px-3 md:px-5 py-2.5 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-black/40 backdrop-blur-xl gap-3 sticky top-0 z-20">
+        <div className="flex items-center px-3 md:px-5 py-2.5 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-black/40 backdrop-blur-xl gap-3 sticky top-0 z-20 min-w-0 w-full overflow-hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-muted text-foreground transition-colors focus:outline-none flex items-center justify-center cursor-pointer border border-border/70 shadow-2xs"
+            className="p-2 rounded-lg hover:bg-muted text-foreground transition-colors focus:outline-none flex items-center justify-center cursor-pointer border border-border/70 shadow-2xs shrink-0"
             aria-label="Open Sidebar Menu"
             title="Open side panel"
           >
@@ -59,14 +59,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </svg>
           </button>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <Header onToggleSidebar={() => setSidebarOpen(true)} />
           </div>
         </div>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 pb-24 md:pb-8 bg-transparent smooth-touch-scroll">
-          <div className="max-w-7xl mx-auto w-full relative z-10">
+        {/* Page Content - overflow-x-hidden strictly prevents horizontal scroll */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8 pb-24 md:pb-8 bg-transparent smooth-touch-scroll w-full min-w-0 max-w-full">
+          <div className="max-w-7xl mx-auto w-full relative z-10 min-w-0">
             {children}
           </div>
         </main>

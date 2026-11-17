@@ -78,9 +78,9 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
   ];
 
   return (
-    <header className="flex h-16 w-full items-center justify-between px-2 sm:px-4 md:px-5">
+    <header className="flex h-16 w-full items-center justify-between px-1 sm:px-4 md:px-5 min-w-0">
       {/* Title + Mandi Status */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5 min-w-0 shrink-0">
         <div className="relative group flex items-center">
           <GlowEffect
             colors={["#FF5733", "#33FF57", "#3357FF", "#F1C40F"]}
@@ -105,7 +105,7 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
       </div>
 
       {/* Right Actions: Upgraded TooltipNavbar + Notifications + SwitchMode + Account */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Modern Interactive Tooltip Navbar Dock */}
         <div className="hidden md:block">
           <TooltipNavbar items={quickNavItems} tooltipPosition="bottom" tooltipDelay={100} />

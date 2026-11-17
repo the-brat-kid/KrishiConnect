@@ -29,9 +29,9 @@ export function StatsCards() {
   const paidPct = totalInvoices > 0 ? Math.round((paidInvoices / totalInvoices) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 min-w-0 w-full">
       {/* 1. Total Revenue Card (Liquid Glass) */}
-      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-emerald-500/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45),0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300 overflow-hidden">
+      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-emerald-500/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45),0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300 overflow-hidden min-w-0">
         {/* Specular Glint */}
         <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-500" />
 
@@ -66,7 +66,7 @@ export function StatsCards() {
       </div>
 
       {/* 2. Total Invoices Card (Liquid Glass with Progress Ring) */}
-      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden">
+      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden min-w-0">
         {/* Specular Glint */}
         <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/10 blur-2xl pointer-events-none group-hover:bg-primary/20 transition-all duration-500" />
 
@@ -138,7 +138,7 @@ export function StatsCards() {
       </div>
 
       {/* 3. Customers Card (Liquid Glass) */}
-      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden">
+      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden min-w-0">
         {/* Specular Glint */}
         <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/10 blur-2xl pointer-events-none group-hover:bg-primary/20 transition-all duration-500" />
 
@@ -173,7 +173,7 @@ export function StatsCards() {
       </div>
 
       {/* 4. Products Card (Liquid Glass) */}
-      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden">
+      <div className="group relative flex flex-col justify-between p-5 rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] hover:border-primary/40 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_16px_36px_rgba(0,0,0,0.45)] transition-all duration-300 overflow-hidden min-w-0">
         {/* Specular Glint */}
         <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-primary/10 blur-2xl pointer-events-none group-hover:bg-primary/20 transition-all duration-500" />
 
