@@ -106,17 +106,19 @@ export default function LoginPage() {
           description: `Google Firebase has sent a 6-digit SMS code to +91 ${cleanPhone}.`,
         });
       } catch (fbErr: any) {
-        console.warn("Firebase Phone Auth error, falling back to local OTP:", fbErr);
+        console.error("Firebase Phone Auth error:", fbErr);
         // Fallback to local OTP dispatch
         await api.post("/auth/otp/send", { phone: cleanPhone });
         setIsFirebaseMode(false);
 
-        const isDomainNotice = fbErr.code === "auth/invalid-app-credential" || fbErr.code === "auth/captcha-check-failed";
+        const isRegionBlocked = fbErr.message?.includes("region") || fbErr.code === "auth/operation-not-allowed";
+        
         toast({
-          title: "Verification Mode",
-          description: isDomainNotice
-            ? `Phone service initializing for this domain. Use test OTP: 1234`
-            : `OTP sent to +91 ${cleanPhone}. (Use test OTP: 1234)`,
+          title: isRegionBlocked ? "SMS Region / Phone Setup Required" : "SMS Notice",
+          description: isRegionBlocked
+            ? "Firebase Console me 'Phone' provider aur India (+91) SMS region enable karna baaki hai. (Use test OTP: 1234 to login right now)"
+            : `${fbErr.message || "SMS could not be delivered"}. (Use test OTP: 1234)`,
+          variant: "destructive",
         });
       }
 
