@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -131,6 +133,9 @@ export default function RegisterPage() {
           Sign up to access live mandi crop rates, freight transport & verified buyers
         </p>
       </div>
+
+      {/* Prominent Regional & Language Calibration */}
+      <RegionLanguageSelector variant="login" />
 
       {/* 1-Click Google Sign Up */}
       <div className="space-y-3">

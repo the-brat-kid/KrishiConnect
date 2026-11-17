@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "./notification-bell";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
 import { SwitchMode } from "@/components/ui/switch-mode";
 import { TooltipNavbar, TooltipItem } from "@/components/ui/tooltip-navbar";
 import { GlowEffect } from "@/components/core/glow-effect";
@@ -35,42 +37,43 @@ interface HeaderProps {
 export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
   const { setTheme, theme } = useTheme();
   const { user, businessProfile, logout } = useAuth();
+  const { currentRegionDef, t } = useLanguage();
 
   const displayName = user?.full_name || user?.name || businessProfile?.business_name || "Kisan";
 
-  // Upgraded interactive Tooltip Navbar items for Odisha Mandi operations
+  // Upgraded interactive Tooltip Navbar items with dynamic multilingual labels
   const quickNavItems: TooltipItem[] = [
     {
       icon: <TrendingUp className="h-full w-full" />,
-      label: "Mandi Rates",
+      label: t("nav.dailyCropRates"),
       labelHasKeyword: ["R"],
       hasBadge: false,
       href: "/crop-rates",
     },
     {
       icon: <Sprout className="h-full w-full" />,
-      label: "Season Planner",
+      label: t("nav.cropPlanner"),
       labelHasKeyword: ["P"],
       hasBadge: false,
       href: "/crop-planner",
     },
     {
       icon: <CloudSun className="h-full w-full" />,
-      label: "Weather & Rain",
+      label: t("nav.weather"),
       labelHasKeyword: ["W"],
       hasBadge: false,
       href: "/weather",
     },
     {
       icon: <Truck className="h-full w-full" />,
-      label: "Logistics",
+      label: t("nav.transportation"),
       labelHasKeyword: ["T"],
       hasBadge: false,
       href: "/transportation",
     },
     {
       icon: <FileText className="h-full w-full" />,
-      label: "Invoices",
+      label: t("nav.invoices"),
       labelHasKeyword: ["I"],
       hasBadge: false,
       href: "/invoices",
@@ -99,17 +102,20 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
           </Link>
         </div>
         <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] border border-[#3D3D3D] text-[11px] font-semibold text-[#C0C0C0]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#E10600] animate-pulse" />
-          <span>Bhubaneswar APMC Live</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{currentRegionDef.primaryHubs[0]} APMC {t("common.live")}</span>
         </div>
       </div>
 
-      {/* Right Actions: Upgraded TooltipNavbar + Notifications + SwitchMode + Account */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      {/* Right Actions: Upgraded TooltipNavbar + Region/Lang + Notifications + SwitchMode + Account */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Modern Interactive Tooltip Navbar Dock */}
         <div className="hidden md:block">
           <TooltipNavbar items={quickNavItems} tooltipPosition="bottom" tooltipDelay={100} />
         </div>
+
+        {/* Region & Language Selector Pill */}
+        <RegionLanguageSelector variant="compact" />
 
         {/* Live Notifications */}
         <NotificationBell />

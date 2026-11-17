@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import {
   LayoutDashboard,
   Users,
@@ -21,6 +22,7 @@ import {
   Phone,
   Copyright,
   FlaskConical,
+  Sparkles,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -28,34 +30,35 @@ interface SidebarProps {
   onNavigate?: () => void;
 }
 
-const MENU_GROUPS = [
+const getMenuGroups = (t: (key: string) => string) => [
   {
-    title: "Mandi Intelligence",
+    title: t("nav.mandiIntelligence"),
     routes: [
-      { href: "/crop-rates", label: "Daily Crop Rates", icon: TrendingUp, badge: "Live" },
-      { href: "/rate-trends", label: "7-Day Rate Trends", icon: LineChart },
-      { href: "/transportation", label: "Transportation", icon: Truck },
-      { href: "/customers", label: "Crop Buyers", icon: Users },
+      { href: "/crop-rates", label: t("nav.dailyCropRates"), icon: TrendingUp, badge: t("common.live") },
+      { href: "/rate-trends", label: t("nav.rateTrends"), icon: LineChart },
+      { href: "/transportation", label: t("nav.transportation"), icon: Truck },
+      { href: "/customers", label: t("nav.buyers"), icon: Users },
     ],
   },
   {
-    title: "Farm Operations",
+    title: t("nav.farmOperations"),
     routes: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/soil-health", label: "Soil Health Check", icon: FlaskConical, badge: "New" },
-      { href: "/cold-storage", label: "Cold Storage", icon: Warehouse, badge: "New" },
-      { href: "/crop-planner", label: "Next Season Planner", icon: Sprout, badge: "New" },
-      { href: "/weather", label: "Farm Weather & Map", icon: CloudSun, badge: "Live" },
-      { href: "/products", label: "Crops Inventory", icon: Package },
-      { href: "/invoices", label: "Invoices & Billing", icon: FileText },
-      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
+      { href: "/soil-health", label: t("nav.soilHealth"), icon: FlaskConical, badge: t("common.new") },
+      { href: "/cold-storage", label: t("nav.coldStorage"), icon: Warehouse, badge: t("common.new") },
+      { href: "/crop-planner", label: t("nav.cropPlanner"), icon: Sprout, badge: t("common.new") },
+      { href: "/weather", label: t("nav.weather"), icon: CloudSun, badge: t("common.live") },
+      { href: "/products", label: t("nav.products"), icon: Package },
+      { href: "/invoices", label: t("nav.invoices"), icon: FileText },
+      { href: "/terranode", label: t("nav.terranode"), icon: Sparkles, badge: "3D" },
+      { href: "/settings", label: t("nav.settings"), icon: Settings },
     ],
   },
   {
-    title: "Support & Legal",
+    title: t("nav.supportLegal"),
     routes: [
-      { href: "/contact", label: "Contact Us & WhatsApp", icon: Phone },
-      { href: "/copyright", label: "Copyright Policy", icon: Copyright },
+      { href: "/contact", label: t("nav.contact"), icon: Phone },
+      { href: "/copyright", label: t("nav.copyright"), icon: Copyright },
     ],
   },
 ];
@@ -63,6 +66,9 @@ const MENU_GROUPS = [
 export function Sidebar({ isMobile = false, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const { user, businessProfile, logout } = useAuth();
+  const { t, currentRegionDef } = useLanguage();
+
+  const menuGroups = getMenuGroups(t);
 
   const displayName = user?.full_name || user?.name || businessProfile?.business_name || "Kisan";
   const initials = displayName
@@ -97,7 +103,7 @@ export function Sidebar({ isMobile = false, onNavigate }: SidebarProps) {
               KrishiConnect
             </span>
             <span className="text-[10px] font-semibold text-[#8E8D8A] mt-0.5 tracking-tight">
-              Odisha Mandi OS
+              {currentRegionDef.name} ({currentRegionDef.nativeName}) Mandi OS
             </span>
           </div>
         </Link>
@@ -106,7 +112,7 @@ export function Sidebar({ isMobile = false, onNavigate }: SidebarProps) {
 
       {/* 2. Apple Liquid Glass Nav Groups & Floating Crystal Trays */}
       <nav className="relative z-10 flex-1 space-y-6 px-3 py-4 overflow-y-auto">
-        {MENU_GROUPS.map((group) => (
+        {menuGroups.map((group) => (
           <div key={group.title} className="space-y-1.5">
             {/* Section Header */}
             <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8A8987] flex items-center justify-between">

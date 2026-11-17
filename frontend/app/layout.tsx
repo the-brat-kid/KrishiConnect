@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-provider";
 import QueryClientProvider from "@/lib/query-client";
 import { AuthProvider } from "@/lib/auth-context";
+import { LanguageProvider } from "@/lib/language-context";
 import { Toaster } from "@/components/ui/toaster";
 import { TopProgressBar } from "@/components/ui/top-progress-bar";
 import { GlobalClickAnimation } from "@/components/ui/button-click-animation";
@@ -71,11 +72,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem storageKey="krishi-theme">
           <QueryClientProvider>
             <AuthProvider>
-              <TopProgressBar />
-              <GlobalClickAnimation />
-              {children}
-              <BackToTop />
-              <Toaster />
+              <LanguageProvider>
+                <TopProgressBar />
+                <GlobalClickAnimation />
+                {children}
+                <BackToTop />
+                <Toaster />
+              </LanguageProvider>
             </AuthProvider>
           </QueryClientProvider>
         </ThemeProvider>

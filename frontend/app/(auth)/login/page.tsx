@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +49,7 @@ declare global {
 
 export default function LoginPage() {
   const { login, loginWithOtp, loginWithFirebasePhone, demoLogin } = useAuth();
+  const { t, currentRegionDef, language } = useLanguage();
   const { toast } = useToast();
 
   // Mobile + OTP State
@@ -232,15 +235,21 @@ export default function LoginPage() {
       {/* Header */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-2 mb-1">
-          <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 text-xs font-semibold">
-            <ShieldCheck className="h-3 w-3 mr-1 text-emerald-600" /> Secure Sign In
+          <Badge variant="outline" className="text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-500/30 text-xs font-semibold">
+            <ShieldCheck className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+            <span>{t("login.secureBadge")}</span>
           </Badge>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Sign in to KrishiConnect</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground font-plus-jakarta">
+          {t("login.title")}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Access daily crop mandi rates, logistics, buyers directory & invoicing
+          {t("login.subtitle")}
         </p>
       </div>
+
+      {/* Prominent Regional & Language Calibration */}
+      <RegionLanguageSelector variant="login" />
 
       {/* Google Sign In */}
       <div className="space-y-3">
@@ -261,11 +270,11 @@ export default function LoginPage() {
         <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-lg">
           <TabsTrigger value="otp" className="flex items-center gap-2 text-xs font-semibold">
             <Phone className="h-3.5 w-3.5" />
-            <span>Mobile + OTP</span>
+            <span>{t("login.mobileTab")}</span>
           </TabsTrigger>
           <TabsTrigger value="email" className="flex items-center gap-2 text-xs font-semibold">
             <Mail className="h-3.5 w-3.5" />
-            <span>Email & Password</span>
+            <span>{t("login.emailTab")}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -278,7 +287,7 @@ export default function LoginPage() {
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-xs font-semibold uppercase text-muted-foreground">
-                  Mobile Number
+                  {t("login.phoneLabel")}
                 </Label>
                 <div className="flex gap-2">
                   <div className="flex items-center px-3 border rounded-md bg-muted/40 text-sm font-semibold text-foreground select-none">
@@ -288,7 +297,7 @@ export default function LoginPage() {
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="98765 43210"
+                      placeholder={t("login.phonePlaceholder")}
                       maxLength={10}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
@@ -311,11 +320,11 @@ export default function LoginPage() {
               >
                 {isSendingOtp ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Sending SMS OTP...
+                    <Loader2 className="h-4 w-4 animate-spin" /> {t("login.sendingOtp")}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    <span>Send Verification OTP</span>
+                    <span>{t("login.sendOtp")}</span>
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 )}
@@ -345,7 +354,7 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="otp" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Verification Code
+                    {t("login.enterOtp")}
                   </Label>
                   {isFirebaseMode && (
                     <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -381,12 +390,12 @@ export default function LoginPage() {
               {/* Optional Name for new accounts */}
               <div className="space-y-1.5">
                 <Label htmlFor="farmerName" className="text-xs text-muted-foreground">
-                  Your Name (Optional for first-time login)
+                  {t("login.nameOptional")}
                 </Label>
                 <Input
                   id="farmerName"
                   type="text"
-                  placeholder="e.g. Ramesh Sahoo"
+                  placeholder={t("login.namePlaceholder")}
                   value={farmerName}
                   onChange={(e) => setFarmerName(e.target.value)}
                   className="text-sm"
@@ -396,14 +405,16 @@ export default function LoginPage() {
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                 <span>Didn&apos;t receive code?</span>
                 {resendTimer > 0 ? (
-                  <span className="text-muted-foreground font-mono">Resend in {resendTimer}s</span>
+                  <span className="text-muted-foreground font-mono">
+                    {t("login.resendIn", { s: resendTimer })}
+                  </span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleSendOtp}
                     className="text-primary font-semibold hover:underline flex items-center gap-1"
                   >
-                    <RefreshCw className="h-3 w-3" /> Resend SMS OTP
+                    <RefreshCw className="h-3 w-3" /> {t("login.resendOtp")}
                   </button>
                 )}
               </div>
@@ -415,10 +426,10 @@ export default function LoginPage() {
               >
                 {isVerifyingOtp ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Verifying...
+                    <Loader2 className="h-4 w-4 animate-spin" /> {t("login.verifyingOtp")}
                   </span>
                 ) : (
-                  "Verify & Enter Platform"
+                  t("login.verifyOtp")
                 )}
               </Button>
             </form>
@@ -430,7 +441,7 @@ export default function LoginPage() {
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xs font-semibold uppercase text-muted-foreground">
-                Email Address
+                {t("login.emailLabel")}
               </Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -450,7 +461,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-xs font-semibold uppercase text-muted-foreground">
-                  Password
+                  {t("login.passwordLabel")}
                 </Label>
                 <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">
                   Forgot password?
@@ -483,10 +494,10 @@ export default function LoginPage() {
             <Button type="submit" className="w-full h-11 font-semibold" disabled={isEmailLoading}>
               {isEmailLoading ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Signing in...
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t("login.signingIn")}
                 </span>
               ) : (
-                "Sign in with Email"
+                t("login.signInBtn")
               )}
             </Button>
           </form>
@@ -497,7 +508,7 @@ export default function LoginPage() {
       <div className="pt-2 border-t space-y-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="font-semibold text-foreground flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> 1-Click Instant Demo Login:
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("login.quickAccess")}:
           </span>
           <span className="text-[11px]">No credentials needed</span>
         </div>
@@ -509,14 +520,14 @@ export default function LoginPage() {
             size="sm"
             onClick={() => handleDemoLogin("farmer")}
             disabled={isDemoLoading !== null}
-            className="flex items-center gap-1.5 h-9 text-xs border-emerald-300 hover:bg-emerald-50 text-emerald-800 font-medium"
+            className="flex items-center gap-1.5 h-9 text-xs border-emerald-300 hover:bg-emerald-50 text-emerald-800 dark:text-emerald-300 font-medium"
           >
             {isDemoLoading === "farmer" ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600" />
             ) : (
               <Sprout className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
             )}
-            <span className="truncate">Demo Farmer</span>
+            <span className="truncate">{t("login.demoFarmer")}</span>
           </Button>
 
           <Button
@@ -525,23 +536,23 @@ export default function LoginPage() {
             size="sm"
             onClick={() => handleDemoLogin("trader")}
             disabled={isDemoLoading !== null}
-            className="flex items-center gap-1.5 h-9 text-xs border-blue-300 hover:bg-blue-50 text-blue-800 font-medium"
+            className="flex items-center gap-1.5 h-9 text-xs border-blue-300 hover:bg-blue-50 text-blue-800 dark:text-blue-300 font-medium"
           >
             {isDemoLoading === "trader" ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
             ) : (
               <Store className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
             )}
-            <span className="truncate">Demo Trader</span>
+            <span className="truncate">{t("login.demoTrader")}</span>
           </Button>
         </div>
       </div>
 
       {/* Footer link to register */}
       <p className="text-sm text-center text-muted-foreground pt-1">
-        New to KrishiConnect?{" "}
+        {t("login.needAccount")}{" "}
         <Link href="/register" className="font-semibold text-primary hover:underline underline-offset-4">
-          Create new account
+          {t("login.registerNow")}
         </Link>
       </p>
     </div>
