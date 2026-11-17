@@ -30,6 +30,10 @@ export default function HomePage() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-7 text-xs tracking-wider uppercase text-muted-foreground font-medium">
+          <Link href="/terranode" className="text-emerald-500 hover:text-emerald-400 font-semibold flex items-center gap-1 transition-colors">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>TerraNode Hardware</span>
+          </Link>
           <Link href="/crop-rates" className="hover:text-foreground transition-colors">
             Mandi Rates
           </Link>
@@ -75,6 +79,21 @@ export default function HomePage() {
       {mobileMenuOpen && (
         <div className="relative z-30 md:hidden px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="rounded-2xl border border-white/10 bg-card/95 dark:bg-black/90 backdrop-blur-2xl p-5 shadow-2xl space-y-4">
+            <Link
+              href="/terranode"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <div>
+                  <div className="font-bold text-xs text-white">TerraNode Pro</div>
+                  <div className="text-[10px] text-emerald-300/70">Exploded 3D Hardware Scrollytelling</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-emerald-400" />
+            </Link>
+
             <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
               <Link
                 href="/crop-rates"
@@ -145,12 +164,23 @@ export default function HomePage() {
       {/* 2. Responsive Hero Section */}
       <main className="relative z-20 flex-1 flex flex-col justify-center px-4 sm:px-12 md:px-16 max-w-4xl py-6 sm:py-12">
         <div className="space-y-4 sm:space-y-6 animate-page-enter">
-          {/* Subtle Live Status */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-muted-foreground w-fit">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="tracking-wider uppercase text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              Bhubaneswar APMC Live
-            </span>
+          {/* Subtle Live Status & Hardware Scrollytelling Pill */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-muted-foreground w-fit">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="tracking-wider uppercase text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                Bhubaneswar APMC Live
+              </span>
+            </div>
+            <Link
+              href="/terranode"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs text-emerald-400 transition-colors w-fit shadow-xs"
+            >
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span className="tracking-wider uppercase text-[10px] font-bold">
+                TerraNode 3D Hardware →
+              </span>
+            </Link>
           </div>
 
           {/* High-Impact Responsive Headline */}
