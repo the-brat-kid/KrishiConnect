@@ -314,14 +314,14 @@ export default function DailyCropRatesPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* State Filter Dropdown */}
+            {/* State Filter Dropdown with Liquid Glass */}
             <select
               value={selectedState}
               onChange={(e) => handleStateChange(e.target.value)}
-              className="h-9 rounded-xl border border-emerald-500/30 bg-card px-3 text-xs font-semibold text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-xs"
+              className="h-10 rounded-xl border border-white/20 bg-white/[0.08] dark:bg-black/40 px-3.5 text-xs sm:text-sm font-bold text-foreground backdrop-blur-2xl focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.3),0_4px_16px_rgba(0,0,0,0.25)] hover:border-emerald-500/50 transition-all cursor-pointer"
             >
               {INDIAN_STATES.map((state) => (
-                <option key={state} value={state}>
+                <option key={state} value={state} className="bg-card text-foreground">
                   {state}
                 </option>
               ))}
