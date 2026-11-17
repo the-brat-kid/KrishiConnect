@@ -1,14 +1,16 @@
 import uuid
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
+from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.models.soil_health import SoilHealthLab, SoilHealthAppointment
 from app.models.user import User
+from app.services.soil_ai_service import analyze_soil_report_image, analyze_soil_values
 from app.schemas.soil_health import (
     SoilLabResponse,
     SoilAppointmentCreate,
@@ -277,3 +279,41 @@ async def cancel_appointment(
     await db.delete(apt)
     await db.commit()
     return {"detail": "Soil health check appointment cancelled successfully"}
+
+
+class SoilManualAnalysisRequest(BaseModel):
+    ph: Optional[str] = "6.0"
+    nitrogen: Optional[str] = "Low"
+    phosphorus: Optional[str] = "Medium"
+    potassium: Optional[str] = "High"
+    organic_carbon: Optional[str] = "0.5%"
+    zinc: Optional[str] = "Deficient"
+    salinity_ec: Optional[str] = "Normal"
+    district: Optional[str] = "Khordha"
+
+
+@router.post("/analyze-report")
+async def analyze_soil_report(
+    file: UploadFile = File(...),
+    district: Optional[str] = Form("Khordha")
+):
+    """
+    Multimodal Gemini AI analysis of uploaded Soil Health Card photo or lab report.
+    """
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    
+    mime_type = file.content_type or "image/jpeg"
+    result = await analyze_soil_report_image(contents, mime_type=mime_type, district=district or "Odisha")
+    return result
+
+
+@router.post("/analyze-manual")
+async def analyze_manual_soil(req: SoilManualAnalysisRequest):
+    """
+    Gemini AI crop and fertilizer advisory based on manually entered soil parameters.
+    """
+    result = await analyze_soil_values(req.model_dump(), district=req.district or "Odisha")
+    return result
+

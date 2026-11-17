@@ -5,6 +5,7 @@ import { SoilHealthLab, SoilHealthAppointment } from "@/types/soil-health";
 import { SoilLabCard } from "@/components/soil-health/soil-lab-card";
 import { SoilAppointmentModal } from "@/components/soil-health/soil-appointment-modal";
 import { SoilSamplingGuide } from "@/components/soil-health/soil-sampling-guide";
+import { SoilAiScanner } from "@/components/soil-health/soil-ai-scanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -169,7 +170,7 @@ export default function SoilHealthPage() {
 
   const [search, setSearch] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("all");
-  const [activeTab, setActiveTab] = useState("labs");
+  const [activeTab, setActiveTab] = useState("ai-scanner");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -297,6 +298,10 @@ export default function SoilHealthPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-2">
           <TabsList className="bg-zinc-100 dark:bg-zinc-900 p-1">
+            <TabsTrigger value="ai-scanner" className="text-xs font-semibold flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+              <span>AI Crop Advisor (Gemini)</span>
+            </TabsTrigger>
             <TabsTrigger value="labs" className="text-xs font-semibold">
               Certified Labs ({labs.length})
             </TabsTrigger>
@@ -341,6 +346,11 @@ export default function SoilHealthPage() {
             </div>
           )}
         </div>
+
+        {/* TAB 0: AI CROP ADVISOR (GEMINI) */}
+        <TabsContent value="ai-scanner" className="pt-1">
+          <SoilAiScanner onBookTest={() => handleOpenBooking()} />
+        </TabsContent>
 
         {/* TAB 1: CERTIFIED LABS */}
         <TabsContent value="labs" className="space-y-4 pt-1">
