@@ -51,7 +51,7 @@ Then generate a high-precision, farmer-friendly agronomic advisory in JSON forma
     "zinc": "<Deficient / Sufficient>",
     "salinity_ec": "<Normal / Saline>"
   },
-  "summary": "<2-3 sentence clear summary of the soil condition in Hinglish / English>",
+  "summary": "<2-3 sentence clear, formal professional summary of the soil condition in English>",
   "recommended_crops": [
     {
       "crop": "<e.g. Swarna Paddy (Rice) / Groundnut / Mustard / Chilli / Maize>",
@@ -145,7 +145,7 @@ def _get_heuristic_fallback(district: str = "Odisha") -> Dict[str, Any]:
             "Broadcast 150 kg Agricultural Lime or Dolomite per acre 15 days before sowing to correct soil acidity.",
             "Apply Zinc Sulphate (21%) @ 10 kg/acre as basal dose with DAP/MOP.",
             "Apply Urea in 3 split doses (1/3rd basal, 1/3rd tillering, 1/3rd panicle initiation) to reduce nitrogen leaching.",
-            "Incorporate 2-3 tonnes of decomposed Farm Yard Manure (Gobar Khad) to restore Organic Carbon.",
+            "Incorporate 2-3 tonnes of decomposed Farm Yard Manure (FYM / Compost) to restore Organic Carbon.",
         ],
         "organic_interventions": [
             "Grow Dhaincha (Sesbania) green manure for 45 days and plow into soil before main Kharif paddy.",

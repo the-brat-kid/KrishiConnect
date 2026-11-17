@@ -163,7 +163,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
               AI Soil Report Scanner & Crop Advisor
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl">
-              Apni Mitti ki report (Soil Health Card) ki photo upload karein. Gemini Vision AI report ke NPK aur pH levels ko scan karke batayega ki kaunsi fasal sabse zyada munafa aur paidaawar degi.
+              Upload a photo or PDF of your Soil Health Card or laboratory test report. Gemini Multimodal Vision AI extracts diagnostic NPK and pH parameters to predict highest-yielding, profitable crop choices.
             </p>
           </div>
 
@@ -174,7 +174,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
               onClick={handleLoadDemoReport}
               className="text-xs font-semibold h-10 border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
             >
-              Demo Report Try Karein
+              Load Sample Report
             </Button>
           </div>
         </div>
@@ -245,10 +245,10 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                   <Upload className="w-7 h-7" />
                 </div>
                 <h4 className="font-bold text-sm sm:text-base text-foreground mb-1">
-                  Upload Soil Health Card (Photo ya PDF)
+                  Upload Soil Health Card (Photo or PDF)
                 </h4>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto mb-3">
-                  Apne phone ke camera se report ki photo kheencho ya gallery se image select karein.
+                  Capture photo using your mobile camera or upload from device storage.
                 </p>
                 <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                   Supported: JPG, PNG, WEBP, PDF (Max 10MB)
@@ -557,7 +557,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
             <div className="p-4 rounded-2xl border border-destructive/25 bg-destructive/5 space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-destructive flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4" />
-                <span>⚠️ Crops to Avoid (Inhe Lagane se Nuksan Ho Sakta Hai)</span>
+                <span>⚠️ Crops to Avoid (Agronomically Incompatible)</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {analysisResult.crops_to_avoid.map((avoid: any, idx: number) => (
@@ -575,7 +575,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
             <div className="p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[#0c0d0e]/80 backdrop-blur-xl space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span>💡 Precision Fertilizer & Acidity Prescription (Khaad aur Chuna Dose)</span>
+                <span>💡 Precision Fertilizer & Liming Prescription</span>
               </h4>
               <ul className="space-y-2 text-xs text-foreground/90">
                 {analysisResult.fertilizer_prescription.map((step: string, idx: number) => (
@@ -589,7 +589,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
               {analysisResult.organic_interventions && (
                 <div className="pt-3 border-t border-border/50">
                   <span className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5">
-                    Jaivik Upay (Organic & Bio-fertilizers):
+                    Organic Amendments & Bio-Fertilizer Protocols:
                   </span>
                   <ul className="space-y-1.5 text-xs text-muted-foreground">
                     {analysisResult.organic_interventions.map((org: string, idx: number) => (

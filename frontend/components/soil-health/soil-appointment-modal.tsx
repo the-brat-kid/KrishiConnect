@@ -92,8 +92,8 @@ export function SoilAppointmentModal({
     farm_district: "Khordha",
     village_or_area: "",
     farm_size_acres: 2.0,
-    crop_planned: "Paddy (Dhan)",
-    soil_type: "Alluvial (Mati)",
+    crop_planned: "Paddy (Rice)",
+    soil_type: "Alluvial Soil",
     test_package: "12-Parameter Complete Health Card",
     appointment_mode: "Doorstep Pickup",
     appointment_date: new Date(Date.now() + 86400000 * 2).toISOString().split("T")[0],
@@ -300,11 +300,11 @@ export function SoilAppointmentModal({
                   onChange={(e) => setFormData({ ...formData, soil_type: e.target.value })}
                   className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 >
-                  <option value="Alluvial (Mati)">Alluvial (Mati)</option>
-                  <option value="Red Laterite (Lal Mitti)">Red Laterite (Lal Mitti)</option>
-                  <option value="Black Soil (Kala Mitti)">Black Soil (Kala Mitti)</option>
-                  <option value="Coastal Saline (Luna Mati)">Coastal Saline (Luna Mati)</option>
-                  <option value="Sandy Loam (Bali Mati)">Sandy Loam (Bali Mati)</option>
+                  <option value="Alluvial Soil">Alluvial Soil</option>
+                  <option value="Red Laterite Soil">Red Laterite Soil</option>
+                  <option value="Black Cotton Soil">Black Cotton Soil</option>
+                  <option value="Coastal Saline Soil">Coastal Saline Soil</option>
+                  <option value="Sandy Loam Soil">Sandy Loam Soil</option>
                 </select>
               </div>
             </div>
@@ -364,7 +364,7 @@ export function SoilAppointmentModal({
                     Doorstep Field Pickup
                   </span>
                   <span className="text-[11px] text-muted-foreground block">
-                    Krishi Mitra visits your field to take sample
+                    Certified field technician collects core samples from your farm plot
                   </span>
                 </div>
               </div>
@@ -385,7 +385,7 @@ export function SoilAppointmentModal({
                     Direct Lab Drop-off
                   </span>
                   <span className="text-[11px] text-muted-foreground block">
-                    You bring dried 500g sample to district lab
+                    Deliver dried 500g composite sample directly to district testing lab
                   </span>
                 </div>
               </div>

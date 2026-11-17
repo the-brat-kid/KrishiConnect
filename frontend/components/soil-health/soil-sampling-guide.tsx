@@ -1,32 +1,32 @@
 "use client";
 
 import React from "react";
-import { Shovel, Sparkles, AlertCircle, CheckCircle2, FileText, ArrowRight } from "lucide-react";
+import { Sparkles, AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export function SoilSamplingGuide() {
   const steps = [
     {
       step: "01",
-      title: "Select 5-8 Zig-Zag Spots",
-      description: "Field me 'V' ya zig-zag pattern me 5 se 8 alag jagah chunein. Ped ke neeche, naali ke paas ya khaad ke dher ke paas se sample na lein.",
+      title: "Identify Representative Spots",
+      description: "Traverse the plot in a zig-zag pattern selecting 8 to 10 distinct sampling points. Avoid field boundaries, irrigation channels, compost piles, and tree canopies.",
       icon: "🌾",
     },
     {
       step: "02",
-      title: "Dig 15 cm 'V' Shape Trench",
-      description: "Ghaas aur upari kachra saaf karein. Khurpi ya spade se 15 cm (6 inch) gehra 'V' aakar ka gaddha banayein.",
+      title: "Excavate 15 cm V-Shaped Trench",
+      description: "Clear superficial organic debris and weed cover. Using a clean spade or auger, dig a V-shaped trench to a depth of 15 cm (plow layer depth).",
       icon: "⛏️",
     },
     {
       step: "03",
-      title: "Collect 1-inch Soil Slice",
-      description: "Gaddhe ke kinare se upar se neeche tak 1 inch moti mitti ki parat (slice) kaat kar saaf balti me daalein.",
+      title: "Extract Uniform 1-Inch Core Slice",
+      description: "From the exposed trench wall, shave a uniform 1-inch (2.5 cm) thick vertical slice from top to bottom and collect in a clean plastic container.",
       icon: "🧪",
     },
     {
       step: "04",
-      title: "Mix, Quarter & Pack 500g",
-      description: "Saare spots ki mitti achhi tarah milayein. Kankad-patthar hatayein. Chhan kar lagbhag 500g mitti saaf bag me pack karein.",
+      title: "Composite, Quarter & Pack 500g",
+      description: "Thoroughly mix all field cores, remove stones and roots. Divide by quartering to isolate a 500g composite sample. Air-dry in shade and seal in a labeled bag.",
       icon: "📦",
     },
   ];
@@ -37,13 +37,13 @@ export function SoilSamplingGuide() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Kisan Field Sampling Manual</span>
+            <span>Standard Operating Procedure (SOP)</span>
           </div>
           <h3 className="text-lg font-bold text-foreground">
-            How to Collect Soil Sample from Your Field (4 Simple Steps)
+            Standard Soil Sampling Protocol (4 Essential Steps)
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Sahi mitti lene se hi lab me NPK aur micronutrients ka sahi result nikalta hai.
+            Representative field sampling is vital for accurate NPK, pH, and micronutrient laboratory diagnostics.
           </p>
         </div>
       </div>
@@ -68,13 +68,13 @@ export function SoilSamplingGuide() {
         ))}
       </div>
 
-      {/* Pro Tips Banner */}
+      {/* Protocol Caution Banner */}
       <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
         <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
         <div className="space-y-0.5">
-          <span className="font-semibold block">Zaroori Nirdesh (Important Caution):</span>
+          <span className="font-semibold block">Critical Sampling Directives:</span>
           <span>
-            Khaad daalne ke turant baad mitti na lein (kam se kam 25-30 din baad lein). Mitti ko dhoop me nahi, balki chhaon (shade) me sukhein.
+            Do not collect samples within 30 days of chemical fertilizer or manure application. Always air-dry samples in clean shade; avoid drying under direct midday sunlight or heating.
           </span>
         </div>
       </div>
