@@ -16,6 +16,12 @@ class OtpVerifyRequest(BaseModel):
     name: Optional[str] = None
     role: Optional[str] = "Individual"
 
+class FirebaseLoginRequest(BaseModel):
+    id_token: str
+    phone: Optional[str] = None
+    name: Optional[str] = None
+    role: Optional[str] = "Individual"
+
 class DemoLoginRequest(BaseModel):
     role: str = "farmer"
 

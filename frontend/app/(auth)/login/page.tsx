@@ -12,6 +12,8 @@ import { loginSchema } from "@/lib/validations";
 import Link from "next/link";
 import api from "@/lib/api";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import {
   Phone,
   Mail,
@@ -26,10 +28,18 @@ import {
   Store,
   KeyRound,
   RefreshCw,
+  CheckCircle,
 } from "lucide-react";
 
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+    confirmationResult?: ConfirmationResult;
+  }
+}
+
 export default function LoginPage() {
-  const { login, loginWithOtp, demoLogin } = useAuth();
+  const { login, loginWithOtp, loginWithFirebasePhone, demoLogin } = useAuth();
   const { toast } = useToast();
 
   // Mobile + OTP State
@@ -40,6 +50,8 @@ export default function LoginPage() {
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [isFirebaseMode, setIsFirebaseMode] = useState(false);
 
   // Email + Password State
   const [email, setEmail] = useState("");
@@ -50,14 +62,14 @@ export default function LoginPage() {
   // Demo Login State
   const [isDemoLoading, setIsDemoLoading] = useState<string | null>(null);
 
-  // Handle Send OTP
+  // Handle Send OTP (Real Google Firebase SMS with intelligent fallback)
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (cleanPhone.length !== 10) {
       toast({
         title: "Invalid Number",
-        description: "Please enter a valid 10-digit mobile number.",
+        description: "Please enter a valid 10-digit Indian mobile number.",
         variant: "destructive",
       });
       return;
@@ -65,13 +77,51 @@ export default function LoginPage() {
 
     try {
       setIsSendingOtp(true);
-      await api.post("/auth/otp/send", { phone: cleanPhone });
+
+      // Try sending real SMS via Google Firebase Phone Auth
+      let sentViaFirebase = false;
+      try {
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+            size: "invisible",
+            callback: () => {},
+            "expired-callback": () => {
+              if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+                window.recaptchaVerifier = undefined;
+              }
+            },
+          });
+        }
+
+        const formattedPhone = `+91${cleanPhone}`;
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
+        setConfirmationResult(confirmation);
+        window.confirmationResult = confirmation;
+        setIsFirebaseMode(true);
+        sentViaFirebase = true;
+
+        toast({
+          title: "Real SMS OTP Dispatched!",
+          description: `Google Firebase has sent a 6-digit SMS code to +91 ${cleanPhone}.`,
+        });
+      } catch (fbErr: any) {
+        console.warn("Firebase Phone Auth error, falling back to local OTP:", fbErr);
+        // Fallback to local OTP dispatch
+        await api.post("/auth/otp/send", { phone: cleanPhone });
+        setIsFirebaseMode(false);
+
+        const isDomainNotice = fbErr.code === "auth/invalid-app-credential" || fbErr.code === "auth/captcha-check-failed";
+        toast({
+          title: "Verification Mode",
+          description: isDomainNotice
+            ? `Phone service initializing for this domain. Use test OTP: 1234`
+            : `OTP sent to +91 ${cleanPhone}. (Use test OTP: 1234)`,
+        });
+      }
+
       setOtpSent(true);
-      setResendTimer(30);
-      toast({
-        title: "OTP Sent!",
-        description: `OTP sent to +91 ${cleanPhone}. (Use test OTP: 1234)`,
-      });
+      setResendTimer(60);
 
       // Countdown timer
       const interval = setInterval(() => {
@@ -86,7 +136,7 @@ export default function LoginPage() {
     } catch (error: any) {
       toast({
         title: "Error sending OTP",
-        description: error.response?.data?.detail || "Failed to send OTP",
+        description: error.message || error.response?.data?.detail || "Failed to send OTP",
         variant: "destructive",
       });
     } finally {
@@ -99,18 +149,29 @@ export default function LoginPage() {
     e.preventDefault();
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (!otp.trim()) {
-      toast({ title: "OTP Required", description: "Please enter the 4-digit OTP", variant: "destructive" });
+      toast({ title: "OTP Required", description: "Please enter the OTP code", variant: "destructive" });
       return;
     }
 
     try {
       setIsVerifyingOtp(true);
-      await loginWithOtp(cleanPhone, otp.trim(), farmerName.trim() || undefined, "Individual");
-      toast({ title: "Welcome to KrishiConnect!", description: "Successfully verified and logged in." });
+      const activeConfirmation = confirmationResult || window.confirmationResult;
+
+      if (activeConfirmation && isFirebaseMode) {
+        // Verify 6-digit code with Google Firebase
+        const credential = await activeConfirmation.confirm(otp.trim());
+        const idToken = await credential.user.getIdToken();
+        await loginWithFirebasePhone(idToken, cleanPhone, farmerName.trim() || undefined, "Individual");
+        toast({ title: "Welcome to KrishiConnect!", description: "Phone successfully verified via Firebase." });
+      } else {
+        // Standard / demo verification
+        await loginWithOtp(cleanPhone, otp.trim(), farmerName.trim() || undefined, "Individual");
+        toast({ title: "Welcome to KrishiConnect!", description: "Successfully verified and logged in." });
+      }
     } catch (error: any) {
       toast({
         title: "Verification Failed",
-        description: error.response?.data?.detail || "Invalid OTP. Use demo OTP: 1234",
+        description: error.message || error.response?.data?.detail || "Invalid OTP entered. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -201,6 +262,9 @@ export default function LoginPage() {
 
         {/* TAB 1: MOBILE + OTP LOGIN */}
         <TabsContent value="otp" className="space-y-4 pt-1">
+          {/* Invisible Google reCAPTCHA Anchor */}
+          <div id="recaptcha-container" />
+
           {!otpSent ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div className="space-y-2">
@@ -225,8 +289,9 @@ export default function LoginPage() {
                     />
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  We will send a 4-digit verification code to this mobile number.
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Real SMS OTP will be sent directly to your phone via Google Firebase.</span>
                 </p>
               </div>
 
@@ -237,7 +302,7 @@ export default function LoginPage() {
               >
                 {isSendingOtp ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Sending OTP...
+                    <Loader2 className="h-4 w-4 animate-spin" /> Sending SMS OTP...
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
@@ -249,10 +314,12 @@ export default function LoginPage() {
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-emerald-800 font-semibold block">OTP Sent to:</span>
-                  <span className="text-sm font-bold text-emerald-950">+91 {phone}</span>
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold block">
+                    {isFirebaseMode ? "SMS Sent via Google Firebase:" : "OTP Sent to:"}
+                  </span>
+                  <span className="text-sm font-bold text-foreground">+91 {phone}</span>
                 </div>
                 <button
                   type="button"
@@ -260,7 +327,7 @@ export default function LoginPage() {
                     setOtpSent(false);
                     setOtp("");
                   }}
-                  className="text-xs text-emerald-700 underline hover:text-emerald-900 font-medium"
+                  className="text-xs text-primary underline hover:text-primary/80 font-medium"
                 >
                   Change
                 </button>
@@ -269,11 +336,18 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="otp" className="text-xs font-semibold uppercase text-muted-foreground">
-                    Enter 4-Digit OTP
+                    {isFirebaseMode ? "Enter 6-Digit SMS Code" : "Enter OTP Code"}
                   </Label>
-                  <span className="text-[11px] text-emerald-700 font-medium bg-emerald-100/70 px-2 py-0.5 rounded">
-                    Demo OTP: <strong>1234</strong>
-                  </span>
+                  {isFirebaseMode ? (
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-emerald-400" />
+                      <span>Live SMS</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-100/70 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                      Test OTP: <strong>1234</strong>
+                    </span>
+                  )}
                 </div>
                 <div className="relative">
                   <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -281,7 +355,7 @@ export default function LoginPage() {
                     id="otp"
                     type="text"
                     maxLength={6}
-                    placeholder="1234"
+                    placeholder={isFirebaseMode ? "123456" : "1234"}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                     className="pl-9 text-lg tracking-widest font-bold"
@@ -309,14 +383,14 @@ export default function LoginPage() {
               <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                 <span>Didn&apos;t receive code?</span>
                 {resendTimer > 0 ? (
-                  <span className="text-muted-foreground">Resend in {resendTimer}s</span>
+                  <span className="text-muted-foreground font-mono">Resend in {resendTimer}s</span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleSendOtp}
                     className="text-primary font-semibold hover:underline flex items-center gap-1"
                   >
-                    <RefreshCw className="h-3 w-3" /> Resend OTP
+                    <RefreshCw className="h-3 w-3" /> Resend SMS OTP
                   </button>
                 )}
               </div>
@@ -331,7 +405,7 @@ export default function LoginPage() {
                     <Loader2 className="h-4 w-4 animate-spin" /> Verifying...
                   </span>
                 ) : (
-                  "Verify & Sign In"
+                  "Verify & Enter Platform"
                 )}
               </Button>
             </form>
