@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 export type RegionId =
   | "odisha"
@@ -857,34 +858,98 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const STORAGE_KEY_REGION = "krishi_user_region";
 const STORAGE_KEY_LANG = "krishi_user_lang";
 
+/**
+ * Automatically translates the entire DOM across the website into the chosen language.
+ * Seamlessly integrates Google Translation DOM engine without showing banners or iframes.
+ */
+export function applyGlobalDomTranslation(langCode: LanguageCode) {
+  if (typeof window === "undefined") return;
+
+  const host = window.location.hostname;
+
+  // 1. Configure the googtrans cookie for domain & root paths
+  if (langCode === "en") {
+    // Revert to natural English
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${host}; path=/;`;
+    if (host !== "localhost" && !host.startsWith("127.")) {
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${host}; path=/;`;
+    }
+  } else {
+    const cookieVal = `/auto/${langCode}`;
+    document.cookie = `googtrans=${cookieVal}; path=/;`;
+    document.cookie = `googtrans=${cookieVal}; domain=${host}; path=/;`;
+    if (host !== "localhost" && !host.startsWith("127.")) {
+      document.cookie = `googtrans=${cookieVal}; domain=.${host}; path=/;`;
+    }
+  }
+
+  // 2. Programmatically trigger the Google Translate combo element
+  const triggerCombo = () => {
+    const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+    if (select) {
+      if (select.value !== langCode) {
+        select.value = langCode;
+        select.dispatchEvent(new Event("change"));
+      }
+      return true;
+    }
+    return false;
+  };
+
+  if (!triggerCombo()) {
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (triggerCombo() || attempts > 15) {
+        clearInterval(interval);
+      }
+    }, 150);
+  }
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [region, setRegionState] = useState<RegionId>("odisha");
   const [language, setLanguageState] = useState<LanguageCode>("or");
+  const pathname = usePathname();
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount & initialize DOM translation
   useEffect(() => {
     try {
       const savedRegion = localStorage.getItem(STORAGE_KEY_REGION) as RegionId | null;
       const savedLang = localStorage.getItem(STORAGE_KEY_LANG) as LanguageCode | null;
 
+      let initialLang: LanguageCode = "or";
       if (savedRegion && REGIONS[savedRegion]) {
         setRegionState(savedRegion);
         const regionDef = REGIONS[savedRegion];
 
         if (savedLang && regionDef.supportedLangs.includes(savedLang)) {
-          setLanguageState(savedLang);
+          initialLang = savedLang;
         } else {
-          setLanguageState(regionDef.defaultLang);
+          initialLang = regionDef.defaultLang;
         }
       } else {
-        // Default to Odisha & Odia
         setRegionState("odisha");
-        setLanguageState("or");
+        initialLang = "or";
       }
+
+      setLanguageState(initialLang);
+      applyGlobalDomTranslation(initialLang);
     } catch (e) {
       console.warn("Could not read language preferences from localStorage", e);
     }
   }, []);
+
+  // Re-verify translation on route change in SPA
+  useEffect(() => {
+    if (language && language !== "en") {
+      const timer = setTimeout(() => {
+        applyGlobalDomTranslation(language);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, language]);
 
   const setRegion = (newRegion: RegionId) => {
     if (!REGIONS[newRegion]) return;
@@ -908,6 +973,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         document.documentElement.lang = newLang;
       }
     } catch (e) {}
+
+    applyGlobalDomTranslation(newLang);
   };
 
   const currentRegionDef = REGIONS[region] || REGIONS.odisha;

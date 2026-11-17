@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Menu, X, Phone, Mail, Copyright, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchMode } from "@/components/ui/switch-mode";
+import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
 import { DynamicFarmWeatherBackground } from "@/components/layout/dynamic-farm-weather-background";
 
 export default function HomePage() {
@@ -51,8 +52,11 @@ export default function HomePage() {
           </Link>
         </nav>
 
-        {/* Right Header Utilities: Theme Switch & Actions */}
+        {/* Right Header Utilities: Region/Lang + Theme Switch + Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Quick Region & Language Selector */}
+          <RegionLanguageSelector variant="compact" />
+
           {/* Animated Sliding SwitchMode Component */}
           <SwitchMode width={52} height={26} />
 
@@ -79,6 +83,10 @@ export default function HomePage() {
       {mobileMenuOpen && (
         <div className="relative z-30 md:hidden px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="rounded-2xl border border-white/10 bg-card/95 dark:bg-black/90 backdrop-blur-2xl p-5 shadow-2xl space-y-4">
+            <div className="pb-1 border-b border-border/40">
+              <RegionLanguageSelector variant="compact" />
+            </div>
+
             <Link
               href="/terranode"
               onClick={() => setMobileMenuOpen(false)}

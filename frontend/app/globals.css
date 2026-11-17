@@ -651,3 +651,42 @@ button:not(:disabled):active,
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.18), inset 0 0 15px rgba(16, 185, 129, 0.1);
 }
 
+/* ============================================================
+   SEAMLESS FULL-SITE GOOGLE TRANSLATION OVERRIDES
+   ============================================================ */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  border: none !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#google_translate_element {
+  display: none !important;
+}
+
+

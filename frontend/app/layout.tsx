@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme-provider";
 import QueryClientProvider from "@/lib/query-client";
@@ -78,10 +79,36 @@ export default function RootLayout({
                 {children}
                 <BackToTop />
                 <Toaster />
+                {/* Seamless Background Translation Element */}
+                <div id="google_translate_element" style={{ display: "none" }} />
               </LanguageProvider>
             </AuthProvider>
           </QueryClientProvider>
         </ThemeProvider>
+
+        {/* Global Multi-Regional Language Translation Engine */}
+        <Script
+          id="google-translate-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.googleTranslateElementInit = function() {
+                if (window.google && window.google.translate) {
+                  new window.google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,hi,or,mr,pa,gu,kn,ta,te,bn,ml',
+                    autoDisplay: false
+                  }, 'google_translate_element');
+                }
+              };
+            `,
+          }}
+        />
+        <Script
+          id="google-translate-cdn"
+          strategy="afterInteractive"
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        />
       </body>
     </html>
   );
