@@ -7,11 +7,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from email.utils import parseaddr
+from pathlib import Path
 
 import resend
 from dotenv import load_dotenv
 
-load_dotenv()
+# Ensure .env is loaded from both project root and backend dir
+root_env = Path(__file__).resolve().parents[3] / ".env"
+backend_env = Path(__file__).resolve().parents[2] / ".env"
+if root_env.exists():
+    load_dotenv(dotenv_path=root_env, override=True)
+if backend_env.exists():
+    load_dotenv(dotenv_path=backend_env, override=True)
 
 logger = logging.getLogger("krishiconnect.email")
 
@@ -140,15 +148,22 @@ def _build_html(invoice_number: str, amount: float) -> str:
 
 
 def _send_via_gmail_smtp(email_to: str, invoice_number: str, amount: float, pdf_bytes: bytes = None) -> None:
+    mail_user = (os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USER") or MAIL_USERNAME).strip()
+    mail_pass = (os.getenv("MAIL_PASSWORD") or os.getenv("SMTP_PASSWORD") or MAIL_PASSWORD).replace(" ", "").strip()
+    mail_server = (os.getenv("MAIL_SERVER") or os.getenv("SMTP_HOST") or MAIL_SERVER or "smtp.gmail.com").strip()
+    mail_port = int(os.getenv("MAIL_PORT") or os.getenv("SMTP_PORT") or MAIL_PORT or 587)
+    raw_from = (os.getenv("MAIL_FROM") or mail_user or "noreply@krishiconnect.in").strip()
+    envelope_from = parseaddr(raw_from)[1] or raw_from or mail_user
+
     msg = MIMEMultipart("mixed")
     msg["Subject"] = f"Tax Invoice #{invoice_number} - KrishiConnect"
     
     # Format 'From' nicely
     from_name = "KrishiConnect Invoicing"
-    if "<" in MAIL_FROM:
-        msg["From"] = MAIL_FROM
+    if "<" in raw_from:
+        msg["From"] = raw_from
     else:
-        msg["From"] = f"{from_name} <{MAIL_FROM}>"
+        msg["From"] = f"{from_name} <{raw_from}>"
         
     msg["To"] = email_to
 
@@ -178,39 +193,40 @@ def _send_via_gmail_smtp(email_to: str, invoice_number: str, amount: float, pdf_
 
     def attempt_send(port, use_ssl):
         context = ssl.create_default_context()
-        if use_ssl:
-            with smtplib.SMTP_SSL(MAIL_SERVER, port, context=context, timeout=20) as server:
-                server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                server.sendmail(MAIL_FROM, [email_to], msg.as_string())
+        if use_ssl or port == 465:
+            with smtplib.SMTP_SSL(mail_server, port, context=context, timeout=20) as server:
+                server.login(mail_user, mail_pass)
+                server.sendmail(envelope_from, [email_to], msg.as_string())
         else:
-            with smtplib.SMTP(MAIL_SERVER, port, timeout=20) as server:
+            with smtplib.SMTP(mail_server, port, timeout=20) as server:
                 server.ehlo()
                 server.starttls(context=context)
                 server.ehlo()
-                server.login(MAIL_USERNAME, MAIL_PASSWORD)
-                server.sendmail(MAIL_FROM, [email_to], msg.as_string())
+                server.login(mail_user, mail_pass)
+                server.sendmail(envelope_from, [email_to], msg.as_string())
 
+    primary_ssl = (mail_port == 465)
     try:
-        attempt_send(MAIL_PORT, MAIL_PORT == 465)
-    except ssl.SSLError as exc:
-        if "UNEXPECTED_EOF_WHILE_READING" in str(exc) and MAIL_PORT == 465:
-            logger.warning("Port 465 failed with SSL EOF. Auto-falling back to port 587 (STARTTLS)...")
-            try:
-                attempt_send(587, False)
-            except Exception as fallback_exc:
-                logger.error("Fallback to port 587 also failed: %s", fallback_exc)
-                raise EmailSendError(str(fallback_exc)) from fallback_exc
-        else:
-            raise EmailSendError(str(exc)) from exc
-    except smtplib.SMTPAuthenticationError as exc:
-        logger.error("Gmail SMTP auth failed for %s: %s", MAIL_USERNAME, exc)
-        raise EmailSendError(
-            "Gmail rejected the login. Make sure MAIL_PASSWORD is a 16-character "
-            "App Password (myaccount.google.com/apppasswords), not your normal Gmail password."
-        ) from exc
-    except Exception as exc:
-        logger.error("Gmail SMTP send failed for invoice %s -> %s: %s", invoice_number, email_to, exc)
-        raise EmailSendError(str(exc)) from exc
+        attempt_send(mail_port, primary_ssl)
+    except Exception as primary_exc:
+        # Fallback to alternate port (587 <-> 465)
+        fallback_port = 465 if mail_port == 587 else 587
+        fallback_ssl = (fallback_port == 465)
+        logger.warning(
+            "Primary SMTP attempt on port %s failed (%s). Retrying on fallback port %s...",
+            mail_port, primary_exc, fallback_port
+        )
+        try:
+            attempt_send(fallback_port, fallback_ssl)
+        except smtplib.SMTPAuthenticationError as auth_exc:
+            logger.error("Gmail SMTP auth failed for %s: %s", mail_user, auth_exc)
+            raise EmailSendError(
+                "Gmail rejected the login. Make sure MAIL_PASSWORD is a valid 16-character "
+                "App Password from myaccount.google.com/apppasswords."
+            ) from auth_exc
+        except Exception as fallback_exc:
+            logger.error("Gmail SMTP fallback on port %s also failed: %s", fallback_port, fallback_exc)
+            raise EmailSendError(f"SMTP send failed: {fallback_exc}") from fallback_exc
 
     logger.info("Invoice email with PDF sent via Gmail SMTP: invoice=%s to=%s", invoice_number, email_to)
 
