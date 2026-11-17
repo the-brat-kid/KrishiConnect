@@ -858,53 +858,396 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const STORAGE_KEY_REGION = "krishi_user_region";
 const STORAGE_KEY_LANG = "krishi_user_lang";
 
+// In-memory registry of original DOM text to allow clean reversal
+const originalTextMap = new WeakMap<Node, string>();
+
 /**
- * Automatically translates the entire DOM across the website into the chosen language.
- * Seamlessly integrates Google Translation DOM engine without showing banners or iframes.
+ * Universal phrase translations mapped directly to common phrases across KrishiConnect.
+ * Operates purely in-browser without any third-party scripts, external iframes, or banners.
  */
-export function applyGlobalDomTranslation(langCode: LanguageCode) {
-  if (typeof window === "undefined") return;
+export const PHRASE_DICTIONARY: Record<LanguageCode, Record<string, string>> = {
+  en: {},
+  or: {
+    "Sovereign trade at the farm gate.": "ଫାର୍ମ ଗେଟ୍‌ରେ ସ୍ୱାଧୀନ ବାଣିଜ୍ୟ।",
+    "Odisha agricultural commerce simplified: verified daily mandi modal prices, calibrated freight routing, and instant digital GST billing for farmers and traders.":
+      "ଓଡ଼ିଶା କୃଷି ବାଣିଜ୍ୟ ସରଳୀକୃତ: ଯାଞ୍ଚ ହୋଇଥିବା ଦୈନିକ ମଣ୍ଡି ମୋଡାଲ୍ ଦର, ପରିବହନ ରୁଟ୍ ଏବଂ ତତକ୍ଷଣାତ୍ ଡିଜିଟାଲ୍ GST ବିଲ୍।",
+    "Bhubaneswar APMC Live": "ଭୁବନେଶ୍ୱର ମଣ୍ଡି ଲାଇଭ୍",
+    "APMC Live": "ମଣ୍ଡି ଲାଇଭ୍",
+    "Daily Crop Rates": "ଦୈନିକ ଫସଲ ଦର",
+    "7-Day Rate Trends": "୭ ଦିନର ଦର ଟ୍ରେଣ୍ଡ୍",
+    "Freight & Routes": "ପରିବହନ ଓ ରୁଟ୍",
+    "Transportation": "ପରିବହନ ସେବା",
+    "Logistics": "ମାଲ ପରିବହନ",
+    "GST Billing": "GST ବିଲିଂ",
+    "Instant digital invoices": "ତତକ୍ଷଣାତ୍ ଡିଜିଟାଲ୍ ବିଲ୍",
+    "Trade Buyers": "ଫସଲ କ୍ରେତା",
+    "Crop Buyers": "ଫସଲ କ୍ରେତା",
+    "Buyers": "କ୍ରେତା",
+    "Directory & ledger": "ତାଲିକା ଓ ଖାତା",
+    "Live Odisha APMC": "ଲାଇଭ୍ ଓଡ଼ିଶା ମଣ୍ଡି",
+    "Distance & Rates": "ଦୂରତା ଓ ଭଡ଼ା",
+    "Check Mandi Rates": "ମଣ୍ଡି ଦର ଦେଖନ୍ତୁ",
+    "Mandi Rates": "ମଣ୍ଡି ଦର",
+    "Season Planner": "ଋତୁ ଯୋଜନା",
+    "Next Season Planner": "ଆଗାମୀ ଋତୁ ଯୋଜନା",
+    "Weather & Rain": "ପାଣିପାଗ ଓ ବର୍ଷା",
+    "Farm Weather & Map": "ପାଣିପାଗ ମାନଚିତ୍ର",
+    "Weather": "ପାଣିପାଗ",
+    "Invoices & Billing": "ଇନଭଏସ୍ ଓ ବିଲିଂ",
+    "Invoices": "ବିଲ୍ / ଇନଭଏସ୍",
+    "Soil Health Check": "ମୃତ୍ତିକା ସ୍ୱାସ୍ଥ୍ୟ ପରୀକ୍ଷା",
+    "Soil Health": "ମୃତ୍ତିକା ସ୍ୱାସ୍ଥ୍ୟ",
+    "Cold Storage": "କୋଲ୍ଡ ଷ୍ଟୋରେଜ୍",
+    "Crops Inventory": "ଫସଲ ଷ୍ଟକ୍ ତାଲିକା",
+    "Settings": "ସେଟିଂସ୍",
+    "Support & Legal": "ସହାୟତା ଓ ନୀତି",
+    "Contact Us": "ଯୋଗାଯୋଗ କରନ୍ତୁ",
+    "Contact Support & WhatsApp": "ସହାୟତା ଓ ହ୍ୱାଟ୍ସଆପ୍",
+    "Open Platform": "ପ୍ଲାଟଫର୍ମ ଖୋଲନ୍ତୁ",
+    "Enter Platform": "ପ୍ଲାଟଫର୍ମ ପ୍ରବେଶ",
+    "Dashboard": "ଡ୍ୟାସବୋର୍ଡ",
+    "Farmer Dashboard": "କୃଷକ ଡ୍ୟାସବୋର୍ଡ",
+    "Sign in to KrishiConnect": "କୃଷିକନେକ୍ଟରେ ସାଇନ୍ ଇନ୍ କରନ୍ତୁ",
+    "Join KrishiConnect": "କୃଷିକନେକ୍ଟରେ ଯୋଡ଼ି ହୁଅନ୍ତୁ",
+    "Secure Sign In": "ସୁରକ୍ଷିତ ଲଗଇନ୍",
+    "Mobile Number": "ମୋବାଇଲ୍ ନମ୍ବର",
+    "Verification Code": "ଯାଞ୍ଚ କୋଡ୍",
+    "Send Verification OTP": "OTP ପଠାନ୍ତୁ",
+    "Send SMS OTP": "SMS OTP ପଠାନ୍ତୁ",
+    "Verify & Enter Platform": "ଯାଞ୍ଚ କରି ପ୍ରବେଶ କରନ୍ତୁ",
+    "Email Address": "ଇମେଲ୍ ଠିକଣା",
+    "Password": "ପାସୱାର୍ଡ",
+    "Sign in with Email": "ଇମେଲ୍ ଦ୍ୱାରା ଲଗଇନ୍ କରନ୍ତୁ",
+    "1-Click Instant Demo Login:": "୧-କ୍ଲିକ୍ ତତକ୍ଷଣାତ୍ ଡେମୋ:",
+    "Demo Farmer": "ଚାଷୀ ଡେମୋ",
+    "Demo Trader": "ବ୍ୟବସାୟୀ ଡେମୋ",
+    "Don't have an account?": "ଖାତା ନାହିଁ କି?",
+    "New to KrishiConnect?": "ନୂଆ ଖାତା ଖୋଲିବେ କି?",
+    "Create new account": "ନୂଆ ଖାତା ଖୋଲନ୍ତୁ",
+    "Register your farm business": "ନୂତନ ପଞ୍ଜୀକରଣ କରନ୍ତୁ",
+    "Total Revenue": "ମୋଟ ଆୟ",
+    "Active Invoices": "ସକ୍ରିୟ ବିଲ୍",
+    "Recent Transactions": "ସାମ୍ପ୍ରତିକ କାରବାର",
+    "Recent Invoices": "ସାମ୍ପ୍ରତିକ ଇନଭଏସ୍",
+    "Commodity": "ଫସଲ",
+    "Variety": "କିସମ",
+    "Market": "ମଣ୍ଡି",
+    "Min Price": "ସର୍ବନିମ୍ନ ଦର",
+    "Max Price": "ସର୍ବାଧିକ ଦର",
+    "Modal Price": "ମୋଡାଲ୍ ଦର",
+    "Arrival Date": "ଆଗମନ ତାରିଖ",
+    "District": "ଜିଲ୍ଲା",
+    "Action": "କାର୍ଯ୍ୟ",
+    "Actions": "କାର୍ଯ୍ୟ",
+    "Search": "ଖୋଜନ୍ତୁ",
+    "Filter": "ଫିଲ୍ଟର୍",
+    "Download PDF": "PDF ଡାଉନଲୋଡ୍",
+    "TerraNode Hardware": "ଟେରାନୋଡ୍ ହାର୍ଡୱେର୍",
+    "TerraNode Pro": "ଟେରାନୋଡ୍ ପ୍ରୋ",
+    "Log Out": "ଲଗ୍ ଆଉଟ୍",
+    "Logout": "ଲଗ୍ ଆଉଟ୍",
+  },
+  hi: {
+    "Sovereign trade at the farm gate.": "फार्म गेट पर संप्रभु व्यापार।",
+    "Odisha agricultural commerce simplified: verified daily mandi modal prices, calibrated freight routing, and instant digital GST billing for farmers and traders.":
+      "कृषि व्यापार हुआ आसान: दैनिक सत्यापित मंडी मॉडल भाव, सटीक मालभाड़ा और किसानों व व्यापारियों के लिए डिजिटल GST बिलिंग।",
+    "Bhubaneswar APMC Live": "भुवनेश्वर मंडी लाइव",
+    "APMC Live": "मंडी लाइव",
+    "Daily Crop Rates": "दैनिक फसल मंडी भाव",
+    "7-Day Rate Trends": "7 दिवसीय भाव रुझान",
+    "Freight & Routes": "भाड़ा और रूट",
+    "Transportation": "परिवहन सेवा",
+    "Logistics": "लॉजिस्टिक्स",
+    "GST Billing": "GST बिलिंग",
+    "Instant digital invoices": "त्वरित डिजिटल बिल",
+    "Trade Buyers": "फसल खरीदार",
+    "Crop Buyers": "फसल खरीदार",
+    "Buyers": "खरीदार",
+    "Directory & ledger": "डायरेक्टरी व खाता",
+    "Live Odisha APMC": "लाइव मंडी भाव",
+    "Distance & Rates": "दूरी व भाड़ा",
+    "Check Mandi Rates": "मंडी भाव देखें",
+    "Mandi Rates": "मंडी भाव",
+    "Season Planner": "मौसम फसल योजना",
+    "Next Season Planner": "अगले सीजन की योजना",
+    "Weather & Rain": "मौसम व बारिश",
+    "Farm Weather & Map": "मौसम मानचित्र",
+    "Weather": "मौसम",
+    "Invoices & Billing": "चालान व बिलिंग",
+    "Invoices": "चालान / बिल",
+    "Soil Health Check": "मिट्टी स्वास्थ्य जांच",
+    "Soil Health": "मृदा स्वास्थ्य",
+    "Cold Storage": "कोल्ड स्टोरेज",
+    "Crops Inventory": "फसल स्टॉक सूची",
+    "Settings": "सेटिंग्स",
+    "Support & Legal": "सहायता व नीतियां",
+    "Contact Us": "संपर्क करें",
+    "Contact Support & WhatsApp": "सहायता व WhatsApp",
+    "Open Platform": "प्लेटफॉर्म खोलें",
+    "Enter Platform": "प्लेटफॉर्म में प्रवेश करें",
+    "Dashboard": "डैशबोर्ड",
+    "Farmer Dashboard": "किसान डैशबोर्ड",
+    "Sign in to KrishiConnect": "कृषिकनेक्ट में साइन इन करें",
+    "Join KrishiConnect": "कृषिकनेक्ट से जुड़ें",
+    "Secure Sign In": "सुरक्षित लॉगिन",
+    "Mobile Number": "मोबाइल नंबर",
+    "Verification Code": "सत्यापन कोड",
+    "Send Verification OTP": "OTP भेजें",
+    "Send SMS OTP": "SMS OTP भेजें",
+    "Verify & Enter Platform": "सत्यापित कर प्रवेश करें",
+    "Email Address": "ईमेल पता",
+    "Password": "पासवर्ड",
+    "Sign in with Email": "ईमेल से साइन इन करें",
+    "1-Click Instant Demo Login:": "1-क्लिक त्वरित डेमो लॉगिन:",
+    "Demo Farmer": "किसान डेमो",
+    "Demo Trader": "व्यापारी डेमो",
+    "Don't have an account?": "खाता नहीं है?",
+    "New to KrishiConnect?": "नया खाता बनाना चाहते हैं?",
+    "Create new account": "नया खाता बनाएं",
+    "Register your farm business": "नया व्यापार पंजीकृत करें",
+    "Total Revenue": "कुल राजस्व",
+    "Active Invoices": "सक्रिय चालान",
+    "Recent Transactions": "हालिया लेन-देन",
+    "Recent Invoices": "हालिया चालान",
+    "Commodity": "फसल / उपज",
+    "Variety": "किस्म",
+    "Market": "मंडी",
+    "Min Price": "न्यूनतम भाव",
+    "Max Price": "अधिकतम भाव",
+    "Modal Price": "मॉडल भाव",
+    "Arrival Date": "आगमन तिथि",
+    "District": "ज़िला",
+    "Action": "कार्रवाई",
+    "Actions": "कार्रवाई",
+    "Search": "खोजें",
+    "Filter": "फ़िल्टर",
+    "Download PDF": "PDF डाउनलोड",
+    "TerraNode Hardware": "टेरानोड 3D हार्डवेयर",
+    "TerraNode Pro": "टेरानोड प्रो",
+    "Log Out": "लॉग आउट",
+    "Logout": "लॉग आउट",
+  },
+  mr: {
+    "Sovereign trade at the farm gate.": "शेतकऱ्यांच्या बांधावर थेट व पारदर्शक व्यापार.",
+    "Bhubaneswar APMC Live": "कृषी उत्पन्न बाजार समिती थेट",
+    "APMC Live": "बाजार समिती थेट",
+    "Daily Crop Rates": "दैनिक बाजार भाव",
+    "7-Day Rate Trends": "७ दिवसांचे भाव ट्रेंड",
+    "Freight & Routes": "वाहतूक व भाडे",
+    "Transportation": "वाहतूक व्यवस्था",
+    "Logistics": "लॉजिस्टिक्स",
+    "GST Billing": "GST बिलिंग",
+    "Instant digital invoices": "त्वरित डिजिटल बिले",
+    "Trade Buyers": "शेतमाल खरेदीदार",
+    "Crop Buyers": "शेतमाल खरेदीदार",
+    "Buyers": "खरेदीदार",
+    "Check Mandi Rates": "बाजार भाव पहा",
+    "Mandi Rates": "बाजार भाव",
+    "Season Planner": "हंगाम नियोजन",
+    "Weather & Rain": "हवामान व पाऊस",
+    "Invoices & Billing": "बिले व बिलिंग",
+    "Soil Health Check": "मृदा आरोग्य तपासणी",
+    "Cold Storage": "कोल्ड स्टोरेज (शीतगृह)",
+    "Crops Inventory": "शेतमाल साठा",
+    "Settings": "सेटिंग्ज",
+    "Open Platform": "प्लॅटफॉर्म उघडा",
+    "Enter Platform": "प्रवेश करा",
+    "Dashboard": "डॅशबोर्ड",
+    "Farmer Dashboard": "शेतकरी डॅशबोर्ड",
+    "Sign in to KrishiConnect": "कृषीकनेक्ट मध्ये साइन इन करा",
+    "Total Revenue": "एकूण उत्पन्न",
+    "Active Invoices": "सक्रिय बिले",
+    "Recent Transactions": "अलीकडील व्यवहार",
+    "Commodity": "शेतमाल",
+    "Variety": "प्रकार",
+    "Market": "बाजार",
+    "Min Price": "किमान भाव",
+    "Max Price": "कमाल भाव",
+    "Modal Price": "सरासरी भाव",
+    "Arrival Date": "आवक दिनांक",
+    "Search": "शोधा",
+    "Filter": "फिल्टर",
+    "Log Out": "लॉग आउट",
+  },
+  pa: {
+    "Sovereign trade at the farm gate.": "ਫਾਰਮ ਗੇਟ 'ਤੇ ਕਿਸਾਨਾਂ ਦਾ ਸੁਤੰਤਰ ਵਪਾਰ।",
+    "Bhubaneswar APMC Live": "ਮੰਡੀ ਲਾਈਵ",
+    "Daily Crop Rates": "ਰੋਜ਼ਾਨਾ ਮੰਡੀ ਭਾਅ",
+    "7-Day Rate Trends": "7 ਦਿਨਾਂ ਦੇ ਭਾਅ ਰੁਝਾਨ",
+    "Transportation": "ਟਰਾਂਸਪੋਰਟ ਸੇਵਾ",
+    "Logistics": "ਢੋਆ-ਢੁਆਈ",
+    "GST Billing": "GST ਬਿਲਿੰਗ",
+    "Trade Buyers": "ਫਸਲ ਖਰੀਦਦਾਰ",
+    "Crop Buyers": "ਫਸਲ ਖਰੀਦਦਾਰ",
+    "Check Mandi Rates": "ਮੰਡੀ ਭਾਅ ਦੇਖੋ",
+    "Mandi Rates": "ਮੰਡੀ ਭਾਅ",
+    "Season Planner": "ਸੀਜ਼ਨ ਪਲਾਨਰ",
+    "Weather & Rain": "ਮੌਸਮ ਅਤੇ ਮੀਂਹ",
+    "Invoices": "ਬਿੱਲ / ਚਲਾਨ",
+    "Soil Health Check": "ਮਿੱਟੀ ਦੀ ਪਰਖ",
+    "Cold Storage": "ਕੋਲਡ ਸਟੋਰੇਜ",
+    "Open Platform": "ਪਲੇਟਫਾਰਮ ਖੋਲ੍ਹੋ",
+    "Dashboard": "ਕਿਸਾਨ ਡੈਸ਼ਬੋਰਡ",
+    "Total Revenue": "ਕੁੱਲ ਕਮਾਈ",
+    "Commodity": "ਫਸਲ",
+    "Variety": "ਕਿਸਮ",
+    "Modal Price": "ਮਾਡਲ ਭਾਅ",
+    "Log Out": "ਲੌਗ ਆਉਟ",
+  },
+  gu: {
+    "Sovereign trade at the farm gate.": "ખેતરે બેઠા વેપારની સંપૂર્ણ સ્વતંત્રતા.",
+    "Daily Crop Rates": "દૈનિક પાક બજાર ભાવ",
+    "7-Day Rate Trends": "૭ દિવસના ભાવ વલણો",
+    "Transportation": "વાહન વ્યવહાર",
+    "Check Mandi Rates": "મંડી ભાવ જુઓ",
+    "Mandi Rates": "મંડી ભાવ",
+    "Dashboard": "ખેડૂત ડેશબોર્ડ",
+    "Soil Health Check": "જમીન ચકાસણી",
+    "Open Platform": "પ્લેટફોર્મ ખોલો",
+    "Commodity": "પાક",
+    "Modal Price": "મોડલ ભાવ",
+    "Log Out": "લૉગ આઉટ",
+  },
+  kn: {
+    "Sovereign trade at the farm gate.": "ರೈತರ ಜಮೀನಿನಲ್ಲೇ ಸ್ವತಂತ್ರ ಕೃಷಿ ವ್ಯಾಪಾರ.",
+    "Daily Crop Rates": "ದೈನಂದಿನ ಬೆಳೆ ಮಾರುಕಟ್ಟೆ ದರ",
+    "Mandi Rates": "ಮಾರುಕಟ್ಟೆ ದರಗಳು",
+    "Dashboard": "ರೈತ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    "Soil Health Check": "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ತಪಾಸಣೆ",
+    "Open Platform": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ತೆರೆಯಿರಿ",
+    "Commodity": "ಬೆಳೆ",
+    "Modal Price": "ಮಾದರಿ ದರ",
+    "Log Out": "ಲಾಗ್ ಔಟ್",
+  },
+  ta: {
+    "Sovereign trade at the farm gate.": "விவசாயிகளின் பண்ணையிலேயே நேரடி வர்த்தகம்.",
+    "Daily Crop Rates": "தினசரி பயிர் சந்தை விலை",
+    "Mandi Rates": "சந்தை விலைகள்",
+    "Dashboard": "விவசாயி டாஷ்போர்டு",
+    "Soil Health Check": "மண் பரிசோதனை",
+    "Open Platform": "தளத்தைத் திறக்கவும்",
+    "Commodity": "பயிர்",
+    "Modal Price": "சராசரி விலை",
+    "Log Out": "வெளியேறு",
+  },
+  te: {
+    "Sovereign trade at the farm gate.": "రైతు ముంగిట స్వతంత్ర వ్యవసాయ వాణిజ్యం.",
+    "Daily Crop Rates": "రోజువారీ పంట మార్కెట్ ధరలు",
+    "Mandi Rates": "మార్కెట్ ధరలు",
+    "Dashboard": "రైతు డాష్‌బోర్డ్",
+    "Soil Health Check": "నేల ఆరోగ్య పరీక్ష",
+    "Open Platform": "ప్లాట్‌ఫారమ్‌ను తెరవండి",
+    "Commodity": "పంట",
+    "Modal Price": "మోడల్ ధర",
+    "Log Out": "లాగ్ అవుట్",
+  },
+  bn: {
+    "Sovereign trade at the farm gate.": "খামারের দরজায় স্বাধীন কৃষি বাণিজ্য।",
+    "Daily Crop Rates": "দৈনিক ফসলের মান্ডি দর",
+    "Mandi Rates": "মান্ডি দর",
+    "Dashboard": "কৃষক ড্যাশবোর্ড",
+    "Soil Health Check": "মাটি স্বাস্থ্য পরীক্ষা",
+    "Open Platform": "প্ল্যাটফর্ম খুলুন",
+    "Commodity": "ফসল",
+    "Modal Price": "মডেল দর",
+    "Log Out": "লগ আউট",
+  },
+  ml: {
+    "Sovereign trade at the farm gate.": "കർഷകന്റെ കൃഷിയിടത്തിൽ തന്നെ സ്വതന്ത്ര വ്യാപാരം.",
+    "Daily Crop Rates": "ദിവസേനയുള്ള വിപണി നിരക്കുകൾ",
+    "Mandi Rates": "വിപണി നിരക്കുകൾ",
+    "Dashboard": "കർഷക ഡാഷ്‌ബോർഡ്",
+    "Soil Health Check": "മണ്ണ് പരിശോധന",
+    "Open Platform": "പ്ലാറ്റ്‌ഫോം തുറക്കുക",
+    "Commodity": "വിള",
+    "Modal Price": "മോഡൽ നിരക്ക്",
+    "Log Out": "ലോഗ് ഔട്ട്",
+  },
+};
 
-  const host = window.location.hostname;
+/**
+ * Native, zero-dependency client-side DOM translation.
+ * Translates visible phrases in the DOM in real-time with zero external scripts,
+ * zero network requests, and zero ugly banners!
+ */
+export function applyNativeSiteTranslation(targetLang: LanguageCode) {
+  if (typeof window === "undefined" || !document.body) return;
 
-  // 1. Configure the googtrans cookie for domain & root paths
-  if (langCode === "en") {
-    // Revert to natural English
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  // 1. Immediately clean up and destroy any rogue Google Translate artifacts/iframes
+  try {
+    const rogue = document.querySelectorAll(
+      'iframe[class*="goog"], iframe[name*="goog"], .goog-te-banner-frame, #google_translate_element, .skiptranslate, #goog-gt-tt, .goog-te-balloon-frame'
+    );
+    rogue.forEach((el) => el.remove());
+    document.body.style.top = "0px";
+    document.body.classList.remove("translated-ltr", "translated-rtl");
+
+    // Clear legacy googtrans cookies
+    const host = window.location.hostname;
+    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${host}; path=/;`;
     if (host !== "localhost" && !host.startsWith("127.")) {
       document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${host}; path=/;`;
     }
-  } else {
-    const cookieVal = `/auto/${langCode}`;
-    document.cookie = `googtrans=${cookieVal}; path=/;`;
-    document.cookie = `googtrans=${cookieVal}; domain=${host}; path=/;`;
-    if (host !== "localhost" && !host.startsWith("127.")) {
-      document.cookie = `googtrans=${cookieVal}; domain=.${host}; path=/;`;
-    }
-  }
+  } catch (e) {}
 
-  // 2. Programmatically trigger the Google Translate combo element
-  const triggerCombo = () => {
-    const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
-    if (select) {
-      if (select.value !== langCode) {
-        select.value = langCode;
-        select.dispatchEvent(new Event("change"));
-      }
-      return true;
-    }
-    return false;
-  };
+  // 2. Prepare dictionary replacements
+  const dict = PHRASE_DICTIONARY[targetLang] || {};
+  const phrases = Object.keys(dict).sort((a, b) => b.length - a.length);
 
-  if (!triggerCombo()) {
-    let attempts = 0;
-    const interval = setInterval(() => {
-      attempts++;
-      if (triggerCombo() || attempts > 15) {
-        clearInterval(interval);
+  // 3. Walk all text nodes in the DOM
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        const tag = parent.tagName.toLowerCase();
+        if (
+          tag === "script" ||
+          tag === "style" ||
+          tag === "code" ||
+          tag === "pre" ||
+          tag === "textarea" ||
+          tag === "input" ||
+          parent.isContentEditable
+        ) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    }
+  );
+
+  let currentNode: Node | null = walker.nextNode();
+  while (currentNode) {
+    // Record original text on first visit
+    if (!originalTextMap.has(currentNode)) {
+      originalTextMap.set(currentNode, currentNode.nodeValue || "");
+    }
+
+    const original = originalTextMap.get(currentNode) || "";
+
+    if (targetLang === "en") {
+      // Revert cleanly to original English text
+      if (currentNode.nodeValue !== original) {
+        currentNode.nodeValue = original;
       }
-    }, 150);
+    } else if (phrases.length > 0) {
+      // Replace known phrases
+      let replaced = original;
+      for (const phrase of phrases) {
+        if (replaced.includes(phrase)) {
+          replaced = replaced.split(phrase).join(dict[phrase]);
+        }
+      }
+      if (currentNode.nodeValue !== replaced) {
+        currentNode.nodeValue = replaced;
+      }
+    }
+
+    currentNode = walker.nextNode();
   }
 }
 
@@ -913,7 +1256,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<LanguageCode>("or");
   const pathname = usePathname();
 
-  // Load from localStorage on mount & initialize DOM translation
+  // Load from localStorage on mount & initialize Native DOM translation
   useEffect(() => {
     try {
       const savedRegion = localStorage.getItem(STORAGE_KEY_REGION) as RegionId | null;
@@ -935,21 +1278,52 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
 
       setLanguageState(initialLang);
-      applyGlobalDomTranslation(initialLang);
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = initialLang;
+      }
+
+      // Small delay to let initial React tree mount
+      setTimeout(() => {
+        applyNativeSiteTranslation(initialLang);
+      }, 50);
     } catch (e) {
       console.warn("Could not read language preferences from localStorage", e);
     }
   }, []);
 
-  // Re-verify translation on route change in SPA
+  // Re-apply native translation on route change in SPA
   useEffect(() => {
-    if (language && language !== "en") {
+    if (language) {
       const timer = setTimeout(() => {
-        applyGlobalDomTranslation(language);
-      }, 150);
+        applyNativeSiteTranslation(language);
+      }, 80);
       return () => clearTimeout(timer);
     }
   }, [pathname, language]);
+
+  // Set up a lightweight MutationObserver to translate dynamically rendered elements
+  useEffect(() => {
+    if (typeof window === "undefined" || !document.body || language === "en") return;
+
+    let debounceTimer: any = null;
+    const observer = new MutationObserver(() => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        applyNativeSiteTranslation(language);
+      }, 120);
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: false,
+    });
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(debounceTimer);
+    };
+  }, [language]);
 
   const setRegion = (newRegion: RegionId) => {
     if (!REGIONS[newRegion]) return;
@@ -959,7 +1333,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch (e) {}
 
     const regionDef = REGIONS[newRegion];
-    // If current language is not supported by the new region, switch to its default
     if (!regionDef.supportedLangs.includes(language)) {
       setLanguage(regionDef.defaultLang);
     }
@@ -974,7 +1347,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     } catch (e) {}
 
-    applyGlobalDomTranslation(newLang);
+    applyNativeSiteTranslation(newLang);
   };
 
   const currentRegionDef = REGIONS[region] || REGIONS.odisha;
