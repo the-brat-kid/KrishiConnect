@@ -27,8 +27,18 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR",
             "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
             "CREATE INDEX IF NOT EXISTS ix_users_phone ON users (phone)",
+            "CREATE INDEX IF NOT EXISTS ix_business_profiles_user_id ON business_profiles (user_id)",
             "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_user_id ON cold_storage_bookings (user_id)",
             "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_facility_id ON cold_storage_bookings (facility_id)",
+            "CREATE INDEX IF NOT EXISTS ix_invoices_bp_status ON invoices (business_profile_id, status)",
+            "CREATE INDEX IF NOT EXISTS ix_invoices_bp_created ON invoices (business_profile_id, created_at DESC)",
+            "CREATE INDEX IF NOT EXISTS ix_invoice_items_invoice_id ON invoice_items (invoice_id)",
+            "CREATE INDEX IF NOT EXISTS ix_customers_bp_id ON customers (business_profile_id)",
+            "CREATE INDEX IF NOT EXISTS ix_products_bp_id ON products (business_profile_id)",
+            "CREATE INDEX IF NOT EXISTS ix_expenses_bp_date ON expenses (business_profile_id, date DESC)",
+            "CREATE INDEX IF NOT EXISTS ix_payments_invoice_status ON payments (invoice_id, status)",
+            "CREATE INDEX IF NOT EXISTS ix_payments_bp_status ON payments (business_profile_id, status)",
+            "CREATE INDEX IF NOT EXISTS ix_payments_bp_created ON payments (business_profile_id, created_at DESC)",
         ]:
             try:
                 await conn.execute(text(ddl))

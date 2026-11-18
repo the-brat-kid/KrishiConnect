@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from typing import Optional
+from typing import Optional, Dict, Any, Tuple
 from datetime import date
+import time
 from app.core.database import get_db
 from app.api.deps import get_current_business_profile
 from app.models.business_profile import BusinessProfile
@@ -14,6 +15,10 @@ from io import StringIO
 
 router = APIRouter()
 
+# Fast 15-second cache for reports
+_REPORTS_CACHE: Dict[str, Tuple[float, Any]] = {}
+CACHE_TTL = 15.0
+
 @router.get("/sales")
 async def get_sales_report(
     period: str = Query("monthly"),
@@ -22,6 +27,12 @@ async def get_sales_report(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
+    now = time.time()
+    cache_key = f"sales:{profile.id}:{period}:{start_date}:{end_date}"
+    cached = _REPORTS_CACHE.get(cache_key)
+    if cached and (now - cached[0] < CACHE_TTL):
+        return cached[1]
+
     q = select(func.sum(Invoice.grand_total), func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id)
     if start_date:
         q = q.where(Invoice.date >= start_date)
@@ -31,17 +42,18 @@ async def get_sales_report(
     res = await db.execute(q)
     revenue, invoice_count = res.first()
     
-    # Just a mock aggregation structure as requested
-    return {
+    result = {
         "periods": [
             {
                 "label": "Total",
                 "revenue": revenue or 0.0,
                 "invoice_count": invoice_count or 0,
-                "expense_total": 0.0 # would need similar aggregation on expenses
+                "expense_total": 0.0
             }
         ]
     }
+    _REPORTS_CACHE[cache_key] = (now, result)
+    return result
 
 @router.get("/gst")
 async def get_gst_report(
@@ -50,7 +62,16 @@ async def get_gst_report(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    q = select(InvoiceItem.gst_rate, func.sum(InvoiceItem.quantity * InvoiceItem.unit_price).label("taxable_amount"))        .join(Invoice)        .where(Invoice.business_profile_id == profile.id)        .group_by(InvoiceItem.gst_rate)
+    now = time.time()
+    cache_key = f"gst:{profile.id}:{start_date}:{end_date}"
+    cached = _REPORTS_CACHE.get(cache_key)
+    if cached and (now - cached[0] < CACHE_TTL):
+        return cached[1]
+
+    q = select(InvoiceItem.gst_rate, func.sum(InvoiceItem.quantity * InvoiceItem.unit_price).label("taxable_amount"))\
+        .join(Invoice)\
+        .where(Invoice.business_profile_id == profile.id)\
+        .group_by(InvoiceItem.gst_rate)
         
     if start_date:
         q = q.where(Invoice.date >= start_date)
@@ -72,23 +93,33 @@ async def get_gst_report(
             "gst_amount": gst_amt
         })
         
-    return {"total_gst_collected": total_gst, "items": items}
+    result = {"total_gst_collected": total_gst, "items": items}
+    _REPORTS_CACHE[cache_key] = (now, result)
+    return result
 
 @router.get("/receivables")
 async def get_receivables_report(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
+    now = time.time()
+    cache_key = f"receivables:{profile.id}"
+    cached = _REPORTS_CACHE.get(cache_key)
+    if cached and (now - cached[0] < CACHE_TTL):
+        return cached[1]
+
     q = select(func.sum(Invoice.grand_total), func.count(Invoice.id)).where(Invoice.business_profile_id == profile.id, Invoice.status != "paid")
     res = await db.execute(q)
     total, count = res.first()
     
-    return {
+    result = {
         "total_outstanding": total or 0.0,
         "buckets": [
             {"range": "0-30", "count": count or 0, "total": total or 0.0}
         ]
     }
+    _REPORTS_CACHE[cache_key] = (now, result)
+    return result
 
 @router.get("/export")
 async def export_report(

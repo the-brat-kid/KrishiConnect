@@ -12,8 +12,12 @@ if "asyncpg" in settings.SQLALCHEMY_DATABASE_URI:
             # Disabling JIT compilation provides major speedup (eliminates 50-100ms compilation overhead per query)
             "jit": "off",
             "application_name": "krishiconnect_fastapi",
+            "work_mem": "16MB",
+            "synchronous_commit": "off",
         },
         "command_timeout": 15,
+        "statement_cache_size": 1024,
+        "max_cached_statement_lifetime": 600,
     }
 
 engine = create_async_engine(
@@ -21,9 +25,9 @@ engine = create_async_engine(
     echo=False,
     pool_pre_ping=True,      # Tests connection liveness before checkout to prevent stale disconnects
     pool_recycle=1800,       # Recycles connections every 30 minutes to reduce handshake overhead
-    pool_size=20,            # Higher baseline connection pool to eliminate query queuing
-    max_overflow=40,         # Allows burst up to 60 concurrent database connections
-    pool_timeout=15,         # Fail fast if pool is saturated instead of blocking indefinitely
+    pool_size=25,            # Higher baseline connection pool to eliminate query queuing
+    max_overflow=50,         # Allows burst up to 75 concurrent database connections
+    pool_timeout=10,         # Fail fast if pool is saturated instead of blocking indefinitely
     connect_args=connect_args,
 )
 

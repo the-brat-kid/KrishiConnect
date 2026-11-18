@@ -1,64 +1,70 @@
 import asyncio
+import time
+from typing import Dict, Any, Tuple
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc, case
+from sqlalchemy import select, desc, text
 from app.core.database import get_db
 from app.api.deps import get_current_business_profile
 from app.models.business_profile import BusinessProfile
-from app.models.invoice import Invoice, InvoiceStatus
+from app.models.invoice import Invoice
 from app.models.customer import Customer
-from app.models.product import Product
-from app.models.payment import Payment
 
 router = APIRouter()
+
+# Fast in-memory cache with 10-second TTL to avoid database hammering
+_STATS_CACHE: Dict[str, Tuple[float, Dict[str, Any]]] = {}
+_TX_CACHE: Dict[str, Tuple[float, list]] = {}
+CACHE_TTL = 10.0  # seconds
 
 @router.get("/stats")
 async def get_dashboard_stats(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    # High-Performance Aggregated Query: Combines 5 invoice queries into a single SQL pass
-    inv_stats_q = select(
-        func.count(Invoice.id).label("total_invoices"),
-        func.coalesce(
-            func.sum(
-                case((Invoice.status == InvoiceStatus.paid.value, Invoice.grand_total), else_=0.0)
-            ),
-            0.0
-        ).label("total_revenue"),
-        func.count(case((Invoice.status == InvoiceStatus.paid.value, 1))).label("paid_invoices"),
-        func.count(case((Invoice.status == InvoiceStatus.unpaid.value, 1))).label("unpaid_invoices"),
-        func.count(case((Invoice.status == InvoiceStatus.overdue.value, 1))).label("overdue_invoices"),
-    ).where(Invoice.business_profile_id == profile.id)
+    now = time.time()
+    cached = _STATS_CACHE.get(profile.id)
+    if cached and (now - cached[0] < CACHE_TTL):
+        return cached[1]
 
-    cust_q = select(func.count(Customer.id)).where(Customer.business_profile_id == profile.id)
-    prod_q = select(func.count(Product.id)).where(Product.business_profile_id == profile.id)
+    # Ultra-Fast Single-Pass Combined SQL: Combines 7 aggregation queries into 1 roundtrip
+    sql = text("""
+        SELECT 
+            (SELECT COUNT(*) FROM invoices WHERE business_profile_id = :pid) as total_invoices,
+            (SELECT COALESCE(SUM(grand_total), 0.0) FROM invoices WHERE business_profile_id = :pid AND status = 'paid') as total_revenue,
+            (SELECT COUNT(*) FROM invoices WHERE business_profile_id = :pid AND status = 'paid') as paid_invoices,
+            (SELECT COUNT(*) FROM invoices WHERE business_profile_id = :pid AND status = 'unpaid') as unpaid_invoices,
+            (SELECT COUNT(*) FROM invoices WHERE business_profile_id = :pid AND status = 'overdue') as overdue_invoices,
+            (SELECT COUNT(*) FROM customers WHERE business_profile_id = :pid) as total_customers,
+            (SELECT COUNT(*) FROM products WHERE business_profile_id = :pid) as total_products
+    """)
 
-    # Execute queries efficiently on the async session
-    inv_res = await db.execute(inv_stats_q)
-    cust_res = await db.execute(cust_q)
-    prod_res = await db.execute(prod_q)
+    res = await db.execute(sql, {"pid": profile.id})
+    row = res.one()
 
-    inv_row = inv_res.one()
-    total_customers = cust_res.scalar() or 0
-    total_products = prod_res.scalar() or 0
-
-    return {
-        "total_revenue": float(inv_row.total_revenue or 0.0),
-        "total_invoices": int(inv_row.total_invoices or 0),
-        "total_customers": total_customers,
-        "total_products": total_products,
-        "paid_invoices": int(inv_row.paid_invoices or 0),
-        "unpaid_invoices": int(inv_row.unpaid_invoices or 0),
-        "overdue_invoices": int(inv_row.overdue_invoices or 0)
+    result = {
+        "total_revenue": float(row.total_revenue or 0.0),
+        "total_invoices": int(row.total_invoices or 0),
+        "total_customers": int(row.total_customers or 0),
+        "total_products": int(row.total_products or 0),
+        "paid_invoices": int(row.paid_invoices or 0),
+        "unpaid_invoices": int(row.unpaid_invoices or 0),
+        "overdue_invoices": int(row.overdue_invoices or 0)
     }
+
+    _STATS_CACHE[profile.id] = (now, result)
+    return result
 
 @router.get("/recent-transactions")
 async def get_recent_transactions(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    # We'll use recent invoices for this, joining with customer
+    now = time.time()
+    cached = _TX_CACHE.get(profile.id)
+    if cached and (now - cached[0] < CACHE_TTL):
+        return cached[1]
+
     res = await db.execute(
         select(Invoice, Customer.name)
         .join(Customer, Invoice.customer_id == Customer.id)
@@ -77,4 +83,6 @@ async def get_recent_transactions(
             "status": inv.status,
             "date": inv.date
         })
+
+    _TX_CACHE[profile.id] = (now, transactions)
     return transactions

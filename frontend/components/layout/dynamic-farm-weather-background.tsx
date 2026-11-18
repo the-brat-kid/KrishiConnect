@@ -71,19 +71,14 @@ export function DynamicFarmWeatherBackground({
     }
   }, []);
 
-  // Subtle interactive 3D mouse parallax (throttled by requestAnimationFrame, 0 React re-renders)
+  // Subtle interactive 3D mouse parallax (throttled by requestAnimationFrame, pauses when idle)
   useEffect(() => {
     let animationFrameId: number;
     let targetX = 0;
     let targetY = 0;
     let currentX = 0;
     let currentY = 0;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      // Normalize to range [-1, 1]
-      targetX = (e.clientX / window.innerWidth - 0.5) * 2;
-      targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-    };
+    let isRunning = false;
 
     const updateParallax = () => {
       // Smooth lerp easing
@@ -96,10 +91,27 @@ export function DynamicFarmWeatherBackground({
         parallaxRef.current.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
       }
 
-      animationFrameId = requestAnimationFrame(updateParallax);
+      // Idle detection: automatically stops the loop when mouse stops, freeing up main thread
+      const diffX = Math.abs(targetX - currentX);
+      const diffY = Math.abs(targetY - currentY);
+      if (diffX > 0.002 || diffY > 0.002) {
+        animationFrameId = requestAnimationFrame(updateParallax);
+      } else {
+        isRunning = false;
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+      if (!isRunning) {
+        isRunning = true;
+        animationFrameId = requestAnimationFrame(updateParallax);
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    isRunning = true;
     animationFrameId = requestAnimationFrame(updateParallax);
 
     return () => {

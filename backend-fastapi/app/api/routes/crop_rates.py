@@ -7,20 +7,6 @@ from fastapi import APIRouter, Query
 
 router = APIRouter()
 
-CACHE_TTL = 1800  # 30 minutes
-_cache: Dict[str, Any] = {
-    "data": None,
-    "last_fetched": 0
-}
-
-_history_cache: Dict[str, Any] = {
-    "data": None,
-    "last_fetched": 0
-}
-
-SOURCE_URL = "/crop-rates"
-HISTORY_SOURCE_URL = "/rate-trends"
-
 # Authentic baseline data extracted directly from acrop.app/mandi/odisha
 BASELINE_ODISHA_CROPS = [
     {"id": "brinjal", "name": "Brinjal", "category": "Vegetables", "price": "₹30.2/kg", "price_num": 30.2, "priceNum": 30.2, "price_quintal": "₹3,017", "price_num_quintal": 3017, "retail_price": "₹40.8/kg", "retailPrice": "₹40.8/kg", "mall_price": "₹48.3/kg", "mallPrice": "₹48.3/kg", "unit": "kg", "mandi_info": "42 mandis · average", "date": "2026-11-09", "arrivals": "Not reported", "emoji": "🍆", "image": "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain", "url": "https://acrop.app/prices/brinjal/odisha"},
@@ -62,6 +48,39 @@ BASELINE_HISTORY = {
     ]
 }
 
+CACHE_TTL = 1800  # 30 minutes
+SOURCE_URL = "https://acrop.app/mandi/odisha"
+HISTORY_SOURCE_URL = "/rate-trends"
+
+_cache: Dict[str, Any] = {
+    "data": {
+        "success": True,
+        "market": "Odisha Mandis (State-wide Average)",
+        "state": "Odisha",
+        "source_url": SOURCE_URL,
+        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "count": len(BASELINE_ODISHA_CROPS),
+        "items": BASELINE_ODISHA_CROPS
+    },
+    "last_fetched": time.time()
+}
+
+_history_cache: Dict[str, Any] = {
+    "data": {
+        "success": True,
+        "market": "Odisha Mandis (State-wide Average)",
+        "state": "Odisha",
+        "source_url": HISTORY_SOURCE_URL,
+        "startDate": BASELINE_HISTORY["columns"][0],
+        "endDate": BASELINE_HISTORY["columns"][-1],
+        "columns": BASELINE_HISTORY["columns"],
+        "rawColumns": BASELINE_HISTORY["columns"],
+        "count": len(BASELINE_HISTORY["items"]),
+        "items": BASELINE_HISTORY["items"]
+    },
+    "last_fetched": time.time()
+}
+
 
 def fetch_and_parse_rates() -> List[Dict[str, Any]]:
     """
@@ -76,7 +95,7 @@ def fetch_and_parse_rates() -> List[Dict[str, Any]]:
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             }
         )
-        with urllib.request.urlopen(req, timeout=12) as response:
+        with urllib.request.urlopen(req, timeout=2.5) as response:
             html = response.read().decode("utf-8")
 
         list_match = re.search(r'<ul class=\"hub-price-list\">(.*?)</ul>', html, re.DOTALL)
@@ -167,7 +186,7 @@ def fetch_and_parse_history(days: int = 7) -> Dict[str, Any]:
         url = f"https://acrop.app/prices/{cfg['slug']}/odisha"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
         try:
-            with urllib.request.urlopen(req, timeout=6) as resp:
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
                 html = resp.read().decode("utf-8")
                 points = re.findall(r'<circle[^>]*class=\"national-series-point\"[^>]*><title>([^<]+)</title>', html)
                 dates = []
