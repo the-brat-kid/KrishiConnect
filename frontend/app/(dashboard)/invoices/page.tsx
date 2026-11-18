@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useInvoices, useDeleteInvoice, useSendInvoiceEmail } from "@/hooks/use-invoices";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/core/animated-number";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Plus,
   Mail,
@@ -32,6 +33,7 @@ export default function InvoicesPage() {
   const { data: invoices, isLoading } = useInvoices();
   const { mutateAsync: deleteInvoice } = useDeleteInvoice();
   const { mutateAsync: sendInvoiceEmail } = useSendInvoiceEmail();
+  const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
@@ -43,8 +45,16 @@ export default function InvoicesPage() {
     try {
       setDeletingId(id);
       await deleteInvoice(id);
+      toast({
+        title: "Invoice Deleted",
+        description: `Invoice #${invoiceNumber} has been removed.`,
+      });
     } catch (err: any) {
-      alert("Failed to delete invoice: " + (err?.response?.data?.detail || err.message));
+      toast({
+        title: "Failed to Delete Invoice",
+        description: err?.response?.data?.detail || err.message,
+        variant: "destructive",
+      });
     } finally {
       setDeletingId(null);
     }
@@ -54,7 +64,10 @@ export default function InvoicesPage() {
     if (typeof window !== "undefined") {
       const url = `${window.location.origin}/pay/${invoiceId}`;
       navigator.clipboard.writeText(url);
-      alert("Customer payment link copied to clipboard: " + url);
+      toast({
+        title: "Link Copied",
+        description: "Customer payment link copied to clipboard.",
+      });
     }
   };
 
@@ -65,11 +78,18 @@ export default function InvoicesPage() {
     try {
       setSendingEmailId(invoiceId);
       const res = await sendInvoiceEmail({ id: invoiceId, email: customerEmail.trim() });
-      alert(res?.message || `Invoice #${invoiceNumber} and PDF attachment sent successfully!`);
+      toast({
+        title: "Invoice PDF Dispatched",
+        description: res?.message || `Invoice #${invoiceNumber} with attached PDF sent to ${customerEmail.trim()}`,
+      });
     } catch (error: any) {
       console.error("Email error:", error);
       const errMsg = error?.response?.data?.detail || error?.message || "Failed to send email.";
-      alert(`Email sending failed: ${errMsg}`);
+      toast({
+        title: "Email Dispatch Notice",
+        description: errMsg,
+        variant: "destructive",
+      });
     } finally {
       setSendingEmailId(null);
     }

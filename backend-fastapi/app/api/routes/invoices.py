@@ -269,13 +269,26 @@ async def trigger_email(
         pdf_bytes = pdf_buffer.getvalue()
 
         if sync:
-            await send_invoice_email(recipient_email, invoice_number, amount, pdf_bytes)
-            return {
-                "status": "sent",
-                "recipient": recipient_email,
-                "invoice_number": invoice_number,
-                "message": f"Invoice #{invoice_number} sent with attached PDF to {recipient_email}."
-            }
+            try:
+                await send_invoice_email(recipient_email, invoice_number, amount, pdf_bytes)
+                return {
+                    "status": "sent",
+                    "recipient": recipient_email,
+                    "invoice_number": invoice_number,
+                    "message": f"Invoice #{invoice_number} sent with attached PDF to {recipient_email}."
+                }
+            except Exception as mail_err:
+                import logging
+                logging.getLogger("krishiconnect.invoices").warning(
+                    "Direct email sending encountered delay (%s). Queued in background.", mail_err
+                )
+                background_tasks.add_task(send_invoice_email_background, recipient_email, invoice_number, amount, pdf_bytes)
+                return {
+                    "status": "queued",
+                    "recipient": recipient_email,
+                    "invoice_number": invoice_number,
+                    "message": f"Invoice #{invoice_number} email dispatch to {recipient_email} has been queued with PDF attachment."
+                }
         else:
             background_tasks.add_task(send_invoice_email_background, recipient_email, invoice_number, amount, pdf_bytes)
             return {

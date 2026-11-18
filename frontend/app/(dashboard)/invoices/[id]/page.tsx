@@ -6,6 +6,7 @@ import { useInvoice, useUpdateInvoiceStatus, useDeleteInvoice, useSendInvoiceEma
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { useCustomers } from "@/hooks/use-customers";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { PaymentQR } from "@/components/invoices/payment-qr";
 import { InvoiceSheet } from "@/components/invoices/invoice-sheet";
 import { formatCurrency } from "@/lib/utils";
@@ -38,6 +39,7 @@ export default function InvoiceDetailPage() {
   const { mutateAsync: updateStatus } = useUpdateInvoiceStatus();
   const { mutateAsync: deleteInvoice } = useDeleteInvoice();
   const { mutateAsync: sendInvoiceEmail } = useSendInvoiceEmail();
+  const { toast } = useToast();
 
   const [isClient, setIsClient] = useState(false);
   const [showUpiQR, setShowUpiQR] = useState(false);
@@ -48,7 +50,7 @@ export default function InvoiceDetailPage() {
 
   const handleSendEmail = async () => {
     if (!invoice) return;
-    const defaultEmail = customer?.email || "";
+    const defaultEmail = customers?.find((c) => c.id === invoice.customer_id)?.email || "";
     const targetEmail = window.prompt(
       `Send Invoice #${invoice.invoice_number} with PDF attachment to:`,
       defaultEmail
@@ -58,10 +60,19 @@ export default function InvoiceDetailPage() {
     try {
       setIsSendingEmail(true);
       const res = await sendInvoiceEmail({ id: invoice.id, email: targetEmail.trim() });
-      setVerificationMessage(res?.message || `Invoice PDF successfully emailed to ${targetEmail.trim()}`);
+      const msg = res?.message || `Invoice PDF successfully emailed to ${targetEmail.trim()}`;
+      setVerificationMessage(msg);
+      toast({
+        title: "Invoice PDF Dispatched",
+        description: msg,
+      });
     } catch (err: any) {
       const msg = err?.response?.data?.detail || err?.message || "Failed to send email";
-      alert(`Error sending email: ${msg}`);
+      toast({
+        title: "Email Dispatch Notice",
+        description: msg,
+        variant: "destructive",
+      });
     } finally {
       setIsSendingEmail(false);
     }
@@ -75,9 +86,17 @@ export default function InvoiceDetailPage() {
     try {
       setIsDeleting(true);
       await deleteInvoice(invoice.id);
+      toast({
+        title: "Invoice Deleted",
+        description: `Invoice #${invoice.invoice_number} has been removed.`,
+      });
       router.push("/invoices");
     } catch (err: any) {
-      alert("Failed to delete invoice: " + (err?.response?.data?.detail || err.message));
+      toast({
+        title: "Failed to Delete",
+        description: err?.response?.data?.detail || err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsDeleting(false);
     }

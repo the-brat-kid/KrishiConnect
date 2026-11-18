@@ -67,6 +67,12 @@ services:
       - POSTGRES_PORT=5432
       - MONGODB_URL=mongodb://krishiconnect:krishiconnect_secret@mongodb:27017/krishiconnect?authSource=admin
       - REDIS_URL=redis://redis:6379/0
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_FROM=${MAIL_FROM:-}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/']
       interval: 15s
@@ -92,6 +98,12 @@ services:
       - MONGO_URI=mongodb://krishiconnect:krishiconnect_secret@mongodb:27017/krishiconnect?authSource=admin
       - MONGODB_URL=mongodb://krishiconnect:krishiconnect_secret@mongodb:27017/krishiconnect?authSource=admin
       - REDIS_URL=redis://redis:6379/0
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_FROM=${MAIL_FROM:-}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
       interval: 15s
