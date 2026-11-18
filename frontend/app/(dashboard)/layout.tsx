@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="relative z-10 flex flex-1 flex-col overflow-hidden w-full min-w-0 max-w-full">
         {/* Top Bar with Liquid Glass Styling */}
-        <div className="flex items-center px-3 md:px-5 py-2.5 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-black/40 backdrop-blur-xl gap-3 sticky top-0 z-20 min-w-0 w-full overflow-hidden">
+        <div className="flex items-center px-3 md:px-5 py-2.5 border-b border-white/20 dark:border-white/10 bg-background/60 dark:bg-black/40 backdrop-blur-xl gap-3 sticky top-0 z-30 min-w-0 w-full overflow-visible">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-lg hover:bg-muted text-foreground transition-colors focus:outline-none flex items-center justify-center cursor-pointer border border-border/70 shadow-2xs shrink-0"
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </svg>
           </button>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-visible">
             <Header onToggleSidebar={() => setSidebarOpen(true)} />
           </div>
         </div>

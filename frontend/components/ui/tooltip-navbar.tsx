@@ -93,18 +93,18 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
     <div className={`relative inline-block ${className}`} onMouseLeave={handleMouseLeave}>
       <div className="flex items-center justify-center">
         <div className="relative">
-          {/* Animated Centered Tooltip Pill (zero overflow outside bounds) */}
+          {/* Animated Centered Tooltip Pill */}
           {activeItem && activePos !== null && (
             <div
-              className={`pointer-events-none absolute z-50 transition-all duration-200 ease-out ${
-                tooltipPosition === "top" ? "bottom-14" : "top-14"
+              className={`pointer-events-none absolute z-[60] transition-all duration-200 ease-out ${
+                tooltipPosition === "top" ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"
               }`}
               style={{
                 left: `${activePos}px`,
                 transform: "translateX(-50%)",
               }}
             >
-              <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-800/95 backdrop-blur-md shadow-2xl border border-white/20 dark:border-neutral-700/80 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150">
+              <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-2xl border border-white/20 dark:border-neutral-700/80 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150 drop-shadow-xl">
                 <span className="text-white">{activeItem.label}</span>
                 {activeItem.hasBadge && (
                   <div className="flex items-center gap-0.5 text-white/50">
