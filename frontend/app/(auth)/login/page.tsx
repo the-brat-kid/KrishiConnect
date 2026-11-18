@@ -14,6 +14,10 @@ import { loginSchema } from "@/lib/validations";
 import Link from "next/link";
 import api from "@/lib/api";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import {
+  TypingText,
+  TypingTextCursor,
+} from "@animate-ui/react/primitives/texts/typing";
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import {
@@ -231,330 +235,372 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-2 mb-1">
-          <Badge variant="outline" className="text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-500/30 text-xs font-semibold">
-            <ShieldCheck className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
-            <span>{t("login.secureBadge")}</span>
-          </Badge>
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground font-plus-jakarta">
-          {t("login.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("login.subtitle")}
-        </p>
-      </div>
+    <div className="relative overflow-hidden rounded-3xl border border-white/20 dark:border-white/12 bg-gradient-to-b from-white/[0.12] via-white/[0.05] to-white/[0.02] dark:from-white/[0.08] dark:via-black/45 dark:to-black/65 backdrop-blur-3xl shadow-[inset_0_1px_2.5px_rgba(255,255,255,0.4),0_24px_64px_rgba(0,0,0,0.5),0_0_45px_rgba(16,185,129,0.08)] p-6 sm:p-8 space-y-6">
+      {/* Specular Top Sheen & Subtle Ambient Radial Lights */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/[0.18] via-emerald-500/[0.05] to-transparent" />
+      <div className="pointer-events-none absolute -top-20 -right-20 w-48 h-48 rounded-full bg-emerald-500/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-teal-500/10 blur-3xl" />
 
-      {/* Prominent Regional & Language Calibration */}
-      <RegionLanguageSelector variant="login" />
-
-      {/* Google Sign In */}
-      <div className="space-y-3">
-        <GoogleSignInButton text="continue_with" />
-
-        <div className="relative flex items-center justify-center pt-1">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+      <div className="relative z-10 space-y-6">
+        {/* Header with Liquid Glass Badge & Dynamic Typing Subtitle */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/35 bg-emerald-500/10 text-emerald-400 text-xs font-bold shadow-[0_0_14px_rgba(16,185,129,0.2),inset_0_1px_1px_rgba(255,255,255,0.25)] backdrop-blur-md">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <span>{t("login.secureBadge")}</span>
+            </div>
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-white/15 bg-white/5 text-[11px] font-semibold text-muted-foreground backdrop-blur-md shadow-xs">
+              <Sparkles className="h-3 w-3 text-emerald-400" />
+              <span>Live Mandi</span>
+            </div>
           </div>
-          <span className="relative bg-background px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            or continue with
-          </span>
+
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-plus-jakarta">
+            {t("login.title")}
+          </h1>
+
+          {/* Dynamic Typing Subtitle using @animate-ui/react/primitives/texts/typing */}
+          <div className="min-h-[24px] flex items-center overflow-hidden">
+            <TypingText
+              text={[
+                "Select your farming region to unlock live mandi prices.",
+                "Instant UPI & QR payment settlements direct to your bank.",
+                "100% verified cold vaults & freight across 16 states.",
+                "Zero-paperwork digital ledger for Kisan, FPOs & Traders.",
+              ]}
+              duration={40}
+              holdDelay={1800}
+              loop={true}
+              className="text-xs sm:text-sm font-semibold text-emerald-400/90 font-mono tracking-tight"
+            >
+              <TypingTextCursor className="ml-1 h-3.5 w-1 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
+            </TypingText>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs: Mobile OTP vs Email */}
-      <Tabs defaultValue="otp" className="space-y-5">
-        <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-lg">
-          <TabsTrigger value="otp" className="flex items-center gap-2 text-xs font-semibold">
-            <Phone className="h-3.5 w-3.5" />
-            <span>{t("login.mobileTab")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="email" className="flex items-center gap-2 text-xs font-semibold">
-            <Mail className="h-3.5 w-3.5" />
-            <span>{t("login.emailTab")}</span>
-          </TabsTrigger>
-        </TabsList>
+        {/* Prominent Regional & Language Calibration */}
+        <RegionLanguageSelector variant="login" />
 
-        {/* TAB 1: MOBILE + OTP LOGIN */}
-        <TabsContent value="otp" className="space-y-4 pt-1">
-          {/* Invisible Google reCAPTCHA Anchor */}
-          <div id="recaptcha-container" />
+        {/* Google Sign In */}
+        <div className="space-y-3">
+          <GoogleSignInButton text="continue_with" />
 
-          {!otpSent ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-xs font-semibold uppercase text-muted-foreground">
-                  {t("login.phoneLabel")}
-                </Label>
-                <div className="flex gap-2">
-                  <div className="flex items-center px-3 border rounded-md bg-muted/40 text-sm font-semibold text-foreground select-none">
-                    +91
-                  </div>
-                  <div className="relative flex-1">
-                    <Input
+          <div className="relative flex items-center justify-center py-1">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-white/12 dark:border-white/10" />
+            </div>
+            <span className="relative rounded-full border border-white/15 bg-black/60 px-3.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground backdrop-blur-xl shadow-xs">
+              or continue with
+            </span>
+          </div>
+        </div>
+
+        {/* Tabs: Mobile OTP vs Email */}
+        <Tabs defaultValue="otp" className="space-y-5">
+          <TabsList className="grid w-full grid-cols-2 p-1.5 rounded-2xl border border-white/18 dark:border-white/12 bg-white/[0.06] dark:bg-black/45 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25)]">
+            <TabsTrigger
+              value="otp"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all data-[state=active]:bg-gradient-to-b data-[state=active]:from-emerald-400 data-[state=active]:to-emerald-600 data-[state=active]:text-black data-[state=active]:font-extrabold data-[state=active]:shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)] text-muted-foreground hover:text-foreground"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              <span>{t("login.mobileTab")}</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="email"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all data-[state=active]:bg-gradient-to-b data-[state=active]:from-emerald-400 data-[state=active]:to-emerald-600 data-[state=active]:text-black data-[state=active]:font-extrabold data-[state=active]:shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)] text-muted-foreground hover:text-foreground"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              <span>{t("login.emailTab")}</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* TAB 1: MOBILE + OTP LOGIN */}
+          <TabsContent value="otp" className="space-y-4 pt-1">
+            {/* Invisible Google reCAPTCHA Anchor */}
+            <div id="recaptcha-container" />
+
+            {!otpSent ? (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                    <span>{t("login.phoneLabel")}</span>
+                    <span className="text-[10px] text-emerald-400 font-semibold lowercase">instant sms otp</span>
+                  </Label>
+                  <div className="relative flex items-center rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 focus-within:shadow-[0_0_24px_rgba(16,185,129,0.25)] transition-all overflow-hidden group">
+                    <div className="flex items-center gap-1.5 px-3.5 py-3.5 border-r border-white/12 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02] text-sm font-extrabold text-foreground select-none">
+                      <span className="text-sm">🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input
                       id="phone"
                       type="tel"
                       placeholder={t("login.phonePlaceholder")}
                       maxLength={10}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                      className="text-base tracking-wider font-medium"
+                      className="w-full bg-transparent px-3.5 py-3.5 text-base sm:text-sm font-bold tracking-wider text-foreground placeholder:text-muted-foreground/50 outline-none"
                       autoFocus
                       required
                     />
                   </div>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Real SMS OTP will be sent directly to your phone via Google Firebase.</span>
+                  </p>
                 </div>
-                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Real SMS OTP will be sent directly to your phone via Google Firebase.</span>
-                </p>
-              </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11 text-sm shadow-sm"
-                disabled={isSendingOtp || phone.replace(/\D/g, "").length !== 10}
-              >
-                {isSendingOtp ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> {t("login.sendingOtp")}
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <span>{t("login.sendOtp")}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                )}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between">
-                <div>
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold block">
-                    {isFirebaseMode ? "SMS Sent via Google Firebase:" : "OTP Sent to:"}
-                  </span>
-                  <span className="text-sm font-bold text-foreground">+91 {phone}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtp("");
-                  }}
-                  className="text-xs text-primary underline hover:text-primary/80 font-medium"
+                <Button
+                  type="submit"
+                  className="relative overflow-hidden w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-teal-400 text-white font-extrabold text-sm tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_10px_28px_rgba(16,185,129,0.35)] hover:shadow-[inset_0_1px_3px_rgba(255,255,255,0.6),0_14px_34px_rgba(16,185,129,0.45)] active:scale-[0.99] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group border border-emerald-400/30"
+                  disabled={isSendingOtp || phone.replace(/\D/g, "").length !== 10}
                 >
-                  Change
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="otp" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {t("login.enterOtp")}
-                  </Label>
-                  {isFirebaseMode && (
-                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-emerald-400" />
-                      <span>Live SMS</span>
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/35 to-transparent" />
+                  {isSendingOtp ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-white" /> {t("login.sendingOtp")}
                     </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2 font-bold">
+                      <span>{t("login.sendOtp")}</span>
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  )}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-xl flex items-center justify-between shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.2)]">
+                  <div>
+                    <span className="text-[11px] text-emerald-400 font-bold block uppercase tracking-wider">
+                      {isFirebaseMode ? "SMS Sent via Google Firebase:" : "OTP Sent to:"}
+                    </span>
+                    <span className="text-base font-extrabold text-foreground">+91 {phone}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp("");
+                    }}
+                    className="text-xs text-emerald-400 hover:text-emerald-300 underline font-bold transition-colors"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="otp" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      {t("login.enterOtp")}
+                    </Label>
+                    {isFirebaseMode && (
+                      <span className="text-[11px] text-emerald-300 font-bold bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        <span>Live SMS</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-center py-2">
+                    <InputOTP
+                      maxLength={6}
+                      pattern={REGEXP_ONLY_DIGITS}
+                      value={otp}
+                      onChange={(val) => setOtp(val)}
+                      autoFocus
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                </div>
+
+                {/* Optional Name for new accounts */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="farmerName" className="text-xs font-semibold text-muted-foreground">
+                    {t("login.nameOptional")}
+                  </Label>
+                  <div className="relative rounded-2xl border border-white/18 dark:border-white/12 bg-white/[0.06] dark:bg-black/50 backdrop-blur-xl focus-within:border-emerald-400/80 transition-all">
+                    <Input
+                      id="farmerName"
+                      type="text"
+                      placeholder={t("login.namePlaceholder")}
+                      value={farmerName}
+                      onChange={(e) => setFarmerName(e.target.value)}
+                      className="bg-transparent border-0 text-sm font-medium focus-visible:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>Didn&apos;t receive code?</span>
+                  {resendTimer > 0 ? (
+                    <span className="text-muted-foreground font-mono">
+                      {t("login.resendIn", { s: resendTimer })}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      className="text-emerald-400 font-bold hover:underline flex items-center gap-1"
+                    >
+                      <RefreshCw className="h-3 w-3" /> {t("login.resendOtp")}
+                    </button>
                   )}
                 </div>
 
-                <div className="flex justify-center py-2">
-                  <InputOTP
-                    maxLength={6}
-                    pattern={REGEXP_ONLY_DIGITS}
-                    value={otp}
-                    onChange={(val) => setOtp(val)}
-                    autoFocus
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                    </InputOTPGroup>
-                    <InputOTPSeparator />
-                    <InputOTPGroup>
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+                <Button
+                  type="submit"
+                  className="relative overflow-hidden w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-teal-400 text-white font-extrabold text-sm tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_10px_28px_rgba(16,185,129,0.35)] active:scale-[0.99] transition-all border border-emerald-400/30"
+                  disabled={isVerifyingOtp || otp.length < 4}
+                >
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/35 to-transparent" />
+                  {isVerifyingOtp ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-white" /> {t("login.verifyingOtp")}
+                    </span>
+                  ) : (
+                    t("login.verifyOtp")
+                  )}
+                </Button>
+              </form>
+            )}
+          </TabsContent>
+
+          {/* TAB 2: EMAIL & PASSWORD LOGIN */}
+          <TabsContent value="email" className="space-y-4 pt-1">
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {t("login.emailLabel")}
+                </Label>
+                <div className="relative rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 transition-all">
+                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full bg-transparent pl-10 pr-4 py-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/50 outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    required
+                  />
                 </div>
               </div>
 
-              {/* Optional Name for new accounts */}
-              <div className="space-y-1.5">
-                <Label htmlFor="farmerName" className="text-xs text-muted-foreground">
-                  {t("login.nameOptional")}
-                </Label>
-                <Input
-                  id="farmerName"
-                  type="text"
-                  placeholder={t("login.namePlaceholder")}
-                  value={farmerName}
-                  onChange={(e) => setFarmerName(e.target.value)}
-                  className="text-sm"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                <span>Didn&apos;t receive code?</span>
-                {resendTimer > 0 ? (
-                  <span className="text-muted-foreground font-mono">
-                    {t("login.resendIn", { s: resendTimer })}
-                  </span>
-                ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {t("login.passwordLabel")}
+                  </Label>
+                  <Link href="#" className="text-xs text-muted-foreground hover:text-emerald-400 transition-colors">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 transition-all">
+                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full bg-transparent pl-10 pr-10 py-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/50 outline-none"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                  />
                   <button
                     type="button"
-                    onClick={handleSendOtp}
-                    className="text-primary font-semibold hover:underline flex items-center gap-1"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    <RefreshCw className="h-3 w-3" /> {t("login.resendOtp")}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
-                )}
+                </div>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11 text-sm shadow-sm"
-                disabled={isVerifyingOtp || otp.length < 4}
+                className="relative overflow-hidden w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-teal-400 text-white font-extrabold text-sm tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_10px_28px_rgba(16,185,129,0.35)] active:scale-[0.99] transition-all border border-emerald-400/30"
+                disabled={isEmailLoading}
               >
-                {isVerifyingOtp ? (
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/35 to-transparent" />
+                {isEmailLoading ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" /> {t("login.verifyingOtp")}
+                    <Loader2 className="h-4 w-4 animate-spin text-white" /> {t("login.signingIn")}
                   </span>
                 ) : (
-                  t("login.verifyOtp")
+                  t("login.signInBtn")
                 )}
               </Button>
             </form>
-          )}
-        </TabsContent>
+          </TabsContent>
+        </Tabs>
 
-        {/* TAB 2: EMAIL & PASSWORD LOGIN */}
-        <TabsContent value="email" className="space-y-4 pt-1">
-          <form onSubmit={handleEmailLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs font-semibold uppercase text-muted-foreground">
-                {t("login.emailLabel")}
-              </Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  className="pl-9"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  required
-                />
-              </div>
-            </div>
+        {/* 1-CLICK INSTANT DEMO LOGIN */}
+        <div className="pt-2 border-t border-white/10 space-y-3">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="font-bold text-foreground flex items-center gap-1.5 uppercase text-[11px] tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> {t("login.quickAccess")}:
+            </span>
+            <span className="text-[11px] font-medium text-emerald-400/90">No credentials needed</span>
+          </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-xs font-semibold uppercase text-muted-foreground">
-                  {t("login.passwordLabel")}
-                </Label>
-                <Link href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="pl-9 pr-9"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full h-11 font-semibold" disabled={isEmailLoading}>
-              {isEmailLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" /> {t("login.signingIn")}
-                </span>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Farmer Demo (Emerald Liquid Glass) */}
+            <button
+              type="button"
+              onClick={() => handleDemoLogin("farmer")}
+              disabled={isDemoLoading !== null}
+              className="relative overflow-hidden group flex items-center justify-center gap-2 h-11 px-3 rounded-2xl border border-emerald-500/35 hover:border-emerald-400/70 bg-gradient-to-b from-emerald-500/[0.14] via-emerald-500/[0.05] to-transparent hover:bg-emerald-500/[0.22] backdrop-blur-xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.3),0_6px_20px_rgba(16,185,129,0.2)] hover:shadow-[inset_0_1px_2.5px_rgba(255,255,255,0.45),0_10px_24px_rgba(16,185,129,0.3)] text-emerald-300 text-xs font-bold transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
+            >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-3 bg-gradient-to-b from-white/20 to-transparent" />
+              {isDemoLoading === "farmer" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
               ) : (
-                t("login.signInBtn")
+                <Sprout className="h-4 w-4 text-emerald-400 group-hover:scale-110 transition-transform" />
               )}
-            </Button>
-          </form>
-        </TabsContent>
-      </Tabs>
+              <span className="truncate">{t("login.demoFarmer")}</span>
+            </button>
 
-      {/* 1-CLICK INSTANT DEMO LOGIN */}
-      <div className="pt-2 border-t space-y-3">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> {t("login.quickAccess")}:
-          </span>
-          <span className="text-[11px]">No credentials needed</span>
+            {/* Trader Demo (Sky Liquid Glass) */}
+            <button
+              type="button"
+              onClick={() => handleDemoLogin("trader")}
+              disabled={isDemoLoading !== null}
+              className="relative overflow-hidden group flex items-center justify-center gap-2 h-11 px-3 rounded-2xl border border-sky-500/35 hover:border-sky-400/70 bg-gradient-to-b from-sky-500/[0.14] via-sky-500/[0.05] to-transparent hover:bg-sky-500/[0.22] backdrop-blur-xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.3),0_6px_20px_rgba(14,165,233,0.2)] hover:shadow-[inset_0_1px_2.5px_rgba(255,255,255,0.45),0_10px_24px_rgba(14,165,233,0.3)] text-sky-300 text-xs font-bold transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
+            >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-3 bg-gradient-to-b from-white/20 to-transparent" />
+              {isDemoLoading === "trader" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-sky-400" />
+              ) : (
+                <Store className="h-4 w-4 text-sky-400 group-hover:scale-110 transition-transform" />
+              )}
+              <span className="truncate">{t("login.demoTrader")}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLogin("farmer")}
-            disabled={isDemoLoading !== null}
-            className="flex items-center gap-1.5 h-9 text-xs border-emerald-300 hover:bg-emerald-50 text-emerald-800 dark:text-emerald-300 font-medium"
-          >
-            {isDemoLoading === "farmer" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600" />
-            ) : (
-              <Sprout className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
-            )}
-            <span className="truncate">{t("login.demoFarmer")}</span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleDemoLogin("trader")}
-            disabled={isDemoLoading !== null}
-            className="flex items-center gap-1.5 h-9 text-xs border-blue-300 hover:bg-blue-50 text-blue-800 dark:text-blue-300 font-medium"
-          >
-            {isDemoLoading === "trader" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
-            ) : (
-              <Store className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
-            )}
-            <span className="truncate">{t("login.demoTrader")}</span>
-          </Button>
-        </div>
+        {/* Footer link to register */}
+        <p className="text-xs sm:text-sm text-center text-muted-foreground pt-1">
+          {t("login.needAccount")}{" "}
+          <Link href="/register" className="font-bold text-emerald-400 hover:text-emerald-300 hover:underline underline-offset-4 transition-colors">
+            {t("login.registerNow")}
+          </Link>
+        </p>
       </div>
-
-      {/* Footer link to register */}
-      <p className="text-sm text-center text-muted-foreground pt-1">
-        {t("login.needAccount")}{" "}
-        <Link href="/register" className="font-semibold text-primary hover:underline underline-offset-4">
-          {t("login.registerNow")}
-        </Link>
-      </p>
     </div>
   );
 }
