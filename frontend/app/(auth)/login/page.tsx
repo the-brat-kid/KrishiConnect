@@ -17,7 +17,7 @@ import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import {
   TypingText,
   TypingTextCursor,
-} from "@animate-ui/react/primitives/texts/typing";
+} from "@/components/ui/typing-text";
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
 import {
