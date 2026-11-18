@@ -30,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ViewOnMap } from "@/components/ui/view-on-map";
+import { useLanguage } from "@/lib/language-context";
 
 interface MandiOption {
   id: string;
@@ -213,10 +214,23 @@ interface WeatherApiResponse {
 }
 
 export default function FarmWeatherPage() {
+  const { currentRegionDef } = useLanguage();
   const [selectedMandi, setSelectedMandi] = useState<MandiOption>(PAN_INDIA_MANDIS[0]);
   const [weatherData, setWeatherData] = useState<WeatherApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Sync mandi with active region from header
+  useEffect(() => {
+    if (currentRegionDef?.name && currentRegionDef.name !== "All India") {
+      const matched = PAN_INDIA_MANDIS.find(
+        (m) => m.state.toLowerCase() === currentRegionDef.name.toLowerCase()
+      );
+      if (matched && matched.id !== selectedMandi.id) {
+        setSelectedMandi(matched);
+      }
+    }
+  }, [currentRegionDef?.name]);
 
   // Fetch weather data from our /api/weather endpoint
   const fetchWeather = async (mandiId: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Warehouse,
   Search,
@@ -20,6 +20,7 @@ import { BookingModal } from "@/components/cold-storage/booking-modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/language-context";
 
 const PAN_INDIA_FACILITIES: ColdStorageFacility[] = [
   {
@@ -270,9 +271,24 @@ const STATES = [
 ];
 
 export default function ColdStoragePage() {
+  const { currentRegionDef } = useLanguage();
   const [facilities] = useState<ColdStorageFacility[]>(PAN_INDIA_FACILITIES);
   const [search, setSearch] = useState("");
-  const [selectedState, setSelectedState] = useState("All India");
+  const [selectedState, setSelectedState] = useState(
+    currentRegionDef?.name && STATES.includes(currentRegionDef.name)
+      ? currentRegionDef.name
+      : "All India"
+  );
+
+  useEffect(() => {
+    if (currentRegionDef?.name) {
+      if (STATES.includes(currentRegionDef.name)) {
+        setSelectedState(currentRegionDef.name);
+      } else {
+        setSelectedState("All India");
+      }
+    }
+  }, [currentRegionDef?.name]);
   const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

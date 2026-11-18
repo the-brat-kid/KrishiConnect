@@ -62,6 +62,11 @@ export default function DailyCropRatesPage() {
     }
   }, [currentRegionDef?.name]);
 
+  // Reset category filter when state changes so items are never hidden accidentally
+  useEffect(() => {
+    setSelectedCategory("All");
+  }, [selectedState]);
+
   const { data, isLoading, isError, refetch, isFetching } = useCropRates(
     selectedState === "All India" ? undefined : selectedState
   );

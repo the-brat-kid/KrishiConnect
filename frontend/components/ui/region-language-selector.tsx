@@ -173,9 +173,16 @@ export function RegionLanguageSelector({
               return (
                 <DropdownMenuItem
                   key={reg.id}
+                  onSelect={() => {
+                    setRegion(reg.id as RegionId);
+                    setIsOpen(false);
+                  }}
                   onClick={() => {
                     setRegion(reg.id as RegionId);
                     setIsOpen(false);
+                  }}
+                  onPointerDown={() => {
+                    setRegion(reg.id as RegionId);
                   }}
                   className={cn(
                     "flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-xs sm:text-sm font-semibold transition-all duration-150",
@@ -210,12 +217,17 @@ export function RegionLanguageSelector({
                   <button
                     key={langCode}
                     type="button"
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      setLanguage(langCode);
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setLanguage(langCode);
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-150",
+                      "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-150 cursor-pointer",
                       isCurrent
                         ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-black font-extrabold shadow-[0_0_10px_rgba(16,185,129,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)]"
                         : "bg-white/[0.05] hover:bg-white/[0.12] text-foreground/80 hover:text-white border border-white/10 backdrop-blur-md"

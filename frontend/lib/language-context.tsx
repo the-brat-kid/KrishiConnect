@@ -1376,7 +1376,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     } catch (e) {}
 
     const regionDef = REGIONS[newRegion];
-    if (regionDef?.defaultLang) {
+    // If current selected language is not supported in the new region, adapt gracefully
+    if (regionDef && !regionDef.supportedLangs.includes(language)) {
       setLanguage(regionDef.defaultLang);
     }
   };
