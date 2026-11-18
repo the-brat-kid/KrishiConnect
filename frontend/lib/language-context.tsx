@@ -267,7 +267,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "Contact & WhatsApp",
     "nav.copyright": "Copyright Policy",
     "nav.logout": "Log Out",
-    "nav.terranode": "TerraNode Hardware",
     "nav.openPlatform": "Open Platform",
 
     // Common
@@ -331,7 +330,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "ଯୋଗାଯୋଗ ଓ ହ୍ୱାଟ୍ସଆପ୍",
     "nav.copyright": "କପିରାଇଟ୍ ନୀତି",
     "nav.logout": "ଲଗ୍ ଆଉଟ୍",
-    "nav.terranode": "ଟେରାନୋଡ୍ ହାର୍ଡୱେର୍",
     "nav.openPlatform": "ପ୍ଲାଟଫର୍ମ ଖୋଲନ୍ତୁ",
 
     "common.live": "ଲାଇଭ୍",
@@ -394,7 +392,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "संपर्क करें व WhatsApp",
     "nav.copyright": "कॉपीराइट नीति",
     "nav.logout": "लॉग आउट",
-    "nav.terranode": "टेरानोड 3D हार्डवेयर",
     "nav.openPlatform": "प्लेटफॉर्म खोलें",
 
     "common.live": "लाइव",
@@ -456,7 +453,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "संपर्क व WhatsApp",
     "nav.copyright": "कॉपीराइट धोरण",
     "nav.logout": "लॉग आउट",
-    "nav.terranode": "टेरानोड हार्डवेअर",
     "nav.openPlatform": "प्लॅटफॉर्म उघडा",
 
     "common.live": "थेट",
@@ -518,7 +514,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "ਸੰਪਰਕ ਕਰੋ ਅਤੇ WhatsApp",
     "nav.copyright": "ਕਾਪੀਰਾਈਟ ਨੀਤੀ",
     "nav.logout": "ਲੌਗ ਆਉਟ",
-    "nav.terranode": "ਟੈਰਾਨੋਡ ਹਾਰਡਵੇਅਰ",
     "nav.openPlatform": "ਪਲੇਟਫਾਰਮ ਖੋਲ੍ਹੋ",
 
     "common.live": "ਲਾਈਵ",
@@ -580,7 +575,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "સંપર્ક કરો અને WhatsApp",
     "nav.copyright": "કોપીરાઇટ નીતિ",
     "nav.logout": "લૉગ આઉટ",
-    "nav.terranode": "ટેરાનોડ હાર્ડવેર",
     "nav.openPlatform": "પ્લેટફોર્મ ખોલો",
 
     "common.live": "લાઇવ",
@@ -642,7 +636,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "ಸಂಪರ್ಕಿಸಿ ಮತ್ತು WhatsApp",
     "nav.copyright": "ಕೃತಿಸ್ವಾಮ್ಯ ನೀತಿ",
     "nav.logout": "ಲಾಗ್ ಔಟ್",
-    "nav.terranode": "ಟೆರಾನೋಡ್ ಹಾರ್ಡ್‌ವೇರ್",
     "nav.openPlatform": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ತೆರೆಯಿರಿ",
 
     "common.live": "ಲೈವ್",
@@ -704,7 +697,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "தொடர்பு கொள்ள & WhatsApp",
     "nav.copyright": "பதிப்புரிமை கொள்கை",
     "nav.logout": "வெளியேறு",
-    "nav.terranode": "டெரானோட் வன்பொருள்",
     "nav.openPlatform": "தளத்தைத் திறக்கவும்",
 
     "common.live": "நேரலை",
@@ -766,7 +758,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "సంప్రదించండి & WhatsApp",
     "nav.copyright": "కాపీరైట్ విధానం",
     "nav.logout": "లాగ్ అవుట్",
-    "nav.terranode": "టెరానోడ్ హార్డ్‌వేర్",
     "nav.openPlatform": "ప్లాట్‌ఫారమ్‌ను తెరవండి",
 
     "common.live": "లైవ్",
@@ -828,7 +819,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "যোগাযোগ ও WhatsApp",
     "nav.copyright": "কপিরাইট নীতি",
     "nav.logout": "লগ আউট",
-    "nav.terranode": "টেরানোড হার্ডওয়্যার",
     "nav.openPlatform": "প্ল্যাটফর্ম খুলুন",
 
     "common.live": "লাইভ",
@@ -890,7 +880,6 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     "nav.contact": "ബന്ധപ്പെടുക & WhatsApp",
     "nav.copyright": "പകർപ്പവകാശ നയം",
     "nav.logout": "ലോഗ് ഔട്ട്",
-    "nav.terranode": "ടെറാനോഡ് ഹാർഡ്‌വെയർ",
     "nav.openPlatform": "പ്ലാറ്റ്‌ഫോം തുറക്കുക",
 
     "common.live": "ലൈവ്",
@@ -1002,8 +991,6 @@ export const PHRASE_DICTIONARY: Record<LanguageCode, Record<string, string>> = {
     "Search": "ଖୋଜନ୍ତୁ",
     "Filter": "ଫିଲ୍ଟର୍",
     "Download PDF": "PDF ଡାଉନଲୋଡ୍",
-    "TerraNode Hardware": "ଟେରାନୋଡ୍ ହାର୍ଡୱେର୍",
-    "TerraNode Pro": "ଟେରାନୋଡ୍ ପ୍ରୋ",
     "Log Out": "ଲଗ୍ ଆଉଟ୍",
     "Logout": "ଲଗ୍ ଆଉଟ୍",
   },
@@ -1082,8 +1069,6 @@ export const PHRASE_DICTIONARY: Record<LanguageCode, Record<string, string>> = {
     "Search": "खोजें",
     "Filter": "फ़िल्टर",
     "Download PDF": "PDF डाउनलोड",
-    "TerraNode Hardware": "टेरानोड 3D हार्डवेयर",
-    "TerraNode Pro": "टेरानोड प्रो",
     "Log Out": "लॉग आउट",
     "Logout": "लॉग आउट",
   },

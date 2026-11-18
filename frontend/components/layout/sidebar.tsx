@@ -22,7 +22,6 @@ import {
   Phone,
   Copyright,
   FlaskConical,
-  Sparkles,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -50,7 +49,6 @@ const getMenuGroups = (t: (key: string) => string) => [
       { href: "/weather", label: t("nav.weather"), icon: CloudSun, badge: t("common.live") },
       { href: "/products", label: t("nav.products"), icon: Package },
       { href: "/invoices", label: t("nav.invoices"), icon: FileText },
-      { href: "/terranode", label: t("nav.terranode"), icon: Sparkles, badge: "3D" },
       { href: "/settings", label: t("nav.settings"), icon: Settings },
     ],
   },
