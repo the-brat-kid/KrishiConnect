@@ -315,29 +315,27 @@ export default function ColdStoragePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <a
             href="https://nccd.gov.in/"
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all shadow-xs group"
           >
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
-              <Globe2 className="h-3.5 w-3.5 text-emerald-600" />
-              <span>NCCD National Directory</span>
-              <ExternalLink className="h-3 w-3" />
-            </Button>
+            <Globe2 className="h-4 w-4 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
+            <span>NCCD National Directory</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-white shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
           </a>
 
           <a
             href="https://wdra.gov.in/"
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all shadow-xs group"
           >
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
-              <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
-              <span>WDRA e-NWR Portal</span>
-              <ExternalLink className="h-3 w-3" />
-            </Button>
+            <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 group-hover:scale-110 transition-transform" />
+            <span>WDRA e-NWR Portal</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-white shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
           </a>
         </div>
       </div>
@@ -398,15 +396,18 @@ export default function ColdStoragePage() {
         {/* State Quick Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {STATES.map((st) => (
-            <Button
+            <button
               key={st}
-              size="sm"
-              variant={selectedState === st ? "default" : "outline"}
+              type="button"
               onClick={() => setSelectedState(st)}
-              className="text-xs h-7 px-2.5 flex-shrink-0"
+              className={`text-xs px-3 py-1 rounded-full font-semibold transition-all shrink-0 ${
+                selectedState === st
+                  ? "btn-liquid-glass-primary shadow-[0_0_12px_rgba(20,122,77,0.35)] text-white"
+                  : "btn-liquid-glass text-muted-foreground hover:text-foreground"
+              }`}
             >
               {st}
-            </Button>
+            </button>
           ))}
         </div>
       </div>

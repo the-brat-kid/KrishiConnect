@@ -160,11 +160,11 @@ export default function DailyCropRatesPage() {
               href="https://bhumiai.in/prices"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 text-[11px] font-semibold transition-colors"
+              className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
             >
-              <Sparkles className="w-3 h-3 text-emerald-400" />
-              <span>BhumiAI Price Feed (bhumiai.in/prices)</span>
-              <ExternalLink className="w-3 h-3 ml-0.5" />
+              <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
+              <span>BhumiAI Live Feed</span>
+              <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
             </a>
           </div>
 

@@ -239,28 +239,26 @@ export default function TransportationPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <a
             href="https://allindiatransport.in/bhubaneswar-transport-service.html"
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-liquid-glass-primary inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-[0_0_15px_rgba(20,122,77,0.25)] group"
           >
-            <Button className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0052a3] text-white shadow-sm font-semibold">
-              <Truck className="h-4 w-4" />
-              <span>Book All-India Transport</span>
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
+            <Truck className="h-4 w-4 shrink-0 text-emerald-300 group-hover:scale-110 transition-transform" />
+            <span>Book All-India Transport</span>
+            <ExternalLink className="h-3 w-3 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
           </a>
 
           <a
             href="https://trucksuvidha.com/FreightCalculator.aspx"
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all shadow-xs group"
           >
-            <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-              <span>Freight Rate Engine</span>
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
+            <span>Freight Rate Engine</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-white shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
           </a>
         </div>
       </div>
@@ -491,12 +489,11 @@ export default function TransportationPage() {
                   href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0"
+                  className="btn-liquid-glass-primary inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-[0_0_15px_rgba(20,122,77,0.3)] shrink-0 transition-all group"
                 >
-                  <Button className="w-full sm:w-auto bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold flex items-center gap-1.5 shadow-md h-10 px-4">
-                    <span>Book Truck</span>
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
+                  <Truck className="h-4 w-4 shrink-0 text-emerald-300 group-hover:scale-110 transition-transform" />
+                  <span>Book Truck</span>
+                  <ExternalLink className="h-3 w-3 shrink-0 opacity-80" />
                 </a>
               </div>
             </CardHeader>
@@ -575,12 +572,11 @@ export default function TransportationPage() {
                     href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block"
+                    className="btn-liquid-glass-primary w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-[0_0_15px_rgba(20,122,77,0.3)] transition-all group"
                   >
-                    <Button className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white flex items-center justify-center gap-2 text-sm h-10 shadow-sm font-semibold">
-                      <span>Book All India Commercial Truck</span>
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
+                    <Truck className="h-4 w-4 shrink-0 text-emerald-300 group-hover:scale-110 transition-transform" />
+                    <span>Book All India Commercial Truck</span>
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-80" />
                   </a>
                   <div className="flex items-center justify-between text-[11px] text-[#004d99] pt-1">
                     <a
@@ -605,11 +601,10 @@ export default function TransportationPage() {
                     href="https://trucksuvidha.com/FreightCalculator.aspx"
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-foreground hover:text-white transition-all shrink-0 group"
                   >
-                    <Button variant="outline" size="sm" className="h-7 text-xs border-[#d85c27] text-[#d85c27] hover:bg-[#fff0e8]">
-                      <span>Rate Engine</span>
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
+                    <span>Rate Engine</span>
+                    <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-white shrink-0 opacity-70" />
                   </a>
                 </div>
               </div>
@@ -716,14 +711,10 @@ export default function TransportationPage() {
                           href="https://allindiatransport.in/bhubaneswar-transport-service.html"
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="btn-liquid-glass-primary inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-lg font-semibold text-white shadow-xs transition-all"
                         >
-                          <Button
-                            size="sm"
-                            className="text-xs h-7 px-2.5 bg-[#0066cc] hover:bg-[#0052a3] text-white font-semibold flex items-center gap-1 shadow-xs"
-                          >
-                            <span>Book</span>
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
+                          <span>Book</span>
+                          <ExternalLink className="h-3 w-3 shrink-0 opacity-80" />
                         </a>
                       </div>
                     </TableCell>

@@ -307,12 +307,11 @@ export default function CustomersPage() {
             href="https://agrodealz.in/find-buyers"
             target="_blank"
             rel="noopener noreferrer"
+            className="btn-liquid-glass-primary inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white shadow-[0_0_15px_rgba(20,122,77,0.3)] transition-all group"
           >
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 shadow-sm font-semibold">
-              <Store className="h-4 w-4" />
-              <span>Find Crop Buyers</span>
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
+            <Store className="h-4 w-4 shrink-0 text-emerald-300 group-hover:scale-110 transition-transform" />
+            <span>Find Crop Buyers</span>
+            <ExternalLink className="h-3 w-3 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity" />
           </a>
         </div>
       </div>
@@ -590,14 +589,10 @@ export default function CustomersPage() {
                           href="https://agrodealz.in/find-buyers"
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="btn-liquid-glass-primary inline-flex items-center gap-1 text-xs h-7 px-2.5 rounded-lg font-semibold text-white shadow-xs transition-all"
                         >
-                          <Button
-                            size="sm"
-                            className="text-xs h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1"
-                          >
-                            <span>Connect</span>
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
+                          <span>Connect</span>
+                          <ExternalLink className="h-3 w-3 shrink-0 opacity-80" />
                         </a>
                       </TableCell>
                     </TableRow>
