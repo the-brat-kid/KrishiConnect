@@ -302,10 +302,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Small Welcome Back with Name underneath */}
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 flex items-center gap-1.5 flex-wrap">
-            <span>Welcome back, <strong className="text-foreground font-semibold">{displayName}</strong></span>
-            <span className="text-muted-foreground/40">•</span>
-            <span>Real-time agricultural pricing, verified trade corridors, and farm invoicing.</span>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1.5">
+            Welcome back, <strong className="text-foreground font-semibold">{displayName}</strong>
           </p>
         </div>
 
