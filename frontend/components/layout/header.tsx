@@ -11,6 +11,13 @@ import {
   UserCircle,
   LogOut,
   Phone,
+  Settings,
+  Users,
+  ShieldCheck,
+  ChevronRight,
+  Building2,
+  MapPin,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +47,13 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
   const { currentRegionDef, t } = useLanguage();
 
   const displayName = user?.full_name || user?.name || businessProfile?.business_name || "Kisan";
+  const userInitials = (displayName || "Kisan")
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "KC";
 
   // Upgraded interactive Tooltip Navbar items with dynamic multilingual labels
   const quickNavItems: TooltipItem[] = [
@@ -123,32 +137,163 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
         {/* Animated Sliding SwitchMode Component */}
         <SwitchMode width={52} height={26} />
 
-        {/* User Account Menu */}
+        {/* User Account Menu with Liquid Glass & Detailed Profile Card */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md hover:bg-muted">
-              <UserCircle className="h-5 w-5 text-muted-foreground" />
-              <span className="sr-only">User account menu</span>
-            </Button>
+            <button
+              className="relative flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full border border-white/20 bg-white/[0.05] dark:bg-black/40 hover:bg-white/[0.1] backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-xs group focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              aria-label="User account menu"
+            >
+              <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-emerald-500 to-teal-600 text-white font-bold text-xs shadow-[0_0_10px_rgba(16,185,129,0.35)]">
+                {userInitials}
+                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 border border-black shadow-[0_0_6px_#34d399]" />
+              </div>
+              <span className="hidden xl:inline-block max-w-[100px] truncate text-xs font-semibold text-foreground/90 group-hover:text-white transition-colors">
+                {displayName.split(" ")[0]}
+              </span>
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 shadow-md border-border/80">
-            <DropdownMenuLabel className="font-semibold text-sm text-foreground">
-              {displayName}
-            </DropdownMenuLabel>
-            <DropdownMenuLabel className="font-normal text-xs text-muted-foreground -mt-1 truncate">
-              {user?.email || "Pan-India Mandi Account"}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="cursor-pointer text-xs">
-              <Link href="/contact" className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-primary" />
-                <span>Contact & Support</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer text-xs flex items-center gap-2">
-              <LogOut className="h-3.5 w-3.5" />
-              <span>Sign out</span>
-            </DropdownMenuItem>
+
+          <DropdownMenuContent
+            align="end"
+            sideOffset={8}
+            className="w-[330px] sm:w-[370px] p-0 rounded-2xl border border-white/20 dark:border-white/15 bg-neutral-950/95 dark:bg-[#0a0b0d]/95 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7),0_0_25px_rgba(16,185,129,0.18)] text-foreground overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150"
+          >
+            {/* Header Identity Card */}
+            <div className="p-4 bg-linear-to-b from-emerald-950/40 via-emerald-950/15 to-transparent border-b border-white/10">
+              <div className="flex items-start gap-3">
+                <div className="relative shrink-0">
+                  <div className="h-12 w-12 rounded-2xl bg-linear-to-tr from-emerald-500 via-teal-500 to-emerald-400 flex items-center justify-center text-white text-base font-extrabold shadow-[0_0_18px_rgba(16,185,129,0.45)] border border-white/20">
+                    {userInitials}
+                  </div>
+                  <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/80 border border-emerald-500/50">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+                  </span>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-sm sm:text-base text-foreground truncate tracking-tight">
+                      {displayName}
+                    </h3>
+                    <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
+                    {user?.email || "Pan-India Mandi Account"}
+                  </p>
+                  
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
+                      <Sprout className="h-3 w-3" />
+                      <span>{user?.role === "trader" ? "Mandi Trader" : "Farmer / Producer"}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 border border-white/10 text-muted-foreground">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span>Active KYC</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Farm / Business & Mandi Corridor Context Card */}
+            <div className="p-3 mx-3 mt-3 rounded-xl bg-white/[0.04] dark:bg-white/[0.03] border border-white/10 backdrop-blur-md space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                  <Building2 className="h-3.5 w-3.5 text-primary" />
+                  <span>Enterprise / Farm</span>
+                </span>
+                <span className="text-emerald-400 text-[11px] font-mono">
+                  {businessProfile?.gst_number ? `GST: ${businessProfile.gst_number.slice(0, 10)}...` : "Verified APMC"}
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-foreground truncate">
+                {businessProfile?.business_name || `${displayName}'s Mandi Trade Hub`}
+              </p>
+              
+              <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-[11px] text-muted-foreground">
+                <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
+                <span className="truncate">
+                  {currentRegionDef.name} • {currentRegionDef.primaryHubs[0]} APMC Hub
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Actions & Navigation List */}
+            <div className="p-2 space-y-1 mt-1">
+              <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-2.5 hover:bg-white/[0.08] focus:bg-white/[0.08] transition-colors border border-transparent hover:border-white/10">
+                <Link href="/settings" className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                      <Settings className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-foreground group-hover:text-white transition-colors">
+                        Business &amp; Tax Settings
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        Bank account, UPI QR, and GST profile
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors shrink-0" />
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-2.5 hover:bg-white/[0.08] focus:bg-white/[0.08] transition-colors border border-transparent hover:border-white/10">
+                <Link href="/customers" className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-8 w-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-105 transition-transform">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-foreground group-hover:text-white transition-colors">
+                        Buyers &amp; FPO Directory
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        Verified mandi traders, buyers and contacts
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors shrink-0" />
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-2.5 hover:bg-white/[0.08] focus:bg-white/[0.08] transition-colors border border-transparent hover:border-white/10">
+                <Link href="/contact" className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="h-8 w-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-foreground group-hover:text-white transition-colors">
+                        Helpdesk &amp; Support
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        24/7 dedicated Kisan helpline &amp; support
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-white transition-colors shrink-0" />
+                </Link>
+              </DropdownMenuItem>
+            </div>
+
+            {/* Footer with Security Tag & Sign Out */}
+            <div className="p-3 bg-white/[0.02] border-t border-white/10 flex items-center justify-between gap-2 mt-1">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                <span>KrishiConnect v2.4</span>
+              </div>
+
+              <DropdownMenuItem
+                onClick={logout}
+                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all focus:bg-rose-500/20"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
