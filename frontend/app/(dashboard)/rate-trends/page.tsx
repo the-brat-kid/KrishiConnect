@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Chart3DContainer, ThreeDDot, ThreeDChartDefs } from "@/components/ui/chart-3d";
 import {
   LineChart,
   Line,
@@ -261,39 +262,58 @@ export default function RateTrendsPage() {
               <RefreshCw className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="h-80 w-full pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(val) => `₹${val}`}
-                    domain={["dataMin - 5", "dataMax + 5"]}
-                  />
-                  <Tooltip
-                    formatter={(value: any, name: any) => [`₹${value}/kg`, name]}
-                    contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
-                  {items
-                    .filter((it) => selectedForChart.includes(it.id))
-                    .map((it) => (
-                      <Line
-                        key={it.id}
-                        type="monotone"
-                        dataKey={it.name}
-                        stroke={it.color || "#10b981"}
-                        strokeWidth={2.5}
-                        dot={{ r: 4 }}
-                        activeDot={{ r: 6 }}
-                        isAnimationActive={true}
-                        animationDuration={1800}
-                        animationEasing="ease-out"
+            <div className="pt-2">
+              <Chart3DContainer
+                title="7-Day Mandi Price Trajectory (₹/kg)"
+                subtitle="Multi-Crop Modal Auction Rates"
+                icon={<Activity className="w-4 h-4 text-emerald-400" />}
+                badge="3D Spectrum"
+                show3DBadge={true}
+              >
+                <div className="h-80 w-full pt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 15, right: 30, left: 0, bottom: 5 }}>
+                      <ThreeDChartDefs />
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                      <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#888888" />
+                      <YAxis
+                        tick={{ fontSize: 12 }}
+                        stroke="#888888"
+                        tickFormatter={(val) => `₹${val}`}
+                        domain={["dataMin - 5", "dataMax + 5"]}
                       />
-                    ))}
-                </LineChart>
-              </ResponsiveContainer>
+                      <Tooltip
+                        formatter={(value: any, name: any) => [`₹${value}/kg`, name]}
+                        contentStyle={{
+                          backgroundColor: "rgba(10, 10, 10, 0.9)",
+                          backdropFilter: "blur(16px)",
+                          borderRadius: "12px",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          fontSize: "12px",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
+                      {items
+                        .filter((it) => selectedForChart.includes(it.id))
+                        .map((it) => (
+                          <Line
+                            key={it.id}
+                            type="monotone"
+                            dataKey={it.name}
+                            stroke={it.color || "#10b981"}
+                            strokeWidth={3}
+                            dot={<ThreeDDot />}
+                            activeDot={{ r: 8, stroke: "#ffffff", strokeWidth: 2 }}
+                            isAnimationActive={true}
+                            animationDuration={1800}
+                            animationEasing="ease-out"
+                          />
+                        ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </Chart3DContainer>
             </div>
           )}
         </CardContent>

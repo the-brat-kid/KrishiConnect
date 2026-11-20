@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Chart3DContainer, ThreeDDot, ThreeDChartDefs } from "@/components/ui/chart-3d";
 import { useCropHistory, CropHistoryItem } from "@/hooks/use-crop-history";
 
 // Comprehensive Agronomic & Future Profitability Database for Odisha
@@ -367,34 +368,38 @@ export function CropDetailModal({
                 </div>
               </div>
 
-              {/* 7-Day Trend Chart */}
-              <div className="p-4 rounded-lg border border-border/80 bg-muted/10 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                  <span>Price Progression (Past 7 Days)</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">APMC Wholesale Modal (₹/{unit})</span>
-                </div>
+              {/* 7-Day Trend Chart (3D Perspective) */}
+              <Chart3DContainer
+                title="Price Progression (Past 7 Days)"
+                subtitle={`APMC Wholesale Modal (₹/${unit})`}
+                badge="3D Trend"
+                show3DBadge={true}
+              >
                 <div className="h-44 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
+                    <LineChart data={chartData} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
+                      <ThreeDChartDefs />
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
                       <XAxis dataKey="day" tick={{ fontSize: 10 }} stroke="#888888" />
                       <YAxis tick={{ fontSize: 10 }} stroke="#888888" domain={["auto", "auto"]} />
                       <Tooltip
                         formatter={(val: any) => [`₹${val}/${unit}`, "Mandi Price"]}
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          borderColor: "hsl(var(--border))",
-                          borderRadius: "6px",
+                          backgroundColor: "rgba(10, 10, 10, 0.9)",
+                          borderColor: "rgba(255, 255, 255, 0.15)",
+                          backdropFilter: "blur(16px)",
+                          borderRadius: "12px",
                           fontSize: "12px",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
                         }}
                       />
                       <Line
                         type="monotone"
                         dataKey="price"
                         stroke="#10b981"
-                        strokeWidth={2.5}
-                        dot={{ r: 4, fill: "#10b981" }}
-                        activeDot={{ r: 6 }}
+                        strokeWidth={3}
+                        dot={<ThreeDDot />}
+                        activeDot={{ r: 8, stroke: "#ffffff", strokeWidth: 2 }}
                         isAnimationActive={true}
                         animationDuration={1800}
                         animationEasing="ease-out"
@@ -402,7 +407,7 @@ export function CropDetailModal({
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </Chart3DContainer>
 
               {/* Mandi Intelligence Notice */}
               <div className="p-3 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-start gap-2">

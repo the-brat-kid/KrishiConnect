@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Chart3DContainer, ThreeDBar, ThreeDChartDefs } from "@/components/ui/chart-3d";
 
 interface CropCostBreakdown {
   seeds: number;
@@ -438,29 +439,42 @@ export default function CropPlannerPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-64 sm:h-72 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" stroke="#888888" />
-                <YAxis tick={{ fontSize: 11 }} stroke="#888888" tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  formatter={(val: number, name: string) => [
-                    `₹${val.toLocaleString("en-IN")}`,
-                    name === "profitPerAcre" ? "Net Profit / Acre" : "Cultivation Cost / Acre",
-                  ]}
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--background))",
-                    borderColor: "hsl(var(--border))",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "12px" }} />
-                <Bar dataKey="profitPerAcre" name="Net Profit (₹/Acre)" fill="#10b981" radius={[4, 4, 0, 0]} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
-                <Bar dataKey="costPerAcre" name="Cultivation Cost (₹/Acre)" fill="#64748b" radius={[4, 4, 0, 0]} opacity={0.7} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="pt-2">
+            <Chart3DContainer
+              title="Net Profit vs Cultivation Cost (₹ / Acre)"
+              subtitle="Rabi Season Econometric Model"
+              icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
+              badge="3D Economics"
+              show3DBadge={true}
+            >
+              <div className="h-64 sm:h-72 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 15, right: 15, left: 0, bottom: 20 }}>
+                    <ThreeDChartDefs />
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" stroke="#888888" />
+                    <YAxis tick={{ fontSize: 11 }} stroke="#888888" tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`} />
+                    <Tooltip
+                      formatter={(val: number, name: string) => [
+                        `₹${val.toLocaleString("en-IN")}`,
+                        name === "profitPerAcre" ? "Net Profit / Acre" : "Cultivation Cost / Acre",
+                      ]}
+                      contentStyle={{
+                        backgroundColor: "rgba(10, 10, 10, 0.9)",
+                        borderColor: "rgba(255, 255, 255, 0.15)",
+                        borderRadius: "12px",
+                        backdropFilter: "blur(16px)",
+                        fontSize: "12px",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "12px" }} />
+                    <Bar dataKey="profitPerAcre" name="Net Profit (₹/Acre)" fill="url(#threed-emerald)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
+                    <Bar dataKey="costPerAcre" name="Cultivation Cost (₹/Acre)" fill="url(#threed-sky)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Chart3DContainer>
           </div>
         </CardContent>
       </Card>

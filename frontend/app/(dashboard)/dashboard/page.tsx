@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Tilt } from "@/components/core/tilt";
+import { Chart3DContainer, ThreeDBar, ThreeDChartDefs } from "@/components/ui/chart-3d";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { useCropRates } from "@/hooks/use-crop-rates";
@@ -480,38 +481,38 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right Column: Comparative Price Graph (Blended Liquid Glass Container) */}
-            <div className="lg:col-span-6 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)] min-w-0 overflow-hidden">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <BarChart2 className="w-4 h-4 text-primary" />
-                  Wholesale vs Retail Price Spread (₹/kg)
-                </span>
-                <span className="text-[11px] text-muted-foreground">{currentRegionDef.primaryHubs[0] || "National"} Yard</span>
-              </div>
-
-              <div className="w-full h-64 pt-2 min-w-0 overflow-hidden">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={mandiChartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#888888" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#888888" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(10, 10, 10, 0.9)",
-                        backdropFilter: "blur(16px)",
-                        borderColor: "rgba(255, 255, 255, 0.15)",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
-                    <Bar dataKey="wholesale" name="Wholesale Mandi" fill="#15803d" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
-                    <Bar dataKey="retail" name="Retail Baseline" fill="#d97706" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            {/* Right Column: Comparative Price Graph (3D Perspective Container) */}
+            <div className="lg:col-span-6 flex flex-col justify-between h-full min-w-0">
+              <Chart3DContainer
+                title="Wholesale vs Retail Price Spread (₹/kg)"
+                subtitle={`${currentRegionDef.primaryHubs[0] || "National"} Yard`}
+                icon={<BarChart2 className="w-4 h-4 text-emerald-400" />}
+                badge="3D Isometric"
+              >
+                <div className="w-full h-64 pt-2 min-w-0 overflow-hidden">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={mandiChartData} margin={{ top: 15, right: 15, left: -15, bottom: 0 }}>
+                      <ThreeDChartDefs />
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#888888" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="#888888" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(10, 10, 10, 0.9)",
+                          backdropFilter: "blur(16px)",
+                          borderColor: "rgba(255, 255, 255, 0.15)",
+                          borderRadius: "12px",
+                          fontSize: "12px",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
+                      <Bar dataKey="wholesale" name="Wholesale Mandi" fill="url(#threed-emerald)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
+                      <Bar dataKey="retail" name="Retail Baseline" fill="url(#threed-amber)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Chart3DContainer>
             </div>
           </div>
         </CardContent>
@@ -623,45 +624,49 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right Column: Weekly Price Trend */}
-            <div className="lg:col-span-7 flex flex-col justify-between h-full bg-white/[0.03] dark:bg-black/25 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(0,0,0,0.25)] min-w-0 overflow-hidden">
-              <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                7-Day Price Fluctuation (₹/kg)
-              </span>
-              <div className="w-full h-56 pt-2 min-w-0 overflow-hidden">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { day: "Mon", Potato: 26, Onion: 56, Tomato: 34 },
-                      { day: "Tue", Potato: 26, Onion: 55, Tomato: 35 },
-                      { day: "Wed", Potato: 27, Onion: 54, Tomato: 36 },
-                      { day: "Thu", Potato: 27, Onion: 53, Tomato: 36 },
-                      { day: "Fri", Potato: 28, Onion: 52, Tomato: 37 },
-                      { day: "Sat", Potato: 28, Onion: 52, Tomato: 38 },
-                      { day: "Today", Potato: 28, Onion: 52, Tomato: 38 },
-                    ]}
-                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
-                    <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#888888" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="#888888" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(10, 10, 10, 0.9)",
-                        backdropFilter: "blur(16px)",
-                        borderColor: "rgba(255, 255, 255, 0.15)",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
-                    <Bar dataKey="Potato" fill="#ca8a04" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Onion" fill="#e11d48" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Tomato" fill="#16a34a" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            {/* Right Column: Weekly Price Trend (3D Isometric Container) */}
+            <div className="lg:col-span-7 flex flex-col justify-between h-full min-w-0">
+              <Chart3DContainer
+                title="7-Day Price Fluctuation (₹/kg)"
+                subtitle="Historical Volatility Spectrum"
+                icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
+                badge="3D Depth"
+              >
+                <div className="w-full h-56 pt-2 min-w-0 overflow-hidden">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { day: "Mon", Potato: 26, Onion: 56, Tomato: 34 },
+                        { day: "Tue", Potato: 26, Onion: 55, Tomato: 35 },
+                        { day: "Wed", Potato: 27, Onion: 54, Tomato: 36 },
+                        { day: "Thu", Potato: 27, Onion: 53, Tomato: 36 },
+                        { day: "Fri", Potato: 28, Onion: 52, Tomato: 37 },
+                        { day: "Sat", Potato: 28, Onion: 52, Tomato: 38 },
+                        { day: "Today", Potato: 28, Onion: 52, Tomato: 38 },
+                      ]}
+                      margin={{ top: 15, right: 15, left: -15, bottom: 0 }}
+                    >
+                      <ThreeDChartDefs />
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                      <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#888888" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="#888888" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(10, 10, 10, 0.9)",
+                          backdropFilter: "blur(16px)",
+                          borderColor: "rgba(255, 255, 255, 0.15)",
+                          borderRadius: "12px",
+                          fontSize: "12px",
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
+                      <Bar dataKey="Potato" name="Potato" fill="url(#threed-amber)" shape={<ThreeDBar />} />
+                      <Bar dataKey="Onion" name="Onion" fill="url(#threed-rose)" shape={<ThreeDBar />} />
+                      <Bar dataKey="Tomato" name="Tomato" fill="url(#threed-emerald)" shape={<ThreeDBar />} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Chart3DContainer>
             </div>
           </div>
         </CardContent>

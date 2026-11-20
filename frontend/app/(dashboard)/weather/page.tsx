@@ -29,6 +29,7 @@ import {
   Layers,
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import { Chart3DContainer, ThreeDBar, ThreeDChartDefs } from "@/components/ui/chart-3d";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -450,24 +451,19 @@ export default function FarmWeatherPage() {
             </div>
           </div>
 
-          {/* 24-Hour Hourly Probability of Rain Chart */}
-          <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div>
-                <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
-                  <Clock className="w-4 h-4 text-emerald-400" />
-                  <span>24-Hour Timeline: Rain Probability (%)</span>
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Hour-by-hour chance of precipitation for {selectedMandi.name} to plan harvesting and mandi dispatch.
-                </p>
-              </div>
-            </div>
-
-            <div className="h-44 w-full">
+          {/* 24-Hour Hourly Probability of Rain Chart (3D Perspective) */}
+          <Chart3DContainer
+            title={`24-Hour Timeline: Rain Probability (%) — ${selectedMandi.name}`}
+            subtitle="Hour-by-hour chance of precipitation to plan harvesting and mandi dispatch"
+            icon={<Clock className="w-4 h-4 text-emerald-400" />}
+            badge="3D Meteo"
+            show3DBadge={true}
+          >
+            <div className="h-48 w-full pt-2">
               {weatherData?.hourly && weatherData.hourly.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weatherData.hourly.slice(0, 16)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <BarChart data={weatherData.hourly.slice(0, 16)} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
+                    <ThreeDChartDefs />
                     <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a1a1aa" }} tickLine={false} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#a1a1aa" }} tickLine={false} tickFormatter={(val) => `${val}%`} />
                     <Tooltip
@@ -488,18 +484,18 @@ export default function FarmWeatherPage() {
                         return null;
                       }}
                     />
-                    <Bar dataKey="rainProb" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="rainProb" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={1600}>
                       {weatherData.hourly.slice(0, 16).map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={
                             entry.rainProb > 70
-                              ? "#ef4444"
+                              ? "url(#threed-rose)"
                               : entry.rainProb > 40
-                              ? "#f59e0b"
+                              ? "url(#threed-amber)"
                               : entry.rainProb > 20
-                              ? "#3b82f6"
-                              : "#10b981"
+                              ? "url(#threed-sky)"
+                              : "url(#threed-emerald)"
                           }
                         />
                       ))}
@@ -512,7 +508,7 @@ export default function FarmWeatherPage() {
                 </div>
               )}
             </div>
-          </div>
+          </Chart3DContainer>
 
           {/* 7-Day Regional Agricultural Forecast with Rain Prob & Volume */}
           <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
