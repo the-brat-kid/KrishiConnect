@@ -212,41 +212,6 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
               </div>
             </div>
 
-            {/* Dedicated Offline Aadhaar e-KYC Verification Section */}
-            <div className="p-3 mx-3 mt-2 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-emerald-900/20 to-black/60 border border-emerald-500/30 backdrop-blur-xl space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
-                  <span>Aadhaar e-KYC &amp; Compliance</span>
-                </span>
-                <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-2 font-mono">
-                  UIDAI Offline
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                <div className="p-1.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                  <span className="text-muted-foreground text-[10px]">Secure QR:</span>
-                  <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
-                    <CheckCircle2 className="h-2.5 w-2.5" /> RSA-SHA256
-                  </span>
-                </div>
-                <div className="p-1.5 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                  <span className="text-muted-foreground text-[10px]">APMC Status:</span>
-                  <span className="text-emerald-400 font-bold text-[10px] flex items-center gap-1">
-                    <CheckCircle2 className="h-2.5 w-2.5" /> Certified
-                  </span>
-                </div>
-              </div>
-
-              <Link
-                href="/settings?tab=kyc"
-                className="w-full h-7 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-[11px] font-bold text-emerald-300 flex items-center justify-center gap-1.5 transition-all shadow-[0_0_10px_rgba(16,185,129,0.15)] cursor-pointer"
-              >
-                <span>Open Aadhaar KYC Hub</span>
-                <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
 
             {/* Platform Region & Place Controller in User Login Menu */}
             <div className="p-3 mx-3 mt-3 rounded-2xl bg-white/[0.04] dark:bg-black/60 border border-white/12 backdrop-blur-xl space-y-2.5">
