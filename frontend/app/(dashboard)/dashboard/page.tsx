@@ -137,7 +137,13 @@ function CropIcon({ image, alt, emoji }: { image: string; alt: string; emoji: st
 
 export default function DashboardPage() {
   const { user, businessProfile } = useAuth();
-  const { currentRegionDef } = useLanguage();
+  const {
+    currentRegionDef,
+    selectedState,
+    selectedPlaceId,
+    selectedMandiObj,
+    setRegionAndPlace,
+  } = useLanguage();
   const displayName = user?.name || user?.full_name || businessProfile?.business_name || "Kisan";
 
   // Live Mandi Query Hook (automatically reflects active State/Region)
@@ -145,9 +151,7 @@ export default function DashboardPage() {
     data: cropRatesData,
     isFetching: ratesFetching,
     refetch: refetchRates,
-  } = useCropRates(
-    currentRegionDef?.name === "All India" ? undefined : currentRegionDef?.name
-  );
+  } = useCropRates(selectedState || currentRegionDef?.name);
 
   const [selectedCropModal, setSelectedCropModal] = useState<{
     name: string;
@@ -313,7 +317,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Store className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                  <span>Today&apos;s Mandi Baselines ({currentRegionDef.primaryHubs[0] || "National"} APMC)</span>
+                  <span>Today&apos;s Mandi Baselines ({selectedMandiObj.name})</span>
                 </CardTitle>
 
                 {/* Blended Liquid Glass Live Badge */}
@@ -324,7 +328,7 @@ export default function DashboardPage() {
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                <span>Wholesale modal auction rates across {currentRegionDef.name} & National APMC Mandis.</span>
+                <span>Wholesale modal auction rates in {selectedMandiObj.name} ({selectedState}) &amp; National APMC network.</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 font-mono">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   {lastUpdatedText}
@@ -504,9 +508,15 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <ViewOnMap
-            locationName={`${currentRegionDef.name} Mandi Network`}
-            address={`${currentRegionDef.primaryHubs[0]} APMC Market, ${currentRegionDef.name}`}
-            state={currentRegionDef.name}
+            key={`${selectedMandiObj.id}-${selectedState}`}
+            locationName={selectedMandiObj.name}
+            address={selectedMandiObj.address}
+            lat={selectedMandiObj.lat}
+            lon={selectedMandiObj.lon}
+            state={selectedState}
+            onLocationChange={(mandi) => {
+              setRegionAndPlace(mandi.state, mandi.id);
+            }}
             className="w-full h-[460px] sm:h-[500px]"
           />
         </CardContent>

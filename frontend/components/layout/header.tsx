@@ -18,6 +18,7 @@ import {
   Building2,
   MapPin,
   Sparkles,
+  Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,7 @@ import {
 import { NotificationBell } from "./notification-bell";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { STATE_NAMES, getMandisForState } from "@/lib/mandi-regions";
 import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
 import { SwitchMode } from "@/components/ui/switch-mode";
 import { TooltipNavbar, TooltipItem } from "@/components/ui/tooltip-navbar";
@@ -44,7 +46,16 @@ interface HeaderProps {
 export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
   const { setTheme, theme } = useTheme();
   const { user, businessProfile, logout } = useAuth();
-  const { currentRegionDef, t } = useLanguage();
+  const {
+    currentRegionDef,
+    t,
+    selectedState,
+    selectedPlaceId,
+    selectedMandiObj,
+    setRegionAndPlace,
+  } = useLanguage();
+
+  const currentPlaces = getMandisForState(selectedState);
 
   const displayName = user?.full_name || user?.name || businessProfile?.business_name || "Kisan";
   const userInitials = (displayName || "Kisan")
@@ -115,9 +126,9 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
             </span>
           </Link>
         </div>
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] border border-[#3D3D3D] text-[11px] font-semibold text-[#C0C0C0]">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>{currentRegionDef.primaryHubs[0]} APMC {t("common.live")}</span>
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#242424] border border-[#3D3D3D] text-[11px] font-semibold text-[#C0C0C0] max-w-[280px]">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_6px_#34d399]" />
+          <span className="truncate">{selectedMandiObj ? selectedMandiObj.name : `${currentRegionDef.primaryHubs[0]} APMC`} {t("common.live")}</span>
         </div>
       </div>
 
@@ -196,8 +207,65 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
               </div>
             </div>
 
-            {/* Farm / Business & Mandi Corridor Context Card */}
-            <div className="p-3 mx-3 mt-3 rounded-xl bg-white/[0.04] dark:bg-white/[0.03] border border-white/10 backdrop-blur-md space-y-2">
+            {/* Platform Region & Place Controller in User Login Menu */}
+            <div className="p-3 mx-3 mt-3 rounded-2xl bg-white/[0.04] dark:bg-black/60 border border-white/12 backdrop-blur-xl space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Compass className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Region &amp; Mandi Yard</span>
+                </span>
+                <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-2">
+                  Site Sync
+                </span>
+              </div>
+
+              {/* Dual Controls: State & Mandi */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {/* State Select */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-muted-foreground block">
+                    State / Region
+                  </label>
+                  <select
+                    value={selectedState}
+                    onChange={(e) => setRegionAndPlace(e.target.value)}
+                    className="w-full h-8 rounded-xl bg-black/80 border border-white/15 px-2 text-[11px] font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 cursor-pointer"
+                  >
+                    {STATE_NAMES.map((st) => (
+                      <option key={st} value={st} className="bg-neutral-900 text-white">
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Mandi/Place Select */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-muted-foreground block">
+                    Mandi Hub
+                  </label>
+                  <select
+                    value={selectedPlaceId}
+                    onChange={(e) => setRegionAndPlace(selectedState, e.target.value)}
+                    className="w-full h-8 rounded-xl bg-black/80 border border-white/15 px-2 text-[11px] font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-400 cursor-pointer truncate"
+                  >
+                    {currentPlaces.map((pl) => (
+                      <option key={pl.id} value={pl.id} className="bg-neutral-900 text-white">
+                        {pl.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono pt-0.5 truncate">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span className="truncate">Active: {selectedMandiObj.name}</span>
+              </div>
+            </div>
+
+            {/* Farm / Business Context Card */}
+            <div className="p-3 mx-3 mt-2 rounded-xl bg-white/[0.04] dark:bg-white/[0.03] border border-white/10 backdrop-blur-md space-y-1.5">
               <div className="flex items-center justify-between text-xs font-semibold text-foreground">
                 <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                   <Building2 className="h-3.5 w-3.5 text-primary" />
@@ -210,13 +278,6 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
               <p className="text-xs font-semibold text-foreground truncate">
                 {businessProfile?.business_name || `${displayName}'s Mandi Trade Hub`}
               </p>
-              
-              <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-[11px] text-muted-foreground">
-                <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
-                <span className="truncate">
-                  {currentRegionDef.name} • {currentRegionDef.primaryHubs[0]} APMC Hub
-                </span>
-              </div>
             </div>
 
             {/* Quick Actions & Navigation List */}

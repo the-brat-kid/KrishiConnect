@@ -44,8 +44,9 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
     const activeIcon = buttonRefs.current[index];
     if (!activeIcon) return;
     const rect = activeIcon.getBoundingClientRect();
-    const top = tooltipPosition === "top" ? rect.top - 42 : rect.bottom + 8;
-    const left = rect.left + rect.width / 2;
+    const top = tooltipPosition === "top" ? rect.top - 44 : rect.bottom + 10;
+    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const left = Math.max(80, Math.min(viewportWidth - 80, rect.left + rect.width / 2));
     setTooltipCoords({ top, left });
     setActiveIndex(index);
   };
@@ -162,14 +163,14 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
         tooltipCoords &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-[99999] transition-all duration-150 ease-out"
+            className="pointer-events-none fixed z-[999999] transition-all duration-150 ease-out"
             style={{
               top: `${tooltipCoords.top}px`,
               left: `${tooltipCoords.left}px`,
               transform: "translateX(-50%)",
             }}
           >
-            <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/20 dark:border-neutral-700/80 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150">
+            <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-900/95 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.9)] border border-white/20 dark:border-white/15 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150">
               <span className="text-white">{activeItem.label}</span>
               {activeItem.hasBadge && (
                 <div className="flex items-center gap-0.5 text-white/50">

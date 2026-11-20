@@ -125,26 +125,42 @@ interface WeatherApiResponse {
 }
 
 export default function FarmWeatherPage() {
-  const { currentRegionDef } = useLanguage();
-  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(DEFAULT_MANDI);
+  const {
+    currentRegionDef,
+    selectedState,
+    selectedPlaceId,
+    selectedMandiObj,
+    setRegionAndPlace,
+  } = useLanguage();
+
+  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(() => ({
+    id: selectedMandiObj?.id || DEFAULT_MANDI.id,
+    name: selectedMandiObj?.name || DEFAULT_MANDI.name,
+    state: selectedMandiObj?.state || DEFAULT_MANDI.state,
+    district: selectedMandiObj?.district || DEFAULT_MANDI.district,
+    address: selectedMandiObj?.address || DEFAULT_MANDI.address,
+    lat: selectedMandiObj?.lat || DEFAULT_MANDI.lat,
+    lon: selectedMandiObj?.lon || DEFAULT_MANDI.lon,
+  }));
+
   const [weatherData, setWeatherData] = useState<WeatherApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Sync mandi with active region from header if applicable
+  // Sync mandi with active region and mandi from global context
   useEffect(() => {
-    if (currentRegionDef?.name && currentRegionDef.name !== "All India") {
-      if (selectedMandi.state.toLowerCase() !== currentRegionDef.name.toLowerCase()) {
-        setSelectedMandi((prev) => ({
-          ...prev,
-          state: currentRegionDef.name,
-          name: `${currentRegionDef.primaryHubs[0]} APMC Mandi`,
-          district: currentRegionDef.primaryHubs[0],
-          address: `${currentRegionDef.primaryHubs[0]} APMC Yard, ${currentRegionDef.name}`,
-        }));
-      }
+    if (selectedMandiObj) {
+      setSelectedMandi({
+        id: selectedMandiObj.id,
+        name: selectedMandiObj.name,
+        state: selectedMandiObj.state,
+        district: selectedMandiObj.district,
+        address: selectedMandiObj.address,
+        lat: selectedMandiObj.lat,
+        lon: selectedMandiObj.lon,
+      });
     }
-  }, [currentRegionDef?.name]);
+  }, [selectedMandiObj]);
 
   // Fetch weather data directly calibrated from NASA POWER & Earth Observation
   const fetchWeather = async (mandi: MandiOption) => {
@@ -248,6 +264,7 @@ export default function FarmWeatherPage() {
           lon={selectedMandi.lon}
           state={selectedMandi.state}
           onLocationChange={(loc) => {
+            setRegionAndPlace(loc.state, loc.id);
             setSelectedMandi({
               id: loc.id,
               name: loc.name,

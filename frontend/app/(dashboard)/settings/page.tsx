@@ -33,14 +33,27 @@ import {
   Send,
   User,
   CheckCircle,
+  Compass,
 } from "lucide-react";
 import api from "@/lib/api";
+import {
+  MandiLocation,
+  REGIONAL_MANDIS,
+  STATE_NAMES,
+  getMandisForState,
+} from "@/lib/mandi-regions";
 
 export default function SettingsPage() {
   const { data: profile, isLoading } = useBusinessProfile();
   const { mutateAsync: updateProfile } = useUpdateBusinessProfile();
   const { user } = useAuth();
-  const { currentRegionDef } = useLanguage();
+  const {
+    selectedState,
+    selectedPlaceId,
+    selectedMandiObj,
+    setRegionAndPlace,
+    currentRegionDef,
+  } = useLanguage();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -51,6 +64,29 @@ export default function SettingsPage() {
     upi_id: "",
     phone: "",
   });
+
+  const handleStateSelect = (newState: string) => {
+    setRegionAndPlace(newState);
+    const mandis = getMandisForState(newState);
+    if (mandis.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        address: mandis[0].address,
+      }));
+    }
+  };
+
+  const handleMandiSelect = (placeId: string) => {
+    setRegionAndPlace(selectedState, placeId);
+    const mandis = getMandisForState(selectedState);
+    const chosen = mandis.find((m) => m.id === placeId);
+    if (chosen) {
+      setFormData((prev) => ({
+        ...prev,
+        address: chosen.address,
+      }));
+    }
+  };
 
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [copiedUpi, setCopiedUpi] = useState(false);
@@ -261,6 +297,67 @@ export default function SettingsPage() {
                     placeholder="e.g. +91 98765 43210"
                     className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 focus:bg-white/[0.08] backdrop-blur-xl rounded-xl text-foreground font-medium transition-all"
                   />
+                </div>
+
+                {/* Farming Region & Mandi Hub Calibration */}
+                <div className="sm:col-span-2 p-4 rounded-2xl bg-white/[0.04] dark:bg-black/60 border border-white/12 backdrop-blur-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground flex items-center gap-2">
+                      <Compass className="h-4 w-4 text-emerald-400" />
+                      <span>Farming Region &amp; Primary APMC Mandi Yard</span>
+                    </span>
+                    <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
+                      Platform-Wide Sync
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Tailors live crop prices, NASA satellite weather telemetry, and transport freight routes across the entire portal.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {/* State Selector */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-muted-foreground block">
+                        State / Agricultural Territory
+                      </label>
+                      <select
+                        value={selectedState}
+                        onChange={(e) => handleStateSelect(e.target.value)}
+                        className="h-10 w-full rounded-xl border border-white/15 bg-black/70 px-3 text-xs font-bold text-foreground focus:border-emerald-500/60 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 backdrop-blur-xl transition-all cursor-pointer"
+                      >
+                        {STATE_NAMES.map((st) => (
+                          <option key={st} value={st} className="bg-neutral-900 text-white">
+                            {st}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Mandi Yard Selector */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-muted-foreground block">
+                        Primary Mandi Hub Yard
+                      </label>
+                      <select
+                        value={selectedPlaceId}
+                        onChange={(e) => handleMandiSelect(e.target.value)}
+                        className="h-10 w-full rounded-xl border border-white/15 bg-black/70 px-3 text-xs font-bold text-foreground focus:border-emerald-500/60 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 backdrop-blur-xl transition-all cursor-pointer truncate"
+                      >
+                        {getMandisForState(selectedState).map((pl) => (
+                          <option key={pl.id} value={pl.id} className="bg-neutral-900 text-white">
+                            {pl.name} ({pl.district})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[11px] text-emerald-400 font-mono pt-1">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">
+                      Active: {selectedMandiObj.name} • {selectedMandiObj.lat.toFixed(3)}°N, {selectedMandiObj.lon.toFixed(3)}°E
+                    </span>
+                  </div>
                 </div>
 
                 {/* Registered Address */}
@@ -555,10 +652,13 @@ export default function SettingsPage() {
 
             <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-1">
               <div className="text-sm font-bold text-foreground">
-                {currentRegionDef.name} Mandi Network
+                {selectedState} Mandi Network
               </div>
               <div className="text-xs text-muted-foreground">
-                Primary APMC Hub: <span className="text-emerald-400 font-semibold">{currentRegionDef.primaryHubs[0]}</span>
+                Primary APMC Hub: <span className="text-emerald-400 font-semibold">{selectedMandiObj.name}</span>
+              </div>
+              <div className="text-[10px] text-muted-foreground/80 font-mono pt-0.5">
+                {selectedMandiObj.lat.toFixed(3)}°N, {selectedMandiObj.lon.toFixed(3)}°E • {selectedMandiObj.district}
               </div>
             </div>
 

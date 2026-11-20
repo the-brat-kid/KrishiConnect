@@ -1,7 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import {
+  MandiLocation,
+  REGIONAL_MANDIS,
+  stateToRegionId,
+  getMandisForState,
+} from "./mandi-regions";
 
 export type RegionId =
   | "all_india"
@@ -895,6 +901,10 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
 interface LanguageContextType {
   region: RegionId;
   setRegion: (region: RegionId) => void;
+  selectedState: string;
+  selectedPlaceId: string;
+  selectedMandiObj: MandiLocation;
+  setRegionAndPlace: (state: string, placeIdOrName?: string) => void;
   language: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
   availableLanguages: LanguageCode[];
@@ -906,6 +916,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const STORAGE_KEY_REGION = "krishi_user_region";
 const STORAGE_KEY_LANG = "krishi_user_lang";
+const STORAGE_KEY_STATE = "krishi_user_state";
+const STORAGE_KEY_PLACE = "krishi_user_place";
 
 // In-memory registry of original DOM text to allow clean reversal
 const originalTextMap = new WeakMap<Node, string>();
@@ -1300,6 +1312,8 @@ export function applyNativeSiteTranslation(targetLang: LanguageCode) {
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [region, setRegionState] = useState<RegionId>("all_india");
   const [language, setLanguageState] = useState<LanguageCode>("en");
+  const [selectedState, setSelectedState] = useState<string>("Odisha");
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string>("bhubaneswar");
   const pathname = usePathname();
 
   // Load from localStorage on mount & initialize Native DOM translation
@@ -1307,9 +1321,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     try {
       const savedRegion = localStorage.getItem(STORAGE_KEY_REGION) as RegionId | null;
       const savedLang = localStorage.getItem(STORAGE_KEY_LANG) as LanguageCode | null;
+      const savedState = localStorage.getItem(STORAGE_KEY_STATE);
+      const savedPlace = localStorage.getItem(STORAGE_KEY_PLACE);
 
       let initialRegion: RegionId = "all_india";
       let initialLang: LanguageCode = "en";
+
+      if (savedState && REGIONAL_MANDIS[savedState]) {
+        setSelectedState(savedState);
+        if (savedPlace) {
+          setSelectedPlaceId(savedPlace);
+        } else {
+          setSelectedPlaceId(REGIONAL_MANDIS[savedState][0].id);
+        }
+      }
 
       if (savedRegion && REGIONS[savedRegion]) {
         initialRegion = savedRegion;
@@ -1394,6 +1419,35 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     applyNativeSiteTranslation(newLang);
   };
 
+  const selectedMandiObj: MandiLocation = useMemo(() => {
+    const list = REGIONAL_MANDIS[selectedState] || REGIONAL_MANDIS["Odisha"];
+    return list.find((p) => p.id === selectedPlaceId) || list[0];
+  }, [selectedState, selectedPlaceId]);
+
+  const setRegionAndPlace = (stateName: string, placeIdOrName?: string) => {
+    const validState = REGIONAL_MANDIS[stateName] ? stateName : "Odisha";
+    setSelectedState(validState);
+    const list = REGIONAL_MANDIS[validState];
+
+    let targetPlace = list[0];
+    if (placeIdOrName) {
+      const found = list.find(
+        (p) => p.id === placeIdOrName || p.name.toLowerCase() === placeIdOrName.toLowerCase()
+      );
+      if (found) targetPlace = found;
+    }
+    setSelectedPlaceId(targetPlace.id);
+
+    // Sync region ID for translations & language
+    const regId = stateToRegionId(validState) as RegionId;
+    setRegion(regId);
+
+    try {
+      localStorage.setItem(STORAGE_KEY_STATE, validState);
+      localStorage.setItem(STORAGE_KEY_PLACE, targetPlace.id);
+    } catch (e) {}
+  };
+
   const currentRegionDef = REGIONS[region] || REGIONS.all_india || REGIONS.odisha;
   const availableLanguages = currentRegionDef.supportedLangs;
 
@@ -1416,6 +1470,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       value={{
         region,
         setRegion,
+        selectedState,
+        selectedPlaceId,
+        selectedMandiObj,
+        setRegionAndPlace,
         language,
         setLanguage,
         availableLanguages,
