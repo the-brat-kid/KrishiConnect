@@ -11,7 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: any) => Promise<void>;
-  loginWithOtp: (phone: string, otp: string, name?: string, role?: string) => Promise<void>;
+  loginWithOtp: (target: string | { phone?: string; email?: string }, otp: string, name?: string, role?: string) => Promise<void>;
   loginWithFirebasePhone: (idToken: string, phone: string, name?: string, role?: string) => Promise<void>;
   loginWithGoogle: (credential: string) => Promise<void>;
   demoLogin: (role: "farmer" | "trader") => Promise<void>;
@@ -70,8 +70,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/dashboard");
   };
 
-  const loginWithOtp = async (phone: string, otp: string, name?: string, role?: string) => {
-    const res = await api.post("/auth/otp/verify", { phone, otp, name, role });
+  const loginWithOtp = async (target: string | { phone?: string; email?: string }, otp: string, name?: string, role?: string) => {
+    let payload: any = { otp, name, role };
+    if (typeof target === "string") {
+      if (target.includes("@")) {
+        payload.email = target.trim().toLowerCase();
+      } else {
+        payload.phone = target.replace(/\D/g, "").slice(-10);
+      }
+    } else {
+      payload = { ...payload, ...target };
+    }
+    const res = await api.post("/auth/otp/verify", payload);
     const { access_token, refresh_token, user: userData, business_profile } = res.data;
     localStorage.setItem("access_token", access_token);
     localStorage.setItem("refresh_token", refresh_token);
