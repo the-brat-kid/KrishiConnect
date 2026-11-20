@@ -530,11 +530,11 @@ export default function DashboardPage() {
                 </CardTitle>
                 <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30">
                   <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                  <span>Live Geospatial Satellites</span>
+                  <span>Live Cloud Movement &amp; Weather Radar</span>
                 </div>
               </div>
               <CardDescription className="text-xs text-muted-foreground mt-1">
-                Real-time satellite cloud formations, aerosol AQI depth, and regional agro-climate observation across major Indian Mandis.
+                Real-time satellite cloud movement, Doppler precipitation radar, and regional agro-climate observation across major Indian Mandis.
               </CardDescription>
             </div>
             <Link

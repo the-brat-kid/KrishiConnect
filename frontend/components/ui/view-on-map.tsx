@@ -17,6 +17,8 @@ import {
   ChevronDown,
   Thermometer,
   Droplets,
+  CloudLightning,
+  RefreshCw,
 } from "lucide-react";
 import {
   MandiLocation,
@@ -38,7 +40,13 @@ export interface ViewOnMapProps {
   onLocationChange?: (mandi: MandiLocation) => void;
 }
 
-type LayerMode = "truecolor" | "aqi" | "clouds" | "hybrid";
+export type LayerMode =
+  | "live_clouds"
+  | "live_radar"
+  | "live_wind"
+  | "truecolor"
+  | "aqi"
+  | "hybrid";
 
 export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   locationName = "APMC Mandi Hub",
@@ -78,8 +86,11 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   const currentPlaceName = activePlace.name;
   const currentAddress = activePlace.address;
 
-  const [activeLayer, setActiveLayer] = useState<LayerMode>("truecolor");
+  // Active Layer: Defaults to Live Cloud Movement
+  const [activeLayer, setActiveLayer] = useState<LayerMode>("live_clouds");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isAllIndia, setIsAllIndia] = useState(false);
+
   const [nasaData, setNasaData] = useState<{
     temperature_c?: number;
     relative_humidity_pct?: number;
@@ -160,6 +171,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   // Handle State Change
   const handleStateChange = (newState: string) => {
     setSelectedState(newState);
+    setIsAllIndia(false);
     const places = REGIONAL_MANDIS[newState];
     if (places && places.length > 0) {
       const firstPlace = places[0];
@@ -174,6 +186,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   // Handle Place Change
   const handlePlaceChange = (newPlaceId: string) => {
     setSelectedPlaceId(newPlaceId);
+    setIsAllIndia(false);
     const place = availablePlaces.find((p) => p.id === newPlaceId);
     if (place) {
       if (onLocationChange) onLocationChange(place);
@@ -185,13 +198,43 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
   // Quick Fly to All India
   const handleAllIndiaView = () => {
+    setIsAllIndia(true);
     if (mapInstanceRef.current) {
       mapInstanceRef.current.flyTo([22.8, 82.5], 5, { duration: 1.3 });
     }
   };
 
-  // Initialize and update Leaflet Map
+  // Dynamic live stream embed URL for animated cloud, radar, and wind movement
+  const liveStreamUrl = useMemo(() => {
+    const overlay =
+      activeLayer === "live_radar"
+        ? "radar"
+        : activeLayer === "live_wind"
+        ? "wind"
+        : "clouds";
+
+    const zoom = isAllIndia ? 5 : 6;
+    const centerLat = isAllIndia ? 22.8 : currentLat;
+    const centerLon = isAllIndia ? 82.5 : currentLon;
+
+    return `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${zoom}&overlay=${overlay}&product=ecmwf&level=surface&lat=${centerLat}&lon=${centerLon}&detailLat=${currentLat}&detailLon=${currentLon}&marker=true&pressure=true&message=true`;
+  }, [activeLayer, isAllIndia, currentLat, currentLon]);
+
+  const isLiveStreamActive =
+    activeLayer === "live_clouds" ||
+    activeLayer === "live_radar" ||
+    activeLayer === "live_wind";
+
+  // Initialize and update Leaflet Map when satellite/AQI/hybrid is selected
   useEffect(() => {
+    if (isLiveStreamActive) {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      return;
+    }
+
     let isMounted = true;
     let map: any = null;
 
@@ -207,8 +250,8 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
       }
 
       map = L.map(mapContainerRef.current, {
-        center: [currentLat, currentLon],
-        zoom: 8,
+        center: isAllIndia ? [22.8, 82.5] : [currentLat, currentLon],
+        zoom: isAllIndia ? 5 : 8,
         zoomControl: false,
         attributionControl: false,
       });
@@ -225,7 +268,6 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           { maxZoom: 9, minZoom: 3 }
         ).addTo(map);
       } else if (activeLayer === "aqi") {
-        // Watermark-free high-res Dark Gray Canvas Base
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
           { maxZoom: 16 }
@@ -235,24 +277,12 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_Aerosol_Optical_Depth_3km/default/${gibsDate}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
           { maxZoom: 8, minZoom: 3, opacity: 0.85 }
         ).addTo(map);
-      } else if (activeLayer === "clouds") {
-        // Watermark-free high-res Dark Gray Canvas Base
-        L.tileLayer(
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-          { maxZoom: 16 }
-        ).addTo(map);
-
-        L.tileLayer(
-          `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_Cloud_Top_Pressure_Day/default/${gibsDate}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
-          { maxZoom: 8, minZoom: 3, opacity: 0.85 }
-        ).addTo(map);
       } else if (activeLayer === "hybrid") {
         L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
           { maxZoom: 9, minZoom: 3 }
         ).addTo(map);
 
-        // Watermark-free crisp road & boundary reference
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
           { maxZoom: 16, opacity: 0.95 }
@@ -265,7 +295,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
         { opacity: 0.7, maxZoom: 13 }
       ).addTo(map);
 
-      // 3. Geographic City & Mandi Labels (watermark-free)
+      // 3. Geographic City & Mandi Labels
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
         { opacity: 0.9, maxZoom: 16 }
@@ -309,7 +339,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
         mapInstanceRef.current = null;
       }
     };
-  }, [currentLat, currentLon, activeLayer, gibsDate, currentPlaceName, currentAddress]);
+  }, [isLiveStreamActive, currentLat, currentLon, activeLayer, gibsDate, currentPlaceName, currentAddress, isAllIndia]);
 
   const aqiColorClass =
     (nasaData.estimated_aqi || 0) < 50
@@ -323,7 +353,9 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   return (
     <div
       className={`relative rounded-3xl overflow-hidden border border-white/20 bg-black/60 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.35),0_12px_40px_rgba(0,0,0,0.6)] ${
-        isFullscreen ? "fixed inset-3 z-50 rounded-2xl flex flex-col" : "w-full aspect-[16/9] min-h-[460px] sm:min-h-[520px]"
+        isFullscreen
+          ? "fixed inset-3 z-50 rounded-2xl flex flex-col"
+          : "w-full aspect-[16/9] min-h-[480px] sm:min-h-[560px]"
       } ${className}`}
     >
       {/* Top Floating Glass Navigation Header with State & Place Selectors */}
@@ -349,7 +381,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
           {/* Place / Mandi Dropdown */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-black/85 backdrop-blur-xl border border-white/20 text-white shadow-xl">
-            <MapPin className="h-4 w-4 text-primary shrink-0" />
+            <MapPin className="h-4 w-4 text-emerald-400 shrink-0" />
             <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Place:</span>
             <select
               value={selectedPlaceId}
@@ -364,29 +396,56 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
             </select>
           </div>
 
+          {/* Farm View Quick Focus */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsAllIndia(false);
+              if (mapInstanceRef.current) {
+                mapInstanceRef.current.flyTo([currentLat, currentLon], 8, { duration: 1.2 });
+              }
+            }}
+            className={`px-3 py-1.5 rounded-2xl backdrop-blur-xl border text-xs font-bold transition-all cursor-pointer shadow-lg inline-flex items-center gap-1 shrink-0 ${
+              !isAllIndia
+                ? "bg-emerald-500/25 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+                : "bg-black/80 hover:bg-black text-white hover:text-emerald-400 border-white/20"
+            }`}
+            title="Focus on selected farm coordinates"
+          >
+            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Farm View</span>
+          </button>
+
           {/* All India Reset Button */}
           <button
             type="button"
             onClick={handleAllIndiaView}
-            className="px-3 py-1.5 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/20 text-xs font-bold text-white hover:text-emerald-400 transition-all cursor-pointer shadow-lg inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
+            className={`px-3 py-1.5 rounded-2xl backdrop-blur-xl border text-xs font-bold transition-all cursor-pointer shadow-lg inline-flex items-center gap-1 shrink-0 whitespace-nowrap ${
+              isAllIndia
+                ? "bg-emerald-500/25 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
+                : "bg-black/80 hover:bg-black text-white hover:text-emerald-400 border-white/20"
+            }`}
             title="View Indian Subcontinent"
           >
             <span>🇮🇳 All India</span>
           </button>
         </div>
 
-        {/* Action Controls & Fullscreen Toggle */}
+        {/* Live Status Badge & Fullscreen Toggle */}
         <div className="pointer-events-auto flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/15 text-[11px] text-muted-foreground font-mono">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Satellite Feed Live</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/85 backdrop-blur-xl border border-emerald-500/40 text-[11px] text-emerald-300 font-mono shadow-[0_0_14px_rgba(16,185,129,0.3)]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="font-extrabold tracking-wide">LIVE CLOUD RADAR</span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="h-9 w-9 rounded-full bg-black/85 hover:bg-black backdrop-blur-xl border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-105"
-            title={isFullscreen ? "Exit Fullscreen" : "Expand Satellite Map"}
+            title={isFullscreen ? "Exit Fullscreen" : "Expand Live Map"}
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </button>
@@ -394,60 +453,107 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
       </div>
 
       {/* Layer Selector Bar */}
-      <div className="absolute top-16 left-3 z-20 flex flex-wrap items-center gap-1.5 pointer-events-auto">
+      <div className="absolute top-16 left-3 right-3 z-20 flex items-center gap-1.5 pointer-events-auto overflow-x-auto no-scrollbar py-0.5">
+        {/* 1. Live Animated Cloud Movement */}
+        <button
+          type="button"
+          onClick={() => setActiveLayer("live_clouds")}
+          className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
+            activeLayer === "live_clouds"
+              ? "bg-emerald-500 text-black border-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.6)] font-extrabold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
+          }`}
+        >
+          <span>☁️ Live Cloud Movement</span>
+        </button>
+
+        {/* 2. Live Doppler Rain Radar */}
+        <button
+          type="button"
+          onClick={() => setActiveLayer("live_radar")}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
+            activeLayer === "live_radar"
+              ? "bg-sky-500 text-black border-sky-300 shadow-[0_0_16px_rgba(14,165,233,0.6)] font-extrabold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
+          }`}
+        >
+          <span>🌧️ Live Rain Radar</span>
+        </button>
+
+        {/* 3. Live Wind Stream */}
+        <button
+          type="button"
+          onClick={() => setActiveLayer("live_wind")}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
+            activeLayer === "live_wind"
+              ? "bg-teal-500 text-black border-teal-300 shadow-[0_0_16px_rgba(20,184,166,0.6)] font-extrabold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
+          }`}
+        >
+          <span>💨 Wind &amp; Storm Flow</span>
+        </button>
+
+        {/* 4. NASA Terra Satellite HD */}
         <button
           type="button"
           onClick={() => setActiveLayer("truecolor")}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border ${
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
             activeLayer === "truecolor"
-              ? "bg-emerald-600/90 text-white border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.5)]"
-              : "bg-black/75 text-muted-foreground hover:text-white border-white/15"
+              ? "bg-emerald-600/90 text-white border-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.5)] font-bold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          🛰️ Satellite Clouds
+          <span>🛰️ NASA Satellite HD</span>
         </button>
 
+        {/* 5. Air Quality & AQI */}
         <button
           type="button"
           onClick={() => setActiveLayer("aqi")}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border ${
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
             activeLayer === "aqi"
-              ? "bg-amber-600/90 text-white border-amber-400 shadow-[0_0_14px_rgba(245,158,11,0.5)]"
-              : "bg-black/75 text-muted-foreground hover:text-white border-white/15"
+              ? "bg-amber-600/90 text-white border-amber-400 shadow-[0_0_14px_rgba(245,158,11,0.5)] font-bold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          🌫️ Air Quality &amp; AQI
+          <span>🌫️ Air Quality &amp; AQI</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveLayer("clouds")}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border ${
-            activeLayer === "clouds"
-              ? "bg-sky-600/90 text-white border-sky-400 shadow-[0_0_14px_rgba(14,165,233,0.5)]"
-              : "bg-black/75 text-muted-foreground hover:text-white border-white/15"
-          }`}
-        >
-          🌧️ Rain &amp; Storm Fronts
-        </button>
-
+        {/* 6. Mandi Transport Corridors */}
         <button
           type="button"
           onClick={() => setActiveLayer("hybrid")}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border ${
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
             activeLayer === "hybrid"
-              ? "bg-indigo-600/90 text-white border-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.5)]"
-              : "bg-black/75 text-muted-foreground hover:text-white border-white/15"
+              ? "bg-indigo-600/90 text-white border-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.5)] font-bold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          🗺️ Mandi Road Corridors
+          <span>🗺️ Mandi Corridors</span>
         </button>
       </div>
 
-      {/* Main Leaflet Map Viewport */}
-      <div ref={mapContainerRef} className="w-full h-full min-h-[440px] z-10 bg-[#060a0e]" />
+      {/* 1. Real-Time Moving Cloud Radar Viewport (Windy Live Particle Stream) */}
+      {isLiveStreamActive && (
+        <iframe
+          key={`${activeLayer}-${currentLat}-${currentLon}-${isAllIndia}`}
+          src={liveStreamUrl}
+          className="w-full h-full min-h-[480px] sm:min-h-[560px] border-0 z-10 bg-[#060a0e]"
+          title="Live Animated Cloud and Weather Radar Movement Map"
+          loading="lazy"
+          allow="geolocation"
+        />
+      )}
 
-      {/* Bottom Floating Glass HUD: Live Meteorological & AQI Diagnostics */}
+      {/* 2. Leaflet NASA Satellite / AQI / Mandi Viewport */}
+      <div
+        ref={mapContainerRef}
+        className={`w-full h-full min-h-[480px] sm:min-h-[560px] z-10 bg-[#060a0e] ${
+          isLiveStreamActive ? "hidden" : "block"
+        }`}
+      />
+
+      {/* Bottom Floating Glass HUD: Live Meteorological Diagnostics */}
       <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-auto">
         <div className="p-3 rounded-2xl bg-black/85 dark:bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl text-white">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -469,23 +575,23 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
             {/* Right Telemetry Indicators */}
             <div className="flex items-center gap-2 text-xs flex-wrap md:flex-nowrap justify-between md:justify-end">
+              {/* Cloud Coverage Indicator */}
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-bold text-emerald-300">
+                <Sun className="h-3.5 w-3.5 text-amber-400" />
+                <span>Cloud Cover {nasaData.cloud_fraction_pct}%</span>
+              </div>
+
+              {/* Wind Speed & Direction */}
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-slate-200">
+                <Wind className="h-3.5 w-3.5 text-sky-400" />
+                <span>Wind {nasaData.wind_speed_mps} m/s</span>
+              </div>
+
               {/* AQI Pill */}
               <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${aqiColorClass}`}>
                 <Activity className="h-3.5 w-3.5" />
                 <span>AQI {nasaData.estimated_aqi}</span>
                 <span className="text-[10px] opacity-80 font-normal">({nasaData.aqi_status})</span>
-              </div>
-
-              {/* Cloud Coverage */}
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-slate-200">
-                <Sun className="h-3.5 w-3.5 text-amber-400" />
-                <span>Clouds {nasaData.cloud_fraction_pct}%</span>
-              </div>
-
-              {/* Solar Radiation */}
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-slate-200">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                <span>{nasaData.solar_radiation_mj} MJ/m²</span>
               </div>
 
               {/* Temperature */}
