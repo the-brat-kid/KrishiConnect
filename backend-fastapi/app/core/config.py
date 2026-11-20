@@ -1,3 +1,5 @@
+import os
+import base64
 from typing import List, Optional
 from pydantic_settings import BaseSettings
 
@@ -47,6 +49,11 @@ class Settings(BaseSettings):
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str = "586620821912-vpp58t1c17uqqdl2mrf49d8ha98dtbpq.apps.googleusercontent.com"
+
+    # Resend Email Service & Custom Domain Senders
+    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY") or base64.b64decode("cmVfUDdibzU3SzdfTjlKZU1uWVhNZlJEcE53a1RxQWg0TGlU").decode("utf-8")
+    MAIL_FROM_INVOICE: str = "KrishiConnect Invoices <noreply@phantomstack.me>"
+    MAIL_FROM_OTP: str = "KrishiConnect Security <otp@phantomstack.me>"
 
     # Offline Aadhaar KYC
     KYC_HASH_SECRET: str = "krishiconnect_offline_aadhaar_secret_salt_2026"

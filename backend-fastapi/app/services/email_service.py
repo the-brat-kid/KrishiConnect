@@ -40,8 +40,20 @@ MAIL_PORT = int(os.getenv("MAIL_PORT") or os.getenv("SMTP_PORT") or DEFAULT_MAIL
 MAIL_FROM = os.getenv("MAIL_FROM") or MAIL_USERNAME or DEFAULT_MAIL_FROM
 
 # --- Resend config (used only if SMTP isn't configured) -----------------
-RESEND_API_KEY = os.getenv("RESEND_API_KEY") or DEFAULT_RESEND_KEY
+from app.core.config import settings
+RESEND_API_KEY = os.getenv("RESEND_API_KEY") or getattr(settings, "RESEND_API_KEY", None) or DEFAULT_RESEND_KEY
 resend.api_key = RESEND_API_KEY
+
+MAIL_FROM_INVOICE = (
+    os.getenv("MAIL_FROM_INVOICE")
+    or getattr(settings, "MAIL_FROM_INVOICE", None)
+    or "KrishiConnect Invoices <noreply@phantomstack.me>"
+)
+MAIL_FROM_OTP = (
+    os.getenv("MAIL_FROM_OTP")
+    or getattr(settings, "MAIL_FROM_OTP", None)
+    or "KrishiConnect Security <otp@phantomstack.me>"
+)
 
 _PLACEHOLDER_MARKERS = ("CHANGE_ME", "your-", "your_")
 
@@ -245,9 +257,11 @@ def _send_via_resend(email_to: str, invoice_number: str, amount: float, pdf_byte
     if resend_key:
         resend.api_key = resend_key
 
-    from_addr = os.getenv("MAIL_FROM")
-    if not from_addr or "vatsaai.com" in from_addr or "@gmail.com" in from_addr:
-        from_addr = "KrishiConnect <onboarding@resend.dev>"
+    from_addr = (
+        os.getenv("MAIL_FROM_INVOICE")
+        or getattr(settings, "MAIL_FROM_INVOICE", None)
+        or "KrishiConnect Invoices <noreply@phantomstack.me>"
+    )
 
     payload = {
         "from": from_addr,
@@ -266,38 +280,45 @@ def _send_via_resend(email_to: str, invoice_number: str, amount: float, pdf_byte
     try:
         result = resend.Emails.send(payload)
     except Exception as exc:
-        logger.error("Resend send failed for invoice %s -> %s: %s", invoice_number, email_to, exc)
-        raise EmailSendError(str(exc)) from exc
+        err_msg = str(exc).lower()
+        if "domain" in err_msg or "verify" in err_msg or "unauthorized" in err_msg or "not verified" in err_msg:
+            logger.warning("Custom domain sender '%s' not verified yet on Resend. Falling back to sandbox sender. Reason: %s", from_addr, exc)
+            payload["from"] = "KrishiConnect Invoices <onboarding@resend.dev>"
+            result = resend.Emails.send(payload)
+        else:
+            logger.error("Resend send failed for invoice %s -> %s: %s", invoice_number, email_to, exc)
+            raise EmailSendError(str(exc)) from exc
 
     if isinstance(result, dict) and result.get("id"):
-        logger.info("Invoice email sent via Resend: invoice=%s to=%s id=%s", invoice_number, email_to, result["id"])
+        logger.info("Invoice email sent via Resend: invoice=%s to=%s from=%s id=%s", invoice_number, email_to, payload.get("from"), result["id"])
     else:
         logger.warning("Resend returned an unexpected response for invoice %s: %r", invoice_number, result)
 
 
 def _send_sync(email_to: str, invoice_number: str, amount: float, pdf_bytes: bytes = None) -> None:
+    resend_key = os.getenv("RESEND_API_KEY") or getattr(settings, "RESEND_API_KEY", None) or RESEND_API_KEY or DEFAULT_RESEND_KEY
     mail_user = os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USER") or DEFAULT_MAIL_USERNAME
     mail_pass = (os.getenv("MAIL_PASSWORD") or os.getenv("SMTP_PASSWORD") or DEFAULT_MAIL_PASSWORD).replace(" ", "")
-    resend_key = os.getenv("RESEND_API_KEY") or DEFAULT_RESEND_KEY
 
-    # Prefer Gmail SMTP when configured, with Resend fallback
-    if _is_configured(mail_user) and _is_configured(mail_pass):
-        try:
-            _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
-            return
-        except Exception as exc:
-            logger.warning("Gmail SMTP attempt failed: %s. Trying Resend fallback...", exc)
-            if _is_configured(resend_key):
-                try:
-                    _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
-                    return
-                except Exception as r_exc:
-                    logger.error("Resend fallback also failed: %s", r_exc)
-                    raise EmailSendError(f"Email delivery failed (SMTP: {exc}; Resend: {r_exc})") from r_exc
-            raise EmailSendError(f"SMTP send failed: {exc}") from exc
-
+    # 1. Prefer Resend for custom domain sender (noreply@phantomstack.me)
     if _is_configured(resend_key):
-        _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
+        try:
+            _send_via_resend(email_to, invoice_number, amount, pdf_bytes)
+            return
+        except Exception as r_exc:
+            logger.warning("Resend attempt failed: %s. Trying Gmail SMTP fallback...", r_exc)
+            if _is_configured(mail_user) and _is_configured(mail_pass):
+                try:
+                    _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
+                    return
+                except Exception as s_exc:
+                    logger.error("Gmail SMTP fallback also failed: %s", s_exc)
+                    raise EmailSendError(f"Email delivery failed (Resend: {r_exc}; SMTP: {s_exc})") from s_exc
+            raise EmailSendError(f"Resend send failed: {r_exc}") from r_exc
+
+    # 2. Fallback to Gmail SMTP if Resend is not configured
+    if _is_configured(mail_user) and _is_configured(mail_pass):
+        _send_via_gmail_smtp(email_to, invoice_number, amount, pdf_bytes)
         return
 
     raise EmailSendError(
@@ -320,3 +341,118 @@ async def send_invoice_email_background(email_to: str, invoice_number: str, amou
         await send_invoice_email(email_to, invoice_number, amount, pdf_bytes)
     except Exception as exc:
         logger.error("Background invoice email failed for %s (invoice %s): %s", email_to, invoice_number, exc, exc_info=True)
+
+
+# --- OTP Email Dispatch (otp@phantomstack.me) ---------------------------
+
+def _build_otp_html(otp_code: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your KrishiConnect Verification Code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 480px; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); height: 6px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 36px 32px; text-align: center;">
+              <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a; margin-bottom: 6px;">
+                Krishi<span style="color: #059669;">Connect</span>
+              </div>
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: #64748b; margin-bottom: 28px;">
+                Secure Identity Verification
+              </div>
+              <h2 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0 0 10px 0;">One-Time Verification Code</h2>
+              <p style="font-size: 14px; color: #64748b; line-height: 1.5; margin: 0 0 24px 0;">
+                Use the one-time code below to verify your email and complete your sign-in to KrishiConnect.
+              </p>
+              <div style="background: #f0fdf4; border: 2px dashed #86efac; border-radius: 14px; padding: 18px 24px; margin: 0 auto 24px auto; display: inline-block;">
+                <span style="font-family: 'Courier New', Courier, monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #047857;">
+                  {otp_code}
+                </span>
+              </div>
+              <p style="font-size: 12px; color: #94a3b8; margin: 0 0 20px 0;">
+                ⏱️ This code will expire in <strong>10 minutes</strong>.<br>
+                For your security, never share this code with anyone.
+              </p>
+              <div style="border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 11px; color: #94a3b8;">
+                If you did not request this verification code, please ignore this email safely.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+              Sent securely by KrishiConnect Identity &bull; Bhubaneswar, Odisha
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>"""
+
+
+def _send_otp_via_resend(email_to: str, otp_code: str) -> None:
+    resend_key = os.getenv("RESEND_API_KEY", RESEND_API_KEY)
+    if resend_key:
+        resend.api_key = resend_key
+
+    from_addr = (
+        os.getenv("MAIL_FROM_OTP")
+        or getattr(settings, "MAIL_FROM_OTP", None)
+        or "KrishiConnect Security <otp@phantomstack.me>"
+    )
+
+    payload = {
+        "from": from_addr,
+        "to": email_to,
+        "subject": f"{otp_code} is your KrishiConnect verification code",
+        "html": _build_otp_html(otp_code),
+    }
+
+    try:
+        result = resend.Emails.send(payload)
+    except Exception as exc:
+        err_msg = str(exc).lower()
+        if "domain" in err_msg or "verify" in err_msg or "unauthorized" in err_msg or "not verified" in err_msg:
+            logger.warning("Custom domain sender '%s' not verified yet on Resend. Falling back to sandbox sender for OTP: %s", from_addr, exc)
+            payload["from"] = "KrishiConnect Security <onboarding@resend.dev>"
+            result = resend.Emails.send(payload)
+        else:
+            logger.error("Resend send failed for OTP to %s: %s", email_to, exc)
+            raise EmailSendError(str(exc)) from exc
+
+    if isinstance(result, dict) and result.get("id"):
+        logger.info("OTP email sent via Resend: to=%s from=%s id=%s", email_to, payload.get("from"), result["id"])
+    else:
+        logger.warning("Resend returned an unexpected response for OTP %s: %r", email_to, result)
+
+
+def _send_otp_sync(email_to: str, otp_code: str) -> None:
+    resend_key = os.getenv("RESEND_API_KEY") or getattr(settings, "RESEND_API_KEY", None) or RESEND_API_KEY or DEFAULT_RESEND_KEY
+    if _is_configured(resend_key):
+        _send_otp_via_resend(email_to, otp_code)
+        return
+
+    raise EmailSendError("Resend email service not configured for OTP dispatch.")
+
+
+async def send_otp_email(email_to: str, otp_code: str) -> None:
+    """Send an OTP email using otp@phantomstack.me."""
+    await asyncio.to_thread(_send_otp_sync, email_to, otp_code)
+
+
+async def send_otp_email_background(email_to: str, otp_code: str) -> None:
+    """Background task safe wrapper to send OTP email."""
+    try:
+        await send_otp_email(email_to, otp_code)
+    except Exception as exc:
+        logger.error("Background OTP email failed for %s: %s", email_to, exc, exc_info=True)

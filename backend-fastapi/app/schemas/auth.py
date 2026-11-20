@@ -8,10 +8,12 @@ class LoginRequest(BaseModel):
     password: str
 
 class OtpSendRequest(BaseModel):
-    phone: str
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 class OtpVerifyRequest(BaseModel):
-    phone: str
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
     otp: str
     name: Optional[str] = None
     role: Optional[str] = "Individual"
