@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { AnimatedNumber } from "@/components/core/animated-number";
@@ -160,6 +160,35 @@ export default function DashboardPage() {
     unit?: string;
   } | null>(null);
 
+  // Live Clock & Real-time Date
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDate = currentTime
+    ? currentTime.toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "Live Date";
+
+  const formattedTime = currentTime
+    ? currentTime.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
+    : "--:--:--";
+
   // 1. Dynamic Live Mandi Staples
   const staples = useMemo(() => {
     const liveItems = cropRatesData?.items || [];
@@ -251,20 +280,32 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 pb-12 max-w-7xl mx-auto w-full min-w-0 overflow-x-hidden">
-      {/* 1. Header Bar: Personalized Greeting & Liquid Glass Quick Actions */}
+      {/* 1. Header Bar: Real-Time Date, Live Clock & User Greeting */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              {currentRegionDef.primaryHubs[0] || "National"} APMC Live Operations
+              {selectedMandiObj ? selectedMandiObj.name : `${currentRegionDef.primaryHubs[0]} APMC`} Live Operations
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-editorial">
-            Welcome back, {displayName}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Real-time agricultural pricing, verified trade corridors, and farm invoicing.
+
+          {/* Large Date with Live Updating Time Pill */}
+          <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3.5">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-editorial">
+              {formattedDate}
+            </h1>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] dark:bg-black/50 border border-white/15 dark:border-white/12 backdrop-blur-xl text-xs sm:text-sm font-mono font-bold text-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.2)]">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+              <span>{formattedTime}</span>
+            </div>
+          </div>
+
+          {/* Small Welcome Back with Name underneath */}
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 flex items-center gap-1.5 flex-wrap">
+            <span>Welcome back, <strong className="text-foreground font-semibold">{displayName}</strong></span>
+            <span className="text-muted-foreground/40">•</span>
+            <span>Real-time agricultural pricing, verified trade corridors, and farm invoicing.</span>
           </p>
         </div>
 
