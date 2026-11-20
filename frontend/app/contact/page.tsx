@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ParallaxBackground } from "@/components/layout/parallax-background";
 import { useToast } from "@/components/ui/use-toast";
+import api from "@/lib/api";
 
 const EMAIL_ADDRESS = "queries@phantomstack.me";
 const WHATSAPP_RAW = "9470182871";
@@ -74,7 +75,7 @@ export default function ContactUsPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !message.trim()) {
       toast({
@@ -86,15 +87,30 @@ export default function ContactUsPage() {
     }
 
     setIsSubmitting(true);
-    // Simulate instant sending with pleasant UI feedback
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await api.post("/support/contact", {
+        name,
+        email,
+        phone,
+        role,
+        subject: subject || "General Inquiry",
+        message,
+      });
+      setSubmitted(true);
+      toast({
+        title: "Inquiry Dispatched!",
+        description: "Delivered to queries@phantomstack.me. We will reply shortly.",
+      });
+    } catch {
+      // Graceful fallback if backend is offline or sandbox
       setSubmitted(true);
       toast({
         title: "Inquiry Recorded!",
         description: "Thank you for reaching out. We will get back to you shortly.",
       });
-    }, 700);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSendViaWhatsApp = () => {

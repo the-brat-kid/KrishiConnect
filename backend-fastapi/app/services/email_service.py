@@ -456,3 +456,116 @@ async def send_otp_email_background(email_to: str, otp_code: str) -> None:
         await send_otp_email(email_to, otp_code)
     except Exception as exc:
         logger.error("Background OTP email failed for %s: %s", email_to, exc, exc_info=True)
+
+
+# --- Support / Contact Inquiries (queries@phantomstack.me) --------------
+
+def _build_inquiry_notification_html(name: str, email: str, phone: str, role: str, subject: str, message: str) -> str:
+    return f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; padding: 24px;">
+  <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 20px; color: white;">
+      <h2 style="margin: 0; font-size: 18px;">📬 New KrishiConnect Helpdesk Inquiry</h2>
+    </div>
+    <div style="padding: 24px; color: #1e293b;">
+      <p style="margin-top: 0;"><strong>Sender Name:</strong> {name}</p>
+      <p><strong>Role:</strong> {role.capitalize() if role else 'Individual'}</p>
+      <p><strong>Email:</strong> {email or 'Not specified'}</p>
+      <p><strong>Phone:</strong> {phone or 'Not specified'}</p>
+      <p><strong>Subject:</strong> {subject}</p>
+      <div style="margin-top: 16px; padding: 16px; background: #f1f5f9; border-radius: 8px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">{message}</div>
+    </div>
+    <div style="padding: 12px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b;">
+      Delivered to queries@phantomstack.me &bull; KrishiConnect Helpdesk
+    </div>
+  </div>
+</body>
+</html>"""
+
+
+def _build_inquiry_receipt_html(name: str, subject: str) -> str:
+    return f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; padding: 24px;">
+  <div style="max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden;">
+    <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); height: 6px;"></div>
+    <div style="padding: 28px; text-align: left; color: #1e293b;">
+      <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+        Krishi<span style="color: #059669;">Connect</span> Support Desk
+      </div>
+      <h3 style="margin: 12px 0 8px 0; font-size: 16px;">We received your inquiry, {name}!</h3>
+      <p style="color: #64748b; font-size: 14px; line-height: 1.5;">
+        Thank you for getting in touch regarding <strong>"{subject}"</strong>. Our agriculture support team has received your message and will review it promptly.
+      </p>
+      <p style="color: #64748b; font-size: 14px; line-height: 1.5;">
+        You can also reply directly to this email at <a href="mailto:queries@phantomstack.me" style="color: #059669; font-weight: 600;">queries@phantomstack.me</a> anytime.
+      </p>
+    </div>
+    <div style="padding: 12px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+      KrishiConnect Identity & Support &bull; Bhubaneswar, Odisha
+    </div>
+  </div>
+</body>
+</html>"""
+
+
+def _send_inquiry_sync(name: str, email: str, phone: str, role: str, subject: str, message: str) -> None:
+    resend_key = os.getenv("RESEND_API_KEY") or getattr(settings, "RESEND_API_KEY", None) or RESEND_API_KEY or DEFAULT_RESEND_KEY
+    if not _is_configured(resend_key):
+        logger.warning("Resend not configured, skipping inquiry notification email.")
+        return
+
+    resend.api_key = resend_key
+    target_inbox = os.getenv("MAIL_QUERIES_EMAIL") or getattr(settings, "MAIL_QUERIES_EMAIL", "queries@phantomstack.me")
+    from_addr = "KrishiConnect Helpdesk <queries@phantomstack.me>"
+
+    payload = {
+        "from": from_addr,
+        "to": target_inbox,
+        "subject": f"[Inquiry] {subject} - from {name}",
+        "html": _build_inquiry_notification_html(name, email, phone, role, subject, message),
+    }
+    if email and "@" in email:
+        payload["reply_to"] = email
+
+    try:
+        resend.Emails.send(payload)
+        logger.info("Inquiry notification delivered to %s for %s", target_inbox, name)
+    except Exception as exc:
+        err_msg = str(exc).lower()
+        if "domain" in err_msg or "verify" in err_msg or "unauthorized" in err_msg or "not verified" in err_msg:
+            payload["from"] = "KrishiConnect Helpdesk <onboarding@resend.dev>"
+            try:
+                resend.Emails.send(payload)
+            except Exception as fb_exc:
+                logger.error("Inquiry notification fallback failed: %s", fb_exc)
+        else:
+            logger.error("Inquiry notification send failed: %s", exc)
+
+    # Optional confirmation receipt to sender
+    if email and "@" in email:
+        receipt_payload = {
+            "from": from_addr,
+            "to": email,
+            "subject": f"We received your message: {subject} - KrishiConnect",
+            "html": _build_inquiry_receipt_html(name, subject),
+        }
+        try:
+            resend.Emails.send(receipt_payload)
+        except Exception:
+            try:
+                receipt_payload["from"] = "KrishiConnect Support <onboarding@resend.dev>"
+                resend.Emails.send(receipt_payload)
+            except Exception:
+                pass
+
+
+async def send_inquiry_email_background(name: str, email: str, phone: str, role: str, subject: str, message: str) -> None:
+    """Send inquiry email notification in background."""
+    try:
+        await asyncio.to_thread(_send_inquiry_sync, name, email, phone, role, subject, message)
+    except Exception as exc:
+        logger.error("Background inquiry dispatch failed: %s", exc)
