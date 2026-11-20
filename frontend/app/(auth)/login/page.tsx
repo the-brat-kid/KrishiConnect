@@ -8,9 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { loginSchema } from "@/lib/validations";
 import Link from "next/link";
 import api from "@/lib/api";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
@@ -30,10 +28,7 @@ import {
 import {
   Phone,
   Mail,
-  Lock,
   Loader2,
-  Eye,
-  EyeOff,
   ShieldCheck,
   Sparkles,
   ArrowRight,
@@ -52,7 +47,7 @@ declare global {
 }
 
 export default function LoginPage() {
-  const { login, loginWithOtp, loginWithFirebasePhone, demoLogin } = useAuth();
+  const { loginWithOtp, loginWithFirebasePhone, demoLogin } = useAuth();
   const { t, currentRegionDef, language } = useLanguage();
   const { toast } = useToast();
 
@@ -69,12 +64,6 @@ export default function LoginPage() {
   const [resendTimer, setResendTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isFirebaseMode, setIsFirebaseMode] = useState(false);
-
-  // Email + Password State
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isEmailLoading, setIsEmailLoading] = useState(false);
 
   // Demo Login State
   const [isDemoLoading, setIsDemoLoading] = useState<string | null>(null);
@@ -243,25 +232,6 @@ export default function LoginPage() {
     }
   };
 
-  // Handle Traditional Email Login
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const data = loginSchema.parse({ email, password });
-      setIsEmailLoading(true);
-      await login(data);
-      toast({ title: "Welcome back!", description: "You have successfully logged in." });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.errors?.[0]?.message || error.response?.data?.detail || "Login failed",
-        variant: "destructive",
-      });
-    } finally {
-      setIsEmailLoading(false);
-    }
-  };
-
   // Handle 1-Click Demo Login
   const handleDemoLogin = async (role: "farmer" | "trader") => {
     try {
@@ -343,67 +313,48 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Tabs: Mobile OTP vs Email */}
-        <Tabs defaultValue="otp" className="space-y-5">
-          <TabsList className="grid w-full grid-cols-2 p-1.5 rounded-2xl border border-white/18 dark:border-white/12 bg-white/[0.06] dark:bg-black/45 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25)]">
-            <TabsTrigger
-              value="otp"
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all data-[state=active]:bg-gradient-to-b data-[state=active]:from-emerald-400 data-[state=active]:to-emerald-600 data-[state=active]:text-black data-[state=active]:font-extrabold data-[state=active]:shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)] text-muted-foreground hover:text-foreground"
-            >
-              <Phone className="h-3.5 w-3.5" />
-              <span>{t("login.mobileTab")}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="email"
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all data-[state=active]:bg-gradient-to-b data-[state=active]:from-emerald-400 data-[state=active]:to-emerald-600 data-[state=active]:text-black data-[state=active]:font-extrabold data-[state=active]:shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)] text-muted-foreground hover:text-foreground"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span>{t("login.emailTab")}</span>
-            </TabsTrigger>
-          </TabsList>
+        {/* OTP Authentication Card */}
+        <div className="space-y-4 pt-1">
+          {/* Invisible Google reCAPTCHA Anchor */}
+          <div id="recaptcha-container" />
 
-          {/* TAB 1: MOBILE + EMAIL OTP LOGIN */}
-          <TabsContent value="otp" className="space-y-4 pt-1">
-            {/* Invisible Google reCAPTCHA Anchor */}
-            <div id="recaptcha-container" />
-
-            {/* Channel Switch: Email OTP vs Phone SMS */}
-            {!otpSent && (
-              <div className="grid grid-cols-2 p-1 rounded-2xl bg-white/[0.04] dark:bg-black/30 border border-white/10 text-xs mb-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpChannel("email");
-                    setOtpSent(false);
-                    setOtp("");
-                  }}
-                  className={`py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all ${
-                    otpChannel === "email"
-                      ? "bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Mail className="h-3.5 w-3.5" />
-                  <span>Email OTP</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpChannel("phone");
-                    setOtpSent(false);
-                    setOtp("");
-                  }}
-                  className={`py-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all ${
-                    otpChannel === "phone"
-                      ? "bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-400 border border-emerald-500/40 shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  <span>Mobile SMS</span>
-                </button>
-              </div>
-            )}
+          {/* Channel Switch: Email OTP vs Phone SMS */}
+          {!otpSent && (
+            <div className="grid grid-cols-2 p-1.5 rounded-2xl border border-white/18 dark:border-white/12 bg-white/[0.06] dark:bg-black/45 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpChannel("email");
+                  setOtpSent(false);
+                  setOtp("");
+                }}
+                className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  otpChannel === "email"
+                    ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-black font-extrabold shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)]"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>Email OTP</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpChannel("phone");
+                  setOtpSent(false);
+                  setOtp("");
+                }}
+                className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  otpChannel === "phone"
+                    ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-black font-extrabold shadow-[0_4px_16px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.6)]"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span>Mobile SMS</span>
+              </button>
+            </div>
+          )}
 
             {!otpSent ? (
               <form onSubmit={handleSendOtp} className="space-y-4">
@@ -608,80 +559,7 @@ export default function LoginPage() {
                 </Button>
               </form>
             )}
-          </TabsContent>
-
-          {/* TAB 2: EMAIL & PASSWORD LOGIN */}
-          <TabsContent value="email" className="space-y-4 pt-1">
-            <form onSubmit={handleEmailLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  {t("login.emailLabel")}
-                </Label>
-                <div className="relative rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 transition-all">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    className="w-full bg-transparent pl-10 pr-4 py-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/50 outline-none"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t("login.passwordLabel")}
-                  </Label>
-                  <Link href="#" className="text-xs text-muted-foreground hover:text-emerald-400 transition-colors">
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 transition-all">
-                  <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className="w-full bg-transparent pl-10 pr-10 py-3.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/50 outline-none"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    tabIndex={-1}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="relative overflow-hidden w-full h-12 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:via-emerald-400 hover:to-teal-400 text-white font-extrabold text-sm tracking-wide shadow-[inset_0_1px_2px_rgba(255,255,255,0.45),0_10px_28px_rgba(16,185,129,0.35)] active:scale-[0.99] transition-all border border-emerald-400/30"
-                disabled={isEmailLoading}
-              >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/35 to-transparent" />
-                {isEmailLoading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-white" /> {t("login.signingIn")}
-                  </span>
-                ) : (
-                  t("login.signInBtn")
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+        </div>
 
         {/* 1-CLICK INSTANT DEMO LOGIN */}
         <div className="pt-2 border-t border-white/10 space-y-3">
