@@ -7,12 +7,12 @@ const getBaseUrl = () => {
   if (typeof window !== 'undefined') {
     return '/api/v1';
   }
-  return 'http://localhost:8000/api/v1';
+  return 'http://127.0.0.1:8000/api/v1';
 };
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
