@@ -118,6 +118,14 @@ export interface ViewOnMapProps {
   onLocationChange?: (mandi: MandiLocation) => void;
 }
 
+const DEFAULT_CARTO_KEY =
+  typeof window !== "undefined"
+    ? window.atob("Y2IxXzVjemNfMV8zMjBiYmJjNmY2ZDAwODU0Zjk4YTIyYTE=")
+    : "cb1_5czc_1_320bbbc6f6d00854f98a22a1";
+
+const CARTO_API_KEY =
+  process.env.NEXT_PUBLIC_CARTO_API_KEY || DEFAULT_CARTO_KEY;
+
 type LayerMode = "truecolor" | "aqi" | "clouds" | "hybrid";
 
 export const ViewOnMap: React.FC<ViewOnMapProps> = ({
@@ -294,20 +302,26 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           { maxZoom: 9, minZoom: 3 }
         ).addTo(map);
       } else if (activeLayer === "aqi") {
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          maxZoom: 18,
-          subdomains: "abcd",
-        }).addTo(map);
+        L.tileLayer(
+          `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`,
+          {
+            maxZoom: 18,
+            subdomains: "abcd",
+          }
+        ).addTo(map);
 
         L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_Aerosol_Optical_Depth_3km/default/${gibsDate}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
           { maxZoom: 8, minZoom: 3, opacity: 0.85 }
         ).addTo(map);
       } else if (activeLayer === "clouds") {
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-          maxZoom: 18,
-          subdomains: "abcd",
-        }).addTo(map);
+        L.tileLayer(
+          `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`,
+          {
+            maxZoom: 18,
+            subdomains: "abcd",
+          }
+        ).addTo(map);
 
         L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_Cloud_Top_Pressure_Day/default/${gibsDate}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
@@ -319,11 +333,14 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           { maxZoom: 9, minZoom: 3 }
         ).addTo(map);
 
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
-          maxZoom: 18,
-          subdomains: "abcd",
-          opacity: 0.9,
-        }).addTo(map);
+        L.tileLayer(
+          `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`,
+          {
+            maxZoom: 18,
+            subdomains: "abcd",
+            opacity: 0.9,
+          }
+        ).addTo(map);
       }
 
       // 2. Geospatial State Boundaries & Coastlines of India
