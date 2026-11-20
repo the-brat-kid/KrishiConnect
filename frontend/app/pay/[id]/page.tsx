@@ -134,7 +134,7 @@ export default function PublicPaymentPage() {
       setMessage("Invoice confirmed paid in Cash!");
       await fetchInvoice();
     } catch (err: any) {
-      alert(err?.response?.data?.detail || "Failed to confirm cash payment");
+      setMessage("Note: " + (err?.response?.data?.detail || "Failed to confirm cash payment"));
     } finally {
       setConfirmingCash(false);
     }

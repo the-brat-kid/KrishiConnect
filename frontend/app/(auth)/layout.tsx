@@ -3,7 +3,7 @@ import { ParallaxBackground } from "@/components/layout/parallax-background";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen w-full grid lg:grid-cols-2 bg-background relative overflow-hidden">
+    <div className="min-h-screen w-full grid lg:grid-cols-2 bg-background relative overflow-x-hidden overflow-y-auto">
       {/* Background depth parallax */}
       <ParallaxBackground intensity={0.5} showMistyCanopy={false} />
 
@@ -69,8 +69,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      {/* Right: form panel */}
-      <div className="relative z-10 flex items-center justify-center p-4 sm:p-8 lg:p-12">
+      {/* Right: form panel with comfortable vertical scroll & auto margins */}
+      <div className="relative z-10 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 min-h-screen py-12 sm:py-16">
         <div className="w-full max-w-[460px]">
           {/* mobile-only brand mark */}
           <div className="mb-6 flex items-center gap-2.5 lg:hidden">

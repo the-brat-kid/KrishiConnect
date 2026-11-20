@@ -312,7 +312,32 @@ export default function FarmWeatherPage() {
         </div>
       </div>
 
-      {/* Main Grid: Weather & Rain on Left (7 cols), Mandi Selector & Map on Right (5 cols) */}
+      {/* 1. TOP HERO SATELLITE WEATHER OBSERVATORY & MAP (FULL WIDTH) */}
+      <div className="w-full">
+        <ViewOnMap
+          key={`${selectedMandi.id}-${selectedMandi.state}`}
+          locationName={selectedMandi.name}
+          address={selectedMandi.address}
+          lat={selectedMandi.lat}
+          lon={selectedMandi.lon}
+          state={selectedMandi.state}
+          onLocationChange={(loc) => {
+            const matched = PAN_INDIA_MANDIS.find((m) => m.id === loc.id) || {
+              id: loc.id,
+              name: loc.name,
+              state: loc.state,
+              district: loc.district,
+              address: loc.address,
+              lat: loc.lat,
+              lon: loc.lon,
+            };
+            setSelectedMandi(matched);
+          }}
+          className="w-full h-[480px] sm:h-[540px]"
+        />
+      </div>
+
+      {/* Main Grid: Weather & Rain on Left (7 cols), Mandi Selector on Right (5 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Weather & Rain Intelligence (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
@@ -610,35 +635,6 @@ export default function FarmWeatherPage() {
                   </button>
                 );
               })}
-            </CardContent>
-          </Card>
-
-          {/* Interactive NASA Earth Observation & Mandi Geospatial Map */}
-          <Card className="liquid-glass border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] rounded-3xl overflow-hidden">
-            <CardHeader className="pb-3 border-b border-white/10">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
-                  <Satellite className="w-4 h-4 text-emerald-400 animate-pulse" />
-                  NASA Earth Observatory &amp; Mandi Satellite
-                </CardTitle>
-                <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                  NASA MODIS / GIBS
-                </span>
-              </div>
-              <CardDescription className="text-xs text-muted-foreground">
-                High-definition NASA satellite observation tracking live cloud cover, AQI aerosol depth, and geospatial coordinates for {selectedMandi.name}.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-3">
-              <ViewOnMap
-                key={selectedMandi.id}
-                locationName={selectedMandi.name}
-                address={selectedMandi.address}
-                lat={selectedMandi.lat}
-                lon={selectedMandi.lon}
-                state={selectedMandi.state}
-                className="w-full"
-              />
             </CardContent>
           </Card>
         </div>

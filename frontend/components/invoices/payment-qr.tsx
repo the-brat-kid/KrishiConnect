@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
+import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import {
   CheckCircle2,
@@ -31,6 +32,7 @@ export function PaymentQR({
   onPaymentSuccess,
 }: PaymentQRProps) {
   const { data: profile } = useBusinessProfile();
+  const { toast } = useToast();
   const [qrSrc, setQrSrc] = useState<string>("");
   const [upiUrl, setUpiUrl] = useState<string>("");
   const [upiVpa, setUpiVpa] = useState<string>("");
@@ -149,7 +151,11 @@ export function PaymentQR({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      alert("Verification error: " + (err?.response?.data?.detail || err.message));
+      toast({
+        title: "Verification Notice",
+        description: err?.response?.data?.detail || err.message,
+        variant: "destructive",
+      });
     } finally {
       setIsConfirming(false);
     }
@@ -173,7 +179,11 @@ export function PaymentQR({
         onPaymentSuccess();
       }
     } catch (err: any) {
-      alert("Failed to simulate payment: " + (err?.response?.data?.detail || err.message));
+      toast({
+        title: "Simulation Notice",
+        description: err?.response?.data?.detail || err.message,
+        variant: "destructive",
+      });
     } finally {
       setSimulating(false);
     }

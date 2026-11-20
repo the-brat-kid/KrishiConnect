@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CommandIcon } from "lucide-react";
 
@@ -27,35 +28,44 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
   items,
   tooltipDelay = 100,
   className = "",
-  tooltipPosition = "top",
+  tooltipPosition = "bottom",
 }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [activePos, setActivePos] = useState<number | null>(null);
+  const [tooltipCoords, setTooltipCoords] = useState<{ top: number; left: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const buttonRefs = useRef<(HTMLButtonElement | HTMLAnchorElement | null)[]>([]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleMouseEnter = (index: number) => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateCoords = (index: number) => {
     const activeIcon = buttonRefs.current[index];
     if (!activeIcon) return;
+    const rect = activeIcon.getBoundingClientRect();
+    const top = tooltipPosition === "top" ? rect.top - 42 : rect.bottom + 8;
+    const left = rect.left + rect.width / 2;
+    setTooltipCoords({ top, left });
+    setActiveIndex(index);
+  };
 
-    const iconCenter = activeIcon.offsetLeft + activeIcon.offsetWidth / 2;
-
+  const handleMouseEnter = (index: number) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     if (activeIndex === null) {
       timeoutRef.current = setTimeout(() => {
-        setActivePos(iconCenter);
-        setActiveIndex(index);
+        updateCoords(index);
       }, tooltipDelay);
     } else {
-      setActivePos(iconCenter);
-      setActiveIndex(index);
+      updateCoords(index);
     }
   };
 
   const handleMouseLeave = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setActiveIndex(null);
+    setTooltipCoords(null);
   };
 
   // Keyboard shortcut listener
@@ -93,42 +103,6 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
     <div className={`relative inline-block ${className}`} onMouseLeave={handleMouseLeave}>
       <div className="flex items-center justify-center">
         <div className="relative">
-          {/* Animated Centered Tooltip Pill */}
-          {activeItem && activePos !== null && (
-            <div
-              className={`pointer-events-none absolute z-[60] transition-all duration-200 ease-out ${
-                tooltipPosition === "top" ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"
-              }`}
-              style={{
-                left: `${activePos}px`,
-                transform: "translateX(-50%)",
-              }}
-            >
-              <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-2xl border border-white/20 dark:border-neutral-700/80 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150 drop-shadow-xl">
-                <span className="text-white">{activeItem.label}</span>
-                {activeItem.hasBadge && (
-                  <div className="flex items-center gap-0.5 text-white/50">
-                    <span className="flex items-center justify-center rounded-xs border border-white/20 p-0.5">
-                      <CommandIcon className="w-2.5 h-2.5 text-neutral-400" />
-                    </span>
-                  </div>
-                )}
-                {activeItem.labelHasKeyword && (
-                  <div className="flex items-center gap-0.5 text-white/50">
-                    {activeItem.labelHasKeyword.map((key, i) => (
-                      <span
-                        key={i}
-                        className="flex items-center justify-center rounded-xs border border-white/20 px-1 py-0.2 text-[10px] font-mono tabular-nums"
-                      >
-                        {typeof key === "string" ? key : "⌘"}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Dock / Navbar Button Bar with Liquid Glass */}
           <div className="z-10 inline-flex items-center justify-center gap-2 rounded-full p-1.5 sm:p-2 backdrop-blur-2xl bg-white/[0.05] dark:bg-black/40 border border-white/20 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.35),0_8px_32px_rgba(0,0,0,0.4)]">
             {items.map((item, index) => {
@@ -181,6 +155,45 @@ export const TooltipNavbar: React.FC<TooltipNavbarProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Portal Tooltip: renders outside all parent overflow/clipping boundaries */}
+      {mounted &&
+        activeItem &&
+        tooltipCoords &&
+        createPortal(
+          <div
+            className="pointer-events-none fixed z-[99999] transition-all duration-150 ease-out"
+            style={{
+              top: `${tooltipCoords.top}px`,
+              left: `${tooltipCoords.left}px`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1.5 px-3 h-8 rounded-lg bg-black/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/20 dark:border-neutral-700/80 text-white whitespace-nowrap text-xs font-semibold animate-in fade-in-0 zoom-in-95 duration-150">
+              <span className="text-white">{activeItem.label}</span>
+              {activeItem.hasBadge && (
+                <div className="flex items-center gap-0.5 text-white/50">
+                  <span className="flex items-center justify-center rounded-xs border border-white/20 p-0.5">
+                    <CommandIcon className="w-2.5 h-2.5 text-neutral-400" />
+                  </span>
+                </div>
+              )}
+              {activeItem.labelHasKeyword && (
+                <div className="flex items-center gap-0.5 text-white/50">
+                  {activeItem.labelHasKeyword.map((key, i) => (
+                    <span
+                      key={i}
+                      className="flex items-center justify-center rounded-xs border border-white/20 px-1 py-0.2 text-[10px] font-mono tabular-nums"
+                    >
+                      {typeof key === "string" ? key : "⌘"}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

@@ -26,8 +26,10 @@ import {
   Sprout,
   RefreshCw,
   Clock,
+  CloudSun,
 } from "lucide-react";
 import { TooltipNavbar } from "@/components/ui/tooltip-navbar";
+import { ViewOnMap } from "@/components/ui/view-on-map";
 import {
   ResponsiveContainer,
   BarChart,
@@ -469,6 +471,44 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Weather Analysis Section (Positioned between Daily Rates and 7-Day Market Volatility) */}
+      <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+        <CardHeader className="pb-4 border-b border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <CloudSun className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
+                  <span>Weather Analysis</span>
+                </CardTitle>
+                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30">
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+                  <span>Live Geospatial Satellites</span>
+                </div>
+              </div>
+              <CardDescription className="text-xs text-muted-foreground mt-1">
+                Real-time satellite cloud formations, aerosol AQI depth, and regional agro-climate observation across major Indian Mandis.
+              </CardDescription>
+            </div>
+            <Link
+              href="/weather"
+              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
+            >
+              <span>Full Weather Center</span>
+              <ArrowRight className="w-3.5 h-3.5 text-primary" />
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6">
+          <ViewOnMap
+            locationName={`${currentRegionDef.name} Mandi Network`}
+            address={`${currentRegionDef.primaryHubs[0]} APMC Market, ${currentRegionDef.name}`}
+            state={currentRegionDef.name}
+            className="w-full h-[460px] sm:h-[500px]"
+          />
         </CardContent>
       </Card>
 

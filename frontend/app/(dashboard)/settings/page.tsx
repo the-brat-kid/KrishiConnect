@@ -29,7 +29,12 @@ import {
   ExternalLink,
   Sparkles,
   Lock,
+  Mail,
+  Send,
+  User,
+  CheckCircle,
 } from "lucide-react";
+import api from "@/lib/api";
 
 export default function SettingsPage() {
   const { data: profile, isLoading } = useBusinessProfile();
@@ -50,6 +55,31 @@ export default function SettingsPage() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<string | null>(null);
+
+  const handleTestEmail = async () => {
+    try {
+      setIsTestingEmail(true);
+      setTestEmailResult(null);
+      const res = await api.post("/invoices/test-email");
+      toast({
+        title: "Email Dispatch Test",
+        description: res.data?.message || "Test email dispatched successfully!",
+      });
+      setTestEmailResult(res.data?.message || "Delivered successfully via SMTP/Resend bridge.");
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err.message || "Failed to trigger test email.";
+      toast({
+        title: "Email Test Notice",
+        description: msg,
+        variant: "destructive",
+      });
+      setTestEmailResult("Dispatch status: " + msg);
+    } finally {
+      setIsTestingEmail(false);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
@@ -326,6 +356,73 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              {/* Email & SMTP Invoicing Dispatch Section */}
+              <div className="pt-4 border-t border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-emerald-400" />
+                      <span>Email &amp; Invoice PDF Dispatch Bridge</span>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Automatic customer email delivery for invoices, receipts, and transporter manifests.
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>SMTP Active</span>
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Sender Account:</span>
+                      <p className="font-semibold text-foreground font-mono truncate">
+                        {user?.email || "harshsrivastava0315@gmail.com"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">SMTP Gateway:</span>
+                      <p className="font-semibold text-foreground font-mono">
+                        smtp.gmail.com:587 (TLS)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-white/5">
+                    <p className="text-[11px] text-muted-foreground">
+                      Attached with auto-generated GST compliance PDF invoices.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleTestEmail}
+                      disabled={isTestingEmail}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-xs font-semibold text-emerald-300 hover:text-white transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 self-start sm:self-auto disabled:opacity-50"
+                    >
+                      {isTestingEmail ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin text-emerald-400" />
+                          <span>Testing Dispatch...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-3 w-3 text-emerald-400" />
+                          <span>Send Test Email</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {testEmailResult && (
+                    <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-300 flex items-center gap-1.5">
+                      <CheckCircle className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <span>{testEmailResult}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Action Buttons Bar */}
               <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -355,8 +452,36 @@ export default function SettingsPage() {
           </form>
         </div>
 
-        {/* Right Column: Live Payment QR Preview & APMC Trading Corridor */}
+        {/* Right Column: Live Payment QR Preview, Profile Card & APMC Corridor */}
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">
+          {/* User Account Overview Card (matching profile dropdown) */}
+          <div className="liquid-glass p-5 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                HS
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-foreground truncate">
+                    {profile?.business_name || "Harsh Srivastava"}
+                  </h4>
+                  <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                    Active
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground font-mono truncate">
+                  {user?.email || "harshsrivastava0315@gmail.com"}
+                </p>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+              <span className="text-muted-foreground">Settlement Role:</span>
+              <span className="font-semibold text-emerald-400 capitalize">
+                {formData.business_type} (APMC)
+              </span>
+            </div>
+          </div>
+
           {/* Live FreePay UPI QR Card */}
           <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
