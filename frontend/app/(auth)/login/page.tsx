@@ -360,57 +360,47 @@ export default function LoginPage() {
               <form onSubmit={handleSendOtp} className="space-y-4">
                 {otpChannel === "email" ? (
                   <div className="space-y-2">
-                    <Label htmlFor="emailOtp" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                      <span>Email Address</span>
-                      <span className="text-[10px] text-emerald-400 font-semibold lowercase">instant verification code</span>
+                    <Label htmlFor="emailOtp" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Email Address
                     </Label>
-                    <div className="relative flex items-center rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 focus-within:shadow-[0_0_24px_rgba(16,185,129,0.25)] transition-all overflow-hidden group">
-                      <div className="flex items-center gap-1.5 px-3.5 py-3.5 border-r border-white/12 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02] text-sm font-extrabold text-foreground select-none">
-                        <Mail className="h-4 w-4 text-emerald-400" />
-                      </div>
+                    <div className="relative flex items-center group">
+                      <Mail className="absolute left-4 h-4 w-4 text-emerald-400 group-focus-within:text-emerald-300 transition-colors pointer-events-none z-10" />
                       <input
                         id="emailOtp"
                         type="email"
+                        autoComplete="email"
                         placeholder="Enter your email address"
                         value={emailOtp}
                         onChange={(e) => setEmailOtp(e.target.value)}
-                        className="w-full bg-transparent px-3.5 py-3.5 text-base sm:text-sm font-bold text-foreground placeholder:text-muted-foreground/50 outline-none"
+                        className="w-full rounded-2xl border border-white/20 dark:border-white/15 bg-black/60 backdrop-blur-2xl pl-11 pr-4 py-3.5 text-base sm:text-sm font-semibold text-white placeholder:text-muted-foreground/40 shadow-[inset_0_1px_2px_rgba(255,255,255,0.15)] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 outline-none transition-all"
                         autoFocus
                         required
                       />
                     </div>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Real 6-digit code will be sent to your email from otp@phantomstack.me</span>
-                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                      <span>{t("login.phoneLabel")}</span>
-                      <span className="text-[10px] text-emerald-400 font-semibold lowercase">instant sms otp</span>
+                    <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      {t("login.phoneLabel")}
                     </Label>
-                    <div className="relative flex items-center rounded-2xl border border-white/20 dark:border-white/15 bg-white/[0.08] dark:bg-black/50 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)] focus-within:border-emerald-400/80 focus-within:ring-2 focus-within:ring-emerald-400/30 focus-within:shadow-[0_0_24px_rgba(16,185,129,0.25)] transition-all overflow-hidden group">
-                      <div className="flex items-center gap-1.5 px-3.5 py-3.5 border-r border-white/12 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02] text-sm font-extrabold text-foreground select-none">
+                    <div className="relative flex items-center rounded-2xl border border-white/20 dark:border-white/15 bg-black/60 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.15)] focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 transition-all overflow-hidden group">
+                      <div className="flex items-center gap-1.5 px-3.5 py-3.5 border-r border-white/10 bg-white/[0.02] text-sm font-extrabold text-foreground select-none">
                         <span className="text-sm">🇮🇳</span>
                         <span>+91</span>
                       </div>
                       <input
                         id="phone"
                         type="tel"
+                        autoComplete="tel"
                         placeholder={t("login.phonePlaceholder")}
                         maxLength={10}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                        className="w-full bg-transparent px-3.5 py-3.5 text-base sm:text-sm font-bold tracking-wider text-foreground placeholder:text-muted-foreground/50 outline-none"
+                        className="w-full bg-transparent px-3.5 py-3.5 text-base sm:text-sm font-semibold text-white placeholder:text-muted-foreground/40 outline-none"
                         autoFocus
                         required
                       />
                     </div>
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Real SMS OTP will be sent directly to your phone via Google Firebase.</span>
-                    </p>
                   </div>
                 )}
 
@@ -441,17 +431,17 @@ export default function LoginPage() {
                   <div>
                     <span className="text-[11px] text-emerald-400 font-bold block uppercase tracking-wider">
                       {otpChannel === "email"
-                        ? "Code sent from otp@phantomstack.me to:"
+                        ? "Code sent to:"
                         : isFirebaseMode
-                        ? "SMS Sent via Google Firebase:"
+                        ? "SMS Sent to:"
                         : "OTP Sent to:"}
                     </span>
                     <span className="text-base font-extrabold text-foreground">
                       {otpChannel === "email" ? (sentOtpTarget || emailOtp) : `+91 ${sentOtpTarget || phone}`}
                     </span>
                     {otpChannel === "email" ? (
-                      <span className="text-[10px] text-emerald-400/80 block mt-0.5 font-medium">
-                        Check your Inbox and Spam folder
+                      <span className="text-[10px] text-muted-foreground block mt-0.5">
+                        Check your Inbox or Spam folder
                       </span>
                     ) : (
                       !isFirebaseMode && (

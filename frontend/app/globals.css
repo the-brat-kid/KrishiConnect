@@ -693,6 +693,30 @@ body {
   box-shadow: none !important;
 }
 
+/* ============================================================
+   CHROME / SAFARI / WEBKIT AUTOFILL FIX (No ugly yellow box)
+   ============================================================ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #0a100d inset !important;
+  box-shadow: 0 0 0 1000px #0a100d inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  caret-color: #10b981 !important;
+  border-radius: inherit !important;
+  transition: background-color 50000s ease-in-out 0s, color 50000s ease-in-out 0s !important;
+}
+
+input:-webkit-autofill::first-line,
+textarea:-webkit-autofill::first-line {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 #google_translate_element {
   display: none !important;
 }
