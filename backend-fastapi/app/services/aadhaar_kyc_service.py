@@ -23,8 +23,82 @@ if "pyzbar" not in sys.modules:
     sys.modules["pyzbar"] = mock_pyzbar
     sys.modules["pyzbar.pyzbar"] = mock_pyzbar_sub
 
-from pyaadhaar.decode import AadhaarSecureQr
-import zxingcpp
+
+class PurePythonAadhaarSecureQr:
+    """Pure-Python standalone AadhaarSecureQr decoder with zero external binary dependencies."""
+
+    def __init__(self, base10encodedstring: Any) -> None:
+        self.base10encodedstring = int(base10encodedstring)
+        self.details = [
+            "version", "email_mobile_status", "referenceid", "name", "dob", "gender", "careof",
+            "district", "landmark", "house", "location", "pincode", "postoffice", "state",
+            "street", "subdistrict", "vtc", "last_4_digits_mobile_no"
+        ]
+        self.delimeter = [-1]
+        self.data: Dict[str, Any] = {}
+
+        # Decompress BigInt bytes
+        bit_len = self.base10encodedstring.bit_length()
+        num_bytes = (bit_len + 7) // 8
+        bytes_array = self.base10encodedstring.to_bytes(max(num_bytes, 1), "big").lstrip(b"\x00")
+        try:
+            self.decompressed_array = zlib.decompress(bytes_array, 16 + zlib.MAX_WBITS)
+        except Exception:
+            try:
+                self.decompressed_array = zlib.decompress(bytes_array, zlib.MAX_WBITS | 32)
+            except Exception:
+                self.decompressed_array = zlib.decompress(bytes_array)
+
+        if self.decompressed_array[:2].decode("ISO-8859-1", errors="ignore") != "V2":
+            if "version" in self.details:
+                self.details.remove("version")
+            if "last_4_digits_mobile_no" in self.details:
+                self.details.remove("last_4_digits_mobile_no")
+
+        for i, b in enumerate(self.decompressed_array):
+            if b == 255:
+                self.delimeter.append(i)
+
+        for i in range(min(len(self.details), len(self.delimeter) - 1)):
+            val = self.decompressed_array[self.delimeter[i] + 1 : self.delimeter[i + 1]].decode(
+                "ISO-8859-1", errors="ignore"
+            )
+            self.data[self.details[i]] = val
+
+    @property
+    def decodeddata(self) -> dict:
+        return self.data
+
+    def isImage(self) -> bool:
+        return len(self.delimeter) > len(self.details)
+
+    def image(self) -> Optional[Image.Image]:
+        try:
+            delimeter_index = len(self.details)
+            if len(self.delimeter) > delimeter_index:
+                start = self.delimeter[delimeter_index] + 1
+                end = len(self.decompressed_array) - 256
+                img_bytes = self.decompressed_array[start:end]
+                if img_bytes:
+                    return Image.open(io.BytesIO(img_bytes))
+        except Exception:
+            pass
+        return None
+
+
+try:
+    from pyaadhaar.decode import AadhaarSecureQr
+except Exception as e:
+    logging.getLogger("krishiconnect.aadhaar_kyc").warning(
+        "pyaadhaar package import failed, using built-in PurePythonAadhaarSecureQr fallback: %s", e
+    )
+    AadhaarSecureQr = PurePythonAadhaarSecureQr  # type: ignore
+
+try:
+    import zxingcpp
+except Exception as e:
+    logging.getLogger("krishiconnect.aadhaar_kyc").warning("zxingcpp import failed: %s", e)
+    zxingcpp = None  # type: ignore
 
 logger = logging.getLogger("krishiconnect.aadhaar_kyc")
 
@@ -126,6 +200,12 @@ def extract_qr_from_image(image_bytes: bytes) -> str:
 
     if img.mode not in ("RGB", "L"):
         img = img.convert("RGB")
+
+    if zxingcpp is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Barcode scanner module (zxing-cpp) is not available in this environment. Please scan using live camera or enter the QR payload.",
+        )
 
     # Pass 1: Standard barcode extraction
     barcodes = zxingcpp.read_barcodes(img)
