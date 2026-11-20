@@ -53,6 +53,7 @@ import {
   STATE_NAMES,
   getMandisForState,
 } from "@/lib/mandi-regions";
+import { AadhaarKycWidget } from "@/components/kyc/aadhaar-kyc-widget";
 
 export default function SettingsPage() {
   const { data: profile, isLoading } = useBusinessProfile();
@@ -980,6 +981,18 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column (8 cols): PAN & Bank Penny Drop Forms */}
             <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              {/* Primary: Offline Aadhaar Secure QR Verification (Zero Paid APIs) */}
+              <AadhaarKycWidget
+                onVerified={(aadhaarData) => {
+                  if (aadhaarData.name) setKycName(aadhaarData.name);
+                  if (aadhaarData.dob) setKycDob(aadhaarData.dob);
+                  toast({
+                    title: "Aadhaar Identity Synced",
+                    description: `Verified details for ${aadhaarData.name} synced with your APMC profile.`,
+                  });
+                }}
+              />
+
               {/* PAN Card Verification Panel */}
               <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">

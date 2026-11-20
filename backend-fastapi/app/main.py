@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import engine
 from app.models import Base
-from app.api.routes import auth, dashboard, customers, products, invoices, payments, expenses, reports, business_profile, crop_rates, cold_storage, soil_health, kyc
+from app.api.routes import auth, dashboard, customers, products, invoices, payments, expenses, reports, business_profile, crop_rates, cold_storage, soil_health, kyc, aadhaar_kyc
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter
@@ -39,6 +39,13 @@ async def lifespan(app: FastAPI):
             "CREATE INDEX IF NOT EXISTS ix_payments_invoice_status ON payments (invoice_id, status)",
             "CREATE INDEX IF NOT EXISTS ix_payments_bp_status ON payments (business_profile_id, status)",
             "CREATE INDEX IF NOT EXISTS ix_payments_bp_created ON payments (business_profile_id, created_at DESC)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR DEFAULT 'PENDING'",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_name VARCHAR",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dob VARCHAR",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_pincode VARCHAR",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dedup_hash VARCHAR",
+            "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kyc_dedup_hash ON users (kyc_dedup_hash)",
         ]:
             try:
                 await conn.execute(text(ddl))
@@ -97,6 +104,7 @@ app.include_router(crop_rates.router, prefix=f"{settings.API_V1_STR}/crop-rates"
 app.include_router(cold_storage.router, prefix=f"{settings.API_V1_STR}/cold-storage", tags=["cold-storage"])
 app.include_router(soil_health.router, prefix=f"{settings.API_V1_STR}/soil-health", tags=["soil-health"])
 app.include_router(kyc.router, prefix=f"{settings.API_V1_STR}/kyc", tags=["kyc"])
+app.include_router(aadhaar_kyc.router, prefix=f"{settings.API_V1_STR}/kyc/aadhaar", tags=["aadhaar-kyc"])
 
 @app.get("/")
 def root():

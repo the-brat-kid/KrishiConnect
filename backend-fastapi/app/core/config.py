@@ -48,6 +48,11 @@ class Settings(BaseSettings):
     # Google OAuth
     GOOGLE_CLIENT_ID: str = "586620821912-vpp58t1c17uqqdl2mrf49d8ha98dtbpq.apps.googleusercontent.com"
 
+    # Offline Aadhaar KYC
+    KYC_HASH_SECRET: str = "krishiconnect_offline_aadhaar_secret_salt_2026"
+    KYC_CERTS_DIR: str = "certs"
+
+
     CORS_ORIGINS_DEFAULT: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
