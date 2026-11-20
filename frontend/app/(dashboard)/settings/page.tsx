@@ -34,10 +34,6 @@ import {
   User,
   CheckCircle,
   Compass,
-  CreditCard,
-  Building,
-  AlertCircle,
-  Calendar,
   BadgeCheck,
   FileCheck,
   Download,
@@ -118,191 +114,9 @@ export default function SettingsPage() {
     }
   }, []);
 
-  // Sandbox.co.in KYC State
-  const [kycPan, setKycPan] = useState("ABCPR1234F");
+  // Verified KYC Profile State
   const [kycName, setKycName] = useState(user?.full_name || user?.name || "Harsh Srivastava");
   const [kycDob, setKycDob] = useState("15/03/1990");
-  const [isVerifyingPan, setIsVerifyingPan] = useState(false);
-  const [panResult, setPanResult] = useState<any>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("krishi_kyc_pan");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {}
-      }
-    }
-    return {
-      pan: "ABCPR1234F",
-      status: "valid",
-      status_description: "Active in Income Tax Department Database",
-      name_match: true,
-      dob_match: true,
-      category: "Individual / Farmer",
-      aadhaar_seeding: "Linked & Verified",
-      transaction_id: "SBX-PAN-8492048",
-      verified_at: new Date().toLocaleDateString("en-IN"),
-    };
-  });
-
-  const [bankIfsc, setBankIfsc] = useState("SBIN0000001");
-  const [bankAccount, setBankAccount] = useState("39847291048");
-  const [isVerifyingBank, setIsVerifyingBank] = useState(false);
-  const [isLookingUpIfsc, setIsLookingUpIfsc] = useState(false);
-  const [bankDetails, setBankDetails] = useState<any>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("krishi_kyc_bank");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {}
-      }
-    }
-    return {
-      ifsc: "SBIN0000001",
-      bank: "State Bank of India",
-      branch: "Kolkata Main / APMC Clearing Yard",
-      address: "Samriddhi Bhawan, 1 Strand Road",
-      city: "Kolkata",
-      state: "West Bengal",
-      upi: true,
-      imps: true,
-      rtgs: true,
-      neft: true,
-      account_exists: true,
-      beneficiary_name: user?.full_name || "Harsh Srivastava",
-      transaction_id: "SBX-BANK-9938102",
-      verified_at: new Date().toLocaleDateString("en-IN"),
-    };
-  });
-
-  // Verify PAN with Sandbox.co.in
-  const handleVerifyPanLive = async () => {
-    try {
-      setIsVerifyingPan(true);
-      const res = await fetch("/api/kyc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "verify_pan",
-          pan: kycPan,
-          name: kycName,
-          dob: kycDob,
-        }),
-      });
-
-      const json = await res.json();
-      if (json.success && json.data) {
-        setPanResult(json.data);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("krishi_kyc_pan", JSON.stringify(json.data));
-        }
-        toast({
-          title: "PAN Verified with Sandbox.co.in",
-          description: `ITD Status: ${json.data.status_description || "Verified"} (Ref: ${json.data.transaction_id})`,
-        });
-      } else {
-        toast({
-          title: "PAN Verification Update",
-          description: json.message || "Invalid PAN pattern or ITD record mismatch.",
-          variant: "destructive",
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "Verification Service Notice",
-        description: err.message || "Could not connect to Sandbox KYC service.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsVerifyingPan(false);
-    }
-  };
-
-  // Lookup Bank IFSC with Sandbox.co.in
-  const handleLookupIfscLive = async () => {
-    try {
-      setIsLookingUpIfsc(true);
-      const res = await fetch(`/api/kyc?action=lookup_ifsc&ifsc=${encodeURIComponent(bankIfsc)}`);
-      const json = await res.json();
-      if (json.success && json.data) {
-        setBankDetails((prev: any) => ({
-          ...prev,
-          ...json.data,
-        }));
-        toast({
-          title: "Bank Branch Located",
-          description: `${json.data.bank} - ${json.data.branch} (${json.data.city})`,
-        });
-      } else {
-        toast({
-          title: "IFSC Lookup Failed",
-          description: json.message || "Please check the 11-character IFSC code.",
-          variant: "destructive",
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "Network Error",
-        description: err.message || "Could not connect to IFSC service.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLookingUpIfsc(false);
-    }
-  };
-
-  // Run Bank Penny Drop Verification with Sandbox.co.in
-  const handleVerifyBankLive = async () => {
-    try {
-      setIsVerifyingBank(true);
-      const res = await fetch("/api/kyc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "verify_bank",
-          ifsc: bankIfsc,
-          account_number: bankAccount,
-        }),
-      });
-
-      const json = await res.json();
-      if (json.success && json.data) {
-        const updated = {
-          ...bankDetails,
-          account_exists: json.data.account_exists,
-          beneficiary_name: json.data.beneficiary_name || kycName,
-          transaction_id: json.data.transaction_id,
-          message: json.data.message,
-          verified_at: new Date().toLocaleDateString("en-IN"),
-        };
-        setBankDetails(updated);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("krishi_kyc_bank", JSON.stringify(updated));
-        }
-        toast({
-          title: "Bank Penny Verification Complete",
-          description: json.data.account_exists
-            ? `Account confirmed active by Sandbox (Ref: ${json.data.transaction_id})`
-            : json.data.message || "Penny drop response received from Sandbox gateway.",
-        });
-      } else {
-        toast({
-          title: "Verification Response",
-          description: json.message || "Bank penny verification could not confirm account.",
-          variant: "destructive",
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "Penny Drop Error",
-        description: err.message || "Could not reach bank penny drop gateway.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsVerifyingBank(false);
-    }
-  };
 
   const handleTestEmail = async () => {
     try {
@@ -464,7 +278,7 @@ export default function SettingsPage() {
             <ShieldCheck className="h-4 w-4 text-emerald-300" />
             <span>KYC Verification Hub</span>
             <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-1.5 font-mono">
-              Sandbox Live
+              UIDAI Offline
             </span>
           </button>
         </div>
@@ -928,7 +742,7 @@ export default function SettingsPage() {
       </div>
       )}
 
-      {/* KYC & Identity Verification Hub (Sandbox.co.in) */}
+      {/* KYC & Identity Verification Hub (UIDAI Offline Secure QR) */}
       {activeTab === "kyc" && (
         <div className="space-y-6">
           {/* Top Live KYC Status Banner */}
@@ -944,15 +758,15 @@ export default function SettingsPage() {
                   </h2>
                   <span className="badge-liquid-glass-emerald text-xs font-bold py-1 px-3 flex items-center gap-1.5 shadow-[0_0_12px_rgba(52,211,153,0.4)]">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>APMC VERIFIED PRODUCER</span>
+                    <span>UIDAI OFFLINE VERIFIED PRODUCER</span>
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono flex items-center gap-2 flex-wrap">
                   <span>Mandi ID: APMC-OD-2026-9812</span>
                   <span>•</span>
-                  <span className="text-emerald-400">Compliance Level: Tier 3 (Full KYC)</span>
+                  <span className="text-emerald-400">Compliance Level: Tier 3 (Cryptographic KYC)</span>
                   <span>•</span>
-                  <span>ITD &amp; Banking Seeded</span>
+                  <span>UIDAI Offline Verified</span>
                 </p>
               </div>
             </div>
@@ -960,18 +774,18 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
               <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-right min-w-[130px]">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
-                  Identity Engine
+                  Verification Engine
                 </span>
                 <span className="text-xs font-bold text-emerald-400 font-mono">
-                  api.sandbox.co.in
+                  UIDAI PKCS1v15
                 </span>
               </div>
               <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-right min-w-[110px]">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
-                  Compliance
+                  Privacy Mode
                 </span>
                 <span className="text-xs font-bold text-emerald-300 font-mono">
-                  100% Certified
+                  100% Offline
                 </span>
               </div>
             </div>
@@ -979,7 +793,7 @@ export default function SettingsPage() {
 
           {/* Verification Cards Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column (8 cols): PAN & Bank Penny Drop Forms */}
+            {/* Left Column (8 cols): Primary Offline Aadhaar Secure QR Widget */}
             <div className="lg:col-span-7 xl:col-span-8 space-y-6">
               {/* Primary: Offline Aadhaar Secure QR Verification (Zero Paid APIs) */}
               <AadhaarKycWidget
@@ -992,251 +806,6 @@ export default function SettingsPage() {
                   });
                 }}
               />
-
-              {/* PAN Card Verification Panel */}
-              <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-emerald-400" />
-                      <span>Income Tax Department (PAN) Verification</span>
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Real-time identity verification against the Central Income Tax Registry via Sandbox.co.in.
-                    </p>
-                  </div>
-                  {panResult?.status === "valid" ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/35">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>ITD Verified</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/35">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      <span>Verification Pending</span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* PAN Number */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/90">
-                      PAN Card Number
-                    </Label>
-                    <Input
-                      value={kycPan}
-                      onChange={(e) => setKycPan(e.target.value.toUpperCase())}
-                      placeholder="e.g. ABCPR1234F"
-                      maxLength={10}
-                      className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 rounded-xl text-foreground font-mono uppercase text-sm"
-                    />
-                  </div>
-
-                  {/* Name as per PAN */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/90">
-                      Name as per PAN Card
-                    </Label>
-                    <Input
-                      value={kycName}
-                      onChange={(e) => setKycName(e.target.value)}
-                      placeholder="e.g. Harsh Srivastava"
-                      className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 rounded-xl text-foreground text-sm"
-                    />
-                  </div>
-
-                  {/* Date of Birth */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/90">
-                      Date of Birth (DD/MM/YYYY)
-                    </Label>
-                    <Input
-                      value={kycDob}
-                      onChange={(e) => setKycDob(e.target.value)}
-                      placeholder="DD/MM/YYYY"
-                      className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 rounded-xl text-foreground font-mono text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Action Button & Disclaimer */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                  <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                    <Lock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                    <span>Consent-authorized cryptographic lookup via Sandbox.co.in</span>
-                  </div>
-
-                  <Button
-                    type="button"
-                    onClick={handleVerifyPanLive}
-                    disabled={isVerifyingPan}
-                    className="btn-liquid-glass-primary px-6 h-10 rounded-xl font-bold text-xs inline-flex items-center gap-2 cursor-pointer"
-                  >
-                    {isVerifyingPan ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Verifying with ITD...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="h-4 w-4" />
-                        <span>Verify PAN with Sandbox</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {/* PAN Verification Result Details Card */}
-                {panResult && (
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/12 space-y-2.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-foreground flex items-center gap-1.5">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        <span>PAN Verification Details</span>
-                      </span>
-                      <span className="font-mono text-[10px] text-muted-foreground">
-                        TXN: {panResult.transaction_id || "SBX-8492048"}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-                      <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
-                        <span className="text-[10px] text-muted-foreground block">PAN Status</span>
-                        <span className="font-bold text-emerald-400 capitalize">{panResult.status || "Valid"}</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
-                        <span className="text-[10px] text-muted-foreground block">Name Match</span>
-                        <span className="font-bold text-foreground">
-                          {panResult.name_match ? "100% Match" : "Verified"}
-                        </span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
-                        <span className="text-[10px] text-muted-foreground block">Category</span>
-                        <span className="font-bold text-foreground capitalize">{panResult.category || "Individual"}</span>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
-                        <span className="text-[10px] text-muted-foreground block">Aadhaar Seeding</span>
-                        <span className="font-bold text-emerald-400">{panResult.aadhaar_seeding || "Linked"}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Bank Account Penny Drop Verification Panel */}
-              <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,254,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                      <Building className="h-5 w-5 text-emerald-400" />
-                      <span>Bank Account &amp; Penny Drop Verification</span>
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Automated 1-rupee penny verification to ensure instant settlement into your certified bank account.
-                    </p>
-                  </div>
-                  {bankDetails?.account_exists ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/35">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span>Penny Verified</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/35">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      <span>Penny Pending</span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* IFSC Code */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs font-semibold text-foreground/90">
-                        Bank IFSC Code
-                      </Label>
-                      <button
-                        type="button"
-                        onClick={handleLookupIfscLive}
-                        disabled={isLookingUpIfsc}
-                        className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 underline cursor-pointer"
-                      >
-                        {isLookingUpIfsc ? "Looking up..." : "Lookup Branch"}
-                      </button>
-                    </div>
-                    <Input
-                      value={bankIfsc}
-                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
-                      placeholder="e.g. SBIN0000001"
-                      maxLength={11}
-                      className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 rounded-xl text-foreground font-mono uppercase text-sm"
-                    />
-                  </div>
-
-                  {/* Account Number */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-foreground/90">
-                      Settlement Account Number
-                    </Label>
-                    <Input
-                      value={bankAccount}
-                      onChange={(e) => setBankAccount(e.target.value)}
-                      placeholder="e.g. 39847291048"
-                      className="h-11 bg-white/[0.04] border-white/15 focus:border-emerald-500/60 rounded-xl text-foreground font-mono text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Branch Details Display */}
-                {bankDetails?.bank && (
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/12 space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-foreground flex items-center gap-1.5">
-                        <Building2 className="h-4 w-4 text-emerald-400" />
-                        <span>{bankDetails.bank}</span>
-                      </span>
-                      <span className="font-mono text-[10px] text-emerald-400 font-bold">
-                        {bankDetails.ifsc || bankIfsc}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Branch: {bankDetails.branch} • {bankDetails.address || `${bankDetails.city}, ${bankDetails.state}`}
-                    </p>
-                    <div className="flex items-center gap-2 pt-1 text-[10px] text-emerald-300 font-mono flex-wrap">
-                      <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10">UPI: {bankDetails.upi ? "Enabled" : "Disabled"}</span>
-                      <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10">IMPS: {bankDetails.imps ? "Active" : "Standard"}</span>
-                      <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10">RTGS/NEFT: {bankDetails.rtgs ? "Active" : "Standard"}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Button */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                  <div className="text-[11px] text-muted-foreground">
-                    Direct NPCI / IMPS validation via Sandbox banking gateway.
-                  </div>
-
-                  <Button
-                    type="button"
-                    onClick={handleVerifyBankLive}
-                    disabled={isVerifyingBank}
-                    className="btn-liquid-glass-primary px-6 h-10 rounded-xl font-bold text-xs inline-flex items-center gap-2 cursor-pointer"
-                  >
-                    {isVerifyingBank ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Verifying via Penny Drop...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span>Run Penny Drop Verification</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
 
               {/* Mandi Compliance & APMC Yard Affiliation */}
               <div className="liquid-glass p-5 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-3">
@@ -1298,7 +867,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="text-center">
                     <span className="font-mono text-xs font-bold text-emerald-400 block">
-                      {kycPan ? `${kycPan.slice(0, 5)}****${kycPan.slice(-1)}` : "ABCPR****F"}
+                      UIDAI SECURE QR VERIFIED
                     </span>
                     <span className="text-[10px] text-muted-foreground block">
                       Official Encrypted Handshake
@@ -1324,7 +893,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/10">
                     <span className="text-muted-foreground">Auth Provider:</span>
-                    <span className="font-mono font-bold text-emerald-400">Sandbox.co.in</span>
+                    <span className="font-mono font-bold text-emerald-400">UIDAI PKCS1v15 (Offline)</span>
                   </div>
                 </div>
 
@@ -1355,28 +924,28 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Sandbox SLA & Compliance Card */}
+              {/* Offline Aadhaar Cryptographic SLA & Security Card */}
               <div className="liquid-glass p-5 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-3">
                 <div className="flex items-center justify-between text-xs font-semibold text-foreground">
                   <span className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
                     <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
                     <span>Compliance Protocol</span>
                   </span>
-                  <span className="text-emerald-400 font-mono text-[11px]">Sandbox Live</span>
+                  <span className="text-emerald-400 font-mono text-[11px]">UIDAI Offline</span>
                 </div>
 
                 <div className="space-y-1.5 text-xs">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-muted-foreground">Verification Latency:</span>
-                    <span className="font-mono text-emerald-400 font-semibold">&lt; 1.2s Real-Time</span>
+                    <span className="text-muted-foreground">Verification Engine:</span>
+                    <span className="font-mono text-emerald-400 font-semibold">RSA-SHA256 PKCS1v15</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-muted-foreground">Data Encryption:</span>
-                    <span className="font-mono text-foreground font-semibold">AES-256 GCM</span>
+                    <span className="text-muted-foreground">Data Privacy:</span>
+                    <span className="font-mono text-foreground font-semibold">Zero Aadhaar Stored</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-muted-foreground">ITD Handshake:</span>
-                    <span className="font-mono text-emerald-400 font-semibold">Official API Gate</span>
+                    <span className="text-muted-foreground">External Paid APIs:</span>
+                    <span className="font-mono text-emerald-400 font-semibold">0 (100% Free / Self-Contained)</span>
                   </div>
                 </div>
               </div>
