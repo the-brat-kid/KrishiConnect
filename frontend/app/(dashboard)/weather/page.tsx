@@ -24,6 +24,9 @@ import {
   CheckCircle2,
   XCircle,
   Satellite,
+  Sparkles,
+  Activity,
+  Layers,
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -43,129 +46,21 @@ interface MandiOption {
   lon: number;
 }
 
-const PAN_INDIA_MANDIS: MandiOption[] = [
-  {
-    id: "bhubaneswar",
-    name: "Bhubaneswar APMC Mandi",
-    state: "Odisha",
-    district: "Khordha",
-    address: "APMC Mandi Yard, Unit 1, Bhubaneswar, Odisha 751009, India",
-    lat: 20.2961,
-    lon: 85.8245,
-  },
-  {
-    id: "delhi",
-    name: "Delhi Azadpur APMC Mandi",
-    state: "Delhi NCR",
-    district: "North Delhi",
-    address: "Azadpur Subzi Mandi, GTK Road, Delhi 110033, India",
-    lat: 28.7118,
-    lon: 77.1777,
-  },
-  {
-    id: "nashik",
-    name: "Nashik (Pimpalgaon) APMC Mandi",
-    state: "Maharashtra",
-    district: "Nashik",
-    address: "Pimpalgaon Baswant APMC Market, Nashik, Maharashtra 422209, India",
-    lat: 20.1706,
-    lon: 73.9859,
-  },
-  {
-    id: "khanna",
-    name: "Khanna Grain Market",
-    state: "Punjab",
-    district: "Ludhiana",
-    address: "Asia's Largest Grain Market Yard, GT Road, Khanna, Punjab 141401, India",
-    lat: 30.7067,
-    lon: 76.2201,
-  },
-  {
-    id: "indore",
-    name: "Indore (Choithram) Mandi",
-    state: "Madhya Pradesh",
-    district: "Indore",
-    address: "Choithram Mandi, Manik Bagh Road, Indore, MP 452014, India",
-    lat: 22.6868,
-    lon: 75.8427,
-  },
-  {
-    id: "guntur",
-    name: "Guntur Mirchi Yard",
-    state: "Andhra Pradesh",
-    district: "Guntur",
-    address: "Agriculture Market Committee, Mirchi Yard, Guntur, AP 522004, India",
-    lat: 16.3067,
-    lon: 80.4365,
-  },
-  {
-    id: "deesa",
-    name: "Deesa Agricultural APMC",
-    state: "Gujarat",
-    district: "Banaskantha",
-    address: "APMC Market Yard, Highway Road, Deesa, Gujarat 385535, India",
-    lat: 24.2586,
-    lon: 72.1793,
-  },
-  {
-    id: "kolar",
-    name: "Kolar Tomato APMC Market",
-    state: "Karnataka",
-    district: "Kolar",
-    address: "APMC Yard, Bangarpet Road, Kolar, Karnataka 563101, India",
-    lat: 13.1378,
-    lon: 78.1291,
-  },
-  {
-    id: "kolkata",
-    name: "Kolkata (Posta / Koley) Mandi",
-    state: "West Bengal",
-    district: "Kolkata",
-    address: "Posta Wholesale Market, Kolkata, West Bengal 700007, India",
-    lat: 22.5851,
-    lon: 88.3541,
-  },
-  {
-    id: "shimla",
-    name: "Shimla (Dhalli) Apple Mandi",
-    state: "Himachal Pradesh",
-    district: "Shimla",
-    address: "APMC Subzi Mandi, Dhalli, Shimla, HP 171012, India",
-    lat: 31.1114,
-    lon: 77.2023,
-  },
-  {
-    id: "jaipur",
-    name: "Jaipur (Muhana) Mandi",
-    state: "Rajasthan",
-    district: "Jaipur",
-    address: "Muhana Mandi Terminal Market, Sanganer, Jaipur, Rajasthan 302029, India",
-    lat: 26.7825,
-    lon: 75.7483,
-  },
-  {
-    id: "cuttack",
-    name: "Cuttack Malgodown Mandi",
-    state: "Odisha",
-    district: "Cuttack",
-    address: "Malgodown Wholesale Market, Cuttack, Odisha 753003, India",
-    lat: 20.4625,
-    lon: 85.8828,
-  },
-  {
-    id: "sambalpur",
-    name: "Sambalpur Grain Mandi",
-    state: "Odisha",
-    district: "Sambalpur",
-    address: "RMC Yard, Khetrajpur, Sambalpur, Odisha 768003, India",
-    lat: 21.4669,
-    lon: 83.9812,
-  },
-];
+const DEFAULT_MANDI: MandiOption = {
+  id: "bhubaneswar",
+  name: "Bhubaneswar APMC Mandi",
+  state: "Odisha",
+  district: "Khordha",
+  address: "Unit 1 Wholesale Yard, Bhubaneswar, Odisha",
+  lat: 20.2961,
+  lon: 85.8245,
+};
 
 interface WeatherApiResponse {
   success: boolean;
+  source?: string;
   mandi: MandiOption;
+  coordinates?: { lat: number; lon: number };
   current: {
     temp: number;
     feelsLike: number;
@@ -177,6 +72,10 @@ interface WeatherApiResponse {
     isDay: boolean;
     precipitationMm: number;
     rainProbability: number;
+    solarRadiationMj?: number;
+    estimatedAqi?: number;
+    aqiStatus?: string;
+    cloudFractionPct?: number;
   };
   rainIntelligence: {
     todayMaxProbability: number;
@@ -194,6 +93,17 @@ interface WeatherApiResponse {
       status: string;
       advice: string;
     };
+  };
+  nasaDiagnostics?: {
+    temperature_c?: number;
+    relative_humidity_pct?: number;
+    solar_radiation_mj?: number;
+    precipitation_mm?: number;
+    wind_speed_kmh?: number;
+    estimated_aqi?: number;
+    aqi_status?: string;
+    cloud_fraction_pct?: number;
+    satellite_sensor?: string;
   };
   hourly: Array<{
     time: string;
@@ -216,27 +126,40 @@ interface WeatherApiResponse {
 
 export default function FarmWeatherPage() {
   const { currentRegionDef } = useLanguage();
-  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(PAN_INDIA_MANDIS[0]);
+  const [selectedMandi, setSelectedMandi] = useState<MandiOption>(DEFAULT_MANDI);
   const [weatherData, setWeatherData] = useState<WeatherApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Sync mandi with active region from header
+  // Sync mandi with active region from header if applicable
   useEffect(() => {
     if (currentRegionDef?.name && currentRegionDef.name !== "All India") {
-      const matched = PAN_INDIA_MANDIS.find(
-        (m) => m.state.toLowerCase() === currentRegionDef.name.toLowerCase()
-      );
-      if (matched && matched.id !== selectedMandi.id) {
-        setSelectedMandi(matched);
+      if (selectedMandi.state.toLowerCase() !== currentRegionDef.name.toLowerCase()) {
+        setSelectedMandi((prev) => ({
+          ...prev,
+          state: currentRegionDef.name,
+          name: `${currentRegionDef.primaryHubs[0]} APMC Mandi`,
+          district: currentRegionDef.primaryHubs[0],
+          address: `${currentRegionDef.primaryHubs[0]} APMC Yard, ${currentRegionDef.name}`,
+        }));
       }
     }
   }, [currentRegionDef?.name]);
 
-  // Fetch weather data from our /api/weather endpoint
-  const fetchWeather = async (mandiId: string) => {
+  // Fetch weather data directly calibrated from NASA POWER & Earth Observation
+  const fetchWeather = async (mandi: MandiOption) => {
     try {
-      const res = await fetch(`/api/weather?mandi=${mandiId}`);
+      const query = new URLSearchParams({
+        lat: mandi.lat.toString(),
+        lon: mandi.lon.toString(),
+        name: mandi.name,
+        state: mandi.state,
+        district: mandi.district || "",
+        address: mandi.address || "",
+        mandi: mandi.id,
+      });
+
+      const res = await fetch(`/api/weather?${query.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch weather telemetry");
       const data: WeatherApiResponse = await res.json();
       setWeatherData(data);
@@ -250,51 +173,54 @@ export default function FarmWeatherPage() {
 
   useEffect(() => {
     setIsLoading(true);
-    fetchWeather(selectedMandi.id);
-  }, [selectedMandi.id]);
+    fetchWeather(selectedMandi);
+  }, [selectedMandi.lat, selectedMandi.lon, selectedMandi.id, selectedMandi.name]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchWeather(selectedMandi.id);
+    fetchWeather(selectedMandi);
   };
 
   // Weather condition icon helper
   const renderWeatherIcon = (iconName: string, isDay: boolean = true) => {
-    if (iconName === "sun") return <Sun className="w-5 h-5 text-amber-500 animate-spin" style={{ animationDuration: "35s" }} />;
-    if (iconName === "moon" || !isDay) return <Moon className="w-5 h-5 text-emerald-400" />;
-    if (iconName === "cloud-rain" || iconName === "cloud-drizzle") return <CloudRain className="w-5 h-5 text-blue-400" />;
-    if (iconName === "zap") return <CloudLightning className="w-5 h-5 text-amber-400" />;
-    return <CloudSun className="w-5 h-5 text-amber-400" />;
-  };
-
-  // Rain probability risk color helper
-  const getRiskColor = (prob: number) => {
-    if (prob > 70) return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800";
-    if (prob > 40) return "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800";
-    if (prob > 20) return "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800";
-    return "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800";
+    if (iconName === "sun") return <Sun className="w-6 h-6 text-amber-500 animate-spin" style={{ animationDuration: "35s" }} />;
+    if (iconName === "moon" || !isDay) return <Moon className="w-6 h-6 text-emerald-400" />;
+    if (iconName === "cloud-rain" || iconName === "cloud-drizzle") return <CloudRain className="w-6 h-6 text-blue-400" />;
+    if (iconName === "zap") return <CloudLightning className="w-6 h-6 text-amber-400" />;
+    return <CloudSun className="w-6 h-6 text-amber-400" />;
   };
 
   const current = weatherData?.current;
   const rain = weatherData?.rainIntelligence;
+  const nasa = weatherData?.nasaDiagnostics;
+
+  const aqiColorClass =
+    (current?.estimatedAqi || 0) < 50
+      ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/40"
+      : (current?.estimatedAqi || 0) < 100
+      ? "text-yellow-400 bg-yellow-500/15 border-yellow-500/40"
+      : (current?.estimatedAqi || 0) < 150
+      ? "text-orange-400 bg-orange-500/15 border-orange-500/40"
+      : "text-rose-400 bg-rose-500/15 border-rose-500/40";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-page-enter">
       {/* Top Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 flex items-center gap-1 font-medium">
-              <Sprout className="h-3 w-3" /> Real-time Agro-Meteorology & Rainfall Risk
-            </Badge>
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#34d399]" />
+            <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30">
+              <Satellite className="h-3.5 w-3.5" />
+              <span>NASA Earth Observation &amp; Agroclimatology Intelligence</span>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <CloudSun className="h-8 w-8 text-primary" />
-            Farm Weather & Rain Probability Intelligence
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2 font-plus-jakarta">
+            <CloudSun className="h-7 w-7 text-primary drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
+            <span>Farm Weather &amp; Rain Intelligence</span>
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Live precipitation risk, hour-by-hour rain probability, spray window forecasting, and geospatial mandi cargo routing across Pan-India agricultural zones.
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">
+            Live satellite precipitation risk, spray window forecasting, solar irradiance, and agrarian logistics synchronized with the selected APMC Mandi.
           </p>
         </div>
 
@@ -304,339 +230,426 @@ export default function FarmWeatherPage() {
             size="sm"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2"
+            className="btn-liquid-glass flex items-center gap-2 border-white/15 text-xs font-semibold"
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin text-primary" : ""}`} />
-            <span>{isRefreshing ? "Syncing API..." : "Refresh Forecast"}</span>
+            <RefreshCw className={`h-4 w-4 text-emerald-400 ${isRefreshing ? "animate-spin" : ""}`} />
+            <span>{isRefreshing ? "Syncing NASA API..." : "Refresh Forecast"}</span>
           </Button>
         </div>
       </div>
 
-      {/* 1. TOP HERO SATELLITE WEATHER OBSERVATORY & MAP (FULL WIDTH) */}
+      {/* 1. TOP HERO SATELLITE WEATHER MAP (FULL WIDTH) WITH STATE & PLACE SELECTOR */}
       <div className="w-full">
         <ViewOnMap
-          key={`${selectedMandi.id}-${selectedMandi.state}`}
+          key={`${selectedMandi.id}-${selectedMandi.lat}-${selectedMandi.lon}`}
           locationName={selectedMandi.name}
           address={selectedMandi.address}
           lat={selectedMandi.lat}
           lon={selectedMandi.lon}
           state={selectedMandi.state}
           onLocationChange={(loc) => {
-            const matched = PAN_INDIA_MANDIS.find((m) => m.id === loc.id) || {
+            setSelectedMandi({
               id: loc.id,
               name: loc.name,
               state: loc.state,
-              district: loc.district,
-              address: loc.address,
+              district: loc.district || loc.name,
+              address: loc.address || `${loc.name}, ${loc.state}`,
               lat: loc.lat,
               lon: loc.lon,
-            };
-            setSelectedMandi(matched);
+            });
           }}
           className="w-full h-[480px] sm:h-[540px]"
         />
       </div>
 
-      {/* Main Grid: Weather & Rain on Left (7 cols), Mandi Selector on Right (5 cols) */}
+      {/* 2. DEDICATED REAL-TIME WEATHER FOR THE SELECTED MANDI (FULL WIDTH) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Weather & Rain Intelligence (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Main Current Weather & Rain Probability Hero Card */}
-          <Card className="bg-card shadow-sm border-border">
-            <CardHeader className="pb-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
+        {/* Main Weather & Agricultural Risk Card (8 cols) */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-5">
+            {/* Header: Selected Mandi Title + Real-time Temp */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                     {renderWeatherIcon(current?.icon || "cloud-sun", current?.isDay)}
-                    {selectedMandi.name}
-                  </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                    District: {selectedMandi.district}, Odisha • Integrated with IMD & Agro-Meteo High-Resolution Model
-                  </CardDescription>
+                  </div>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                      {selectedMandi.name}
+                    </h2>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono">
+                      <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
+                      <span>{selectedMandi.district}, {selectedMandi.state}</span>
+                      <span>•</span>
+                      <span>{selectedMandi.lat.toFixed(4)}°N, {selectedMandi.lon.toFixed(4)}°E</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight font-plus-jakarta">
+                  {current?.temp ?? 27}°C
+                </div>
+                <div className="text-xs font-semibold text-emerald-400 flex items-center justify-end gap-1 mt-0.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{current?.condition || "Partly Cloudy"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Primary Rain Probability Indicator Box */}
+            <div className="p-4 rounded-2xl border border-white/15 bg-white/[0.03] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                    <Umbrella className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">
+                      Probability of Rain Today
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Expected Rainfall: <strong className="text-blue-400 font-mono">{rain?.expectedVolumeMm ?? 0} mm</strong>
+                    </span>
+                  </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-3xl font-extrabold text-foreground">{current?.temp ?? 27}°C</div>
-                  <span className="text-xs font-semibold text-primary">{current?.condition || "Loading..."}</span>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4 pt-1">
-              {/* Primary Rain Probability Indicator Box */}
-              <div className="p-4 rounded-lg border border-border/80 bg-muted/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                      <Umbrella className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-foreground">Probability of Rain Today</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        Expected Rainfall: <span className="font-semibold text-foreground">{rain?.expectedVolumeMm ?? 0} mm</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-2xl font-black text-foreground">
-                      {rain?.todayMaxProbability ?? 0}%
-                    </div>
-                    <Badge variant="outline" className={`text-[10px] font-bold uppercase px-2 py-0.5 ${getRiskColor(rain?.todayMaxProbability ?? 0)}`}>
+                  <span className="text-2xl font-extrabold text-foreground font-plus-jakarta">
+                    {rain?.todayMaxProbability ?? 20}%
+                  </span>
+                  <div className="mt-0.5">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        rain?.riskLevel === "Extreme"
+                          ? "bg-rose-500/20 text-rose-400 border border-rose-500/35"
+                          : rain?.riskLevel === "High"
+                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/35"
+                          : rain?.riskLevel === "Moderate"
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/35"
+                          : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/35"
+                      }`}
+                    >
                       {rain?.riskLevel ?? "Low"} Risk
-                    </Badge>
+                    </span>
                   </div>
                 </div>
-
-                {/* Visual Rain Probability Progress Gauge */}
-                <Progress
-                  value={rain?.todayMaxProbability ?? 0}
-                  variant={
-                    (rain?.todayMaxProbability ?? 0) > 70
-                      ? "destructive"
-                      : (rain?.todayMaxProbability ?? 0) > 40
-                      ? "accent"
-                      : (rain?.todayMaxProbability ?? 0) > 20
-                      ? "primary"
-                      : "emerald"
-                  }
-                  size="sm"
-                  className="w-full"
-                />
               </div>
 
-              {/* 4 Essential Agro-Meteorology Telemetry Metrics */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-3 rounded-md bg-muted/40 border border-border/70 space-y-1">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Droplets className="w-3.5 h-3.5 text-blue-500" /> Relative Humidity
-                  </span>
-                  <p className="text-sm font-bold text-foreground">{current?.humidity ?? 75}%</p>
-                  <p className="text-[10px] text-muted-foreground">Optimal: 60-80%</p>
-                </div>
+              <Progress value={rain?.todayMaxProbability ?? 20} className="h-2 bg-white/10" />
+            </div>
 
-                <div className="p-3 rounded-md bg-muted/40 border border-border/70 space-y-1">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Wind className="w-3.5 h-3.5 text-emerald-500" /> Wind Velocity
-                  </span>
-                  <p className="text-sm font-bold text-foreground">{current?.windSpeed ?? "8 km/h"}</p>
-                  <p className="text-[10px] text-muted-foreground">Calm breeze</p>
-                </div>
+            {/* Meteorological Telemetry Cards Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
+                  <Droplets className="w-3.5 h-3.5 text-blue-400" /> Relative Humidity
+                </span>
+                <span className="text-lg font-bold text-foreground mt-1 block">
+                  {current?.humidity ?? 68}%
+                </span>
+                <span className="text-[10px] text-muted-foreground block">Optimal: 60-80%</span>
+              </div>
 
-                <div className="p-3 rounded-md bg-muted/40 border border-border/70 space-y-1">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Thermometer className="w-3.5 h-3.5 text-amber-500" /> Feels Like Temp
-                  </span>
-                  <p className="text-sm font-bold text-foreground">{current?.feelsLike ?? 28}°C</p>
-                  <p className="text-[10px] text-muted-foreground">Heat index safe</p>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
+                  <Wind className="w-3.5 h-3.5 text-emerald-400" /> Wind Velocity
+                </span>
+                <span className="text-lg font-bold text-foreground mt-1 block">
+                  {current?.windSpeed ?? "8 km/h"}
+                </span>
+                <span className="text-[10px] text-emerald-400 block font-medium">Favorable drift</span>
+              </div>
 
-                <div className="p-3 rounded-md bg-muted/40 border border-border/70 space-y-1">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Spray Window
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
+                  <Thermometer className="w-3.5 h-3.5 text-amber-400" /> Feels Like Temp
+                </span>
+                <span className="text-lg font-bold text-foreground mt-1 block">
+                  {current?.feelsLike ?? 28}°C
+                </span>
+                <span className="text-[10px] text-muted-foreground block">Heat index safe</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+                <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Spray Window
+                </span>
+                <span
+                  className={`text-lg font-bold mt-1 block ${
+                    rain?.sprayWindow?.status === "Optimal"
+                      ? "text-emerald-400"
+                      : rain?.sprayWindow?.status === "Fair"
+                      ? "text-amber-400"
+                      : "text-rose-400"
+                  }`}
+                >
+                  {rain?.sprayWindow?.status ?? "Optimal"}
+                </span>
+                <span className="text-[10px] text-muted-foreground block">Foliar adherence</span>
+              </div>
+            </div>
+
+            {/* Actionable Agrarian Warnings & Operations Guidance */}
+            <div className="space-y-2.5 pt-2">
+              {/* 1. Spray Window Advisory */}
+              <div className="p-3.5 rounded-2xl border border-white/10 bg-white/[0.02] flex items-start gap-2.5 text-xs">
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-foreground block">
+                    Pesticide &amp; Fertilizer Spray Window:
                   </span>
-                  <p className={`text-sm font-bold ${
-                    rain?.sprayWindow?.status === "Optimal" 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : rain?.sprayWindow?.status === "Fair" 
-                      ? "text-amber-600 dark:text-amber-400" 
-                      : "text-red-600 dark:text-red-400"
-                  }`}>
-                    {rain?.sprayWindow?.status ?? "Optimal"}
+                  <p className="text-muted-foreground leading-relaxed mt-0.5">
+                    {rain?.sprayWindow?.advice}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Foliar adherence</p>
                 </div>
               </div>
 
-              {/* 3 Actionable Practical Advisories: Spray, Drying & Mandi Transit */}
-              <div className="space-y-2.5 pt-1">
-                {/* 1. Chemical Spray Advisory */}
-                <div className="p-3 rounded-md border border-border/70 bg-muted/20 flex items-start gap-2.5 text-xs">
-                  {rain?.sprayWindow?.status === "Optimal" ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                  )}
-                  <div>
-                    <span className="font-semibold text-foreground block">Pesticide & Fertilizer Spray Window:</span>
-                    <p className="text-muted-foreground leading-relaxed">{rain?.sprayWindow?.advice}</p>
-                  </div>
-                </div>
-
-                {/* 2. Grain Sun-Drying Advisory */}
-                <div className="p-3 rounded-md border border-border/70 bg-muted/20 flex items-start gap-2.5 text-xs">
-                  <Sun className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-semibold text-foreground block">Paddy & Grain Sun-Drying:</span>
-                    <p className="text-muted-foreground leading-relaxed">{rain?.grainDrying?.advice}</p>
-                  </div>
-                </div>
-
-                {/* 3. Mandi Cargo Transit Advisory */}
-                <div className="p-3 rounded-md border border-border/70 bg-muted/20 flex items-start gap-2.5 text-xs">
-                  <AlertCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-semibold text-foreground block">Mandi Logistics & Truck Transit:</span>
-                    <p className="text-muted-foreground leading-relaxed">{rain?.mandiTransit?.advice}</p>
-                  </div>
+              {/* 2. Grain Drying Advisory */}
+              <div className="p-3.5 rounded-2xl border border-white/10 bg-white/[0.02] flex items-start gap-2.5 text-xs">
+                <Sun className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-foreground block">Paddy &amp; Grain Sun-Drying:</span>
+                  <p className="text-muted-foreground leading-relaxed mt-0.5">
+                    {rain?.grainDrying?.advice}
+                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* 3. Mandi Logistics Advisory */}
+              <div className="p-3.5 rounded-2xl border border-white/10 bg-white/[0.02] flex items-start gap-2.5 text-xs">
+                <AlertCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-foreground block">
+                    Mandi Logistics &amp; Truck Transit:
+                  </span>
+                  <p className="text-muted-foreground leading-relaxed mt-0.5">
+                    {rain?.mandiTransit?.advice}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* 24-Hour Hourly Probability of Rain Chart */}
-          <Card className="bg-card shadow-sm border-border">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
-                    <Clock className="w-4 h-4 text-primary" />
-                    24-Hour Timeline: Rain Probability (%)
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Hour-by-hour chance of precipitation to plan open-field harvesting and mandi dispatch.
-                  </CardDescription>
-                </div>
+          <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                  <Clock className="w-4 h-4 text-emerald-400" />
+                  <span>24-Hour Timeline: Rain Probability (%)</span>
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Hour-by-hour chance of precipitation for {selectedMandi.name} to plan harvesting and mandi dispatch.
+                </p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-44 w-full">
-                {weatherData?.hourly && weatherData.hourly.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weatherData.hourly.slice(0, 16)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="time" tick={{ fontSize: 10 }} stroke="#888888" tickLine={false} />
-                      <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} stroke="#888888" tickLine={false} tickFormatter={(val) => `${val}%`} />
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <div className="rounded-md border border-border bg-background p-2 text-xs shadow-md">
-                                <p className="font-semibold text-foreground">{data.time}</p>
-                                <p className="text-primary font-bold">Rain Chance: {data.rainProb}%</p>
-                                <p className="text-muted-foreground">Temp: {data.temp}°C</p>
-                                {data.precipitation > 0 && (
-                                  <p className="text-blue-500 font-semibold">Rainfall: {data.precipitation} mm</p>
-                                )}
-                              </div>
-                            );
+            </div>
+
+            <div className="h-44 w-full">
+              {weatherData?.hourly && weatherData.hourly.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weatherData.hourly.slice(0, 16)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#a1a1aa" }} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#a1a1aa" }} tickLine={false} tickFormatter={(val) => `${val}%`} />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="rounded-xl border border-white/20 bg-black/90 p-2.5 text-xs shadow-xl backdrop-blur-md">
+                              <p className="font-bold text-white">{data.time}</p>
+                              <p className="text-emerald-400 font-bold">Rain Chance: {data.rainProb}%</p>
+                              <p className="text-muted-foreground">Temp: {data.temp}°C</p>
+                              {data.precipitation > 0 && (
+                                <p className="text-blue-400 font-semibold">Rainfall: {data.precipitation} mm</p>
+                              )}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey="rainProb" radius={[4, 4, 0, 0]}>
+                      {weatherData.hourly.slice(0, 16).map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            entry.rainProb > 70
+                              ? "#ef4444"
+                              : entry.rainProb > 40
+                              ? "#f59e0b"
+                              : entry.rainProb > 20
+                              ? "#3b82f6"
+                              : "#10b981"
                           }
-                          return null;
-                        }}
-                      />
-                      <Bar dataKey="rainProb" radius={[4, 4, 0, 0]}>
-                        {weatherData.hourly.slice(0, 16).map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={
-                              entry.rainProb > 70
-                                ? "#ef4444"
-                                : entry.rainProb > 40
-                                ? "#f59e0b"
-                                : entry.rainProb > 20
-                                ? "#3b82f6"
-                                : "#10b981"
-                            }
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                    Loading hourly timeline...
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
+                  Loading hourly timeline...
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* 7-Day Regional Agricultural Forecast with Rain Prob & Volume */}
-          <Card className="bg-card shadow-sm border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
-                <Calendar className="w-4 h-4 text-primary" />
-                7-Day Regional Agrarian Forecast & Rain Probability
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 text-center text-xs">
-                {(weatherData?.daily || []).map((item, idx) => (
-                  <div
-                    key={item.day + idx}
-                    className={`p-2.5 rounded-md border transition-all ${
-                      idx === 0
-                        ? "border-primary/50 bg-primary/10 shadow-xs"
-                        : "border-border/70 bg-muted/20"
-                    }`}
-                  >
-                    <p className="text-[11px] text-muted-foreground font-bold">{item.day}</p>
-                    <div className="my-2 flex justify-center">
-                      {renderWeatherIcon(item.icon)}
+          <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                <Calendar className="w-4 h-4 text-emerald-400" />
+                <span>7-Day Agricultural Trajectory &amp; Rainfall Forecast</span>
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-7 gap-2.5 text-center text-xs">
+              {(weatherData?.daily || []).map((item, idx) => (
+                <div
+                  key={item.day + idx}
+                  className={`p-3 rounded-2xl border transition-all ${
+                    idx === 0
+                      ? "border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                      : "border-white/10 bg-white/[0.03]"
+                  }`}
+                >
+                  <p className="font-extrabold text-foreground">{item.day}</p>
+                  <div className="my-2 flex justify-center">{renderWeatherIcon(item.icon)}</div>
+                  <div className="font-bold text-foreground text-xs">{item.maxTemp}°</div>
+                  <div className="text-[10px] text-muted-foreground">{item.minTemp}°</div>
+
+                  <div className="mt-2 pt-1.5 border-t border-white/10">
+                    <div className="flex items-center justify-center gap-0.5 text-[10px] font-bold text-blue-400">
+                      <Droplets className="w-2.5 h-2.5" />
+                      <span>{item.rainProbability}%</span>
                     </div>
-                    <p className="text-xs font-extrabold text-foreground">{item.maxTemp}° / {item.minTemp}°</p>
-                    
-                    {/* Rain probability badge for each day */}
-                    <div className="mt-2 pt-1.5 border-t border-border/60">
-                      <div className="flex items-center justify-center gap-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                        <Droplets className="w-2.5 h-2.5" />
-                        <span>{item.rainProbability}%</span>
-                      </div>
-                      <span className="text-[9px] text-muted-foreground block">
-                        {item.rainfallMm > 0 ? `${item.rainfallMm}mm` : "Dry"}
-                      </span>
-                    </div>
+                    <span className="text-[9px] text-muted-foreground block">
+                      {item.rainfallMm > 0 ? `${item.rainfallMm}mm` : "Dry"}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Mandi Switcher & Interactive ViewOnMap (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Mandi Selector Card */}
-          <Card className="bg-card shadow-sm border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
-                <Compass className="w-4 h-4 text-primary" />
-                Select Pan-India APMC Mandi Hub
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Switch real-time meteorological models across major national agricultural markets.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-              {PAN_INDIA_MANDIS.map((mandi) => {
-                const isSelected = selectedMandi.id === mandi.id;
-                return (
-                  <button
-                    key={mandi.id}
-                    type="button"
-                    onClick={() => setSelectedMandi(mandi)}
-                    className={`w-full flex items-center justify-between p-3 rounded-md border text-left transition-all ${
-                      isSelected
-                        ? "border-primary bg-primary/10 text-foreground font-semibold shadow-2xs"
-                        : "border-border bg-muted/20 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-foreground">{mandi.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{mandi.district}, {mandi.state}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-primary">
-                        {isSelected && current ? `${current.temp}°C` : "Select"}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground block">
-                        {isSelected && rain ? `${rain.todayMaxProbability}% rain` : "View telemetry"}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </CardContent>
-          </Card>
+        {/* Right Column: NASA Agroclimatology & Earth Observation HUD (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* NASA Satellite Telemetry Diagnostics Card */}
+          <div className="liquid-glass p-6 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  <Satellite className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">NASA Satellite Telemetry</h3>
+                  <p className="text-[11px] text-muted-foreground">MODIS / POWER Earth Model</p>
+                </div>
+              </div>
+              <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
+                Live
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {/* Solar Radiation */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Solar Irradiance (Insolation)</span>
+                  </span>
+                  <span className="font-extrabold text-foreground font-mono">
+                    {current?.solarRadiationMj ?? 18.4} MJ/m²
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Photosynthetic photon flux rate for grain maturity and open sun-drying.
+                </p>
+              </div>
+
+              {/* Air Quality Index (AQI) */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Aerosol AQI Depth</span>
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full border text-[11px] font-bold ${aqiColorClass}`}>
+                    AQI {current?.estimatedAqi ?? 72}
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Status: <strong className="text-foreground">{current?.aqiStatus ?? "Moderate"}</strong>. Evaluates particulate scattering over agricultural canopy.
+                </p>
+              </div>
+
+              {/* Cloud Coverage */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Sun className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Cloud Fraction Over Mandi</span>
+                  </span>
+                  <span className="font-extrabold text-foreground font-mono">
+                    {current?.cloudFractionPct ?? 25}%
+                  </span>
+                </div>
+                <Progress value={current?.cloudFractionPct ?? 25} className="h-1.5 bg-white/10 mt-1" />
+              </div>
+
+              {/* Earth Sensor Information */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Sensor Platform:</span>
+                  <span className="text-emerald-400 font-mono font-bold">Terra &amp; Aqua MODIS</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Geo Grid:</span>
+                  <span className="text-foreground font-mono">0.5° × 0.625° Global</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Target Mandi:</span>
+                  <span className="text-foreground font-semibold truncate max-w-[160px]">{selectedMandi.name}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                <CheckCircle2 className="h-3 w-3" /> Auto-synced with Top Map
+              </span>
+              <span className="font-mono text-[10px]">{new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+            </div>
+          </div>
+
+          {/* Mandi Logistics Quick Reference Card */}
+          <div className="liquid-glass p-5 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Selected APMC Market Yard</span>
+            </h4>
+
+            <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 space-y-1">
+              <div className="text-sm font-bold text-foreground">
+                {selectedMandi.name}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {selectedMandi.address}
+              </p>
+              <div className="text-[11px] text-emerald-400/90 font-mono pt-1">
+                Coordinates: {selectedMandi.lat.toFixed(4)}°N, {selectedMandi.lon.toFixed(4)}°E
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              To change region or mandi, pick any of the 50+ APMC yards from the <strong>State</strong> and <strong>Place</strong> dropdowns directly on the map above.
+            </p>
+          </div>
         </div>
       </div>
     </div>
