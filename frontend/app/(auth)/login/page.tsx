@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { RegionLanguageSelector } from "@/components/ui/region-language-selector";
@@ -64,6 +64,45 @@ export default function LoginPage() {
   const [resendTimer, setResendTimer] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isFirebaseMode, setIsFirebaseMode] = useState(false);
+  const verifyingRef = useRef(false);
+
+  // Auto-verify as soon as the complete OTP code is entered or pasted
+  useEffect(() => {
+    if (!otpSent || isVerifyingOtp || verifyingRef.current) return;
+
+    const trimmed = otp.trim();
+    // 6-digit auto-verify for Email OTP or Firebase SMS
+    if (trimmed.length === 6) {
+      handleVerifyOtp(undefined, trimmed);
+    }
+    // 4-digit auto-verify for local demo phone code (1234)
+    else if (otpChannel === "phone" && !isFirebaseMode && trimmed.length === 4) {
+      handleVerifyOtp(undefined, trimmed);
+    }
+  }, [otp, otpSent, isVerifyingOtp, otpChannel, isFirebaseMode]);
+
+  // Optional WebOTP API for automatic SMS OTP capture on mobile browsers
+  useEffect(() => {
+    if (!otpSent || typeof window === "undefined" || !("OTPCredential" in window)) return;
+
+    const ac = new AbortController();
+    (navigator as any).credentials
+      ?.get({
+        otp: { transport: ["sms"] },
+        signal: ac.signal,
+      })
+      .then((otpCredential: any) => {
+        if (otpCredential?.code) {
+          setOtp(otpCredential.code);
+          handleVerifyOtp(undefined, otpCredential.code);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      ac.abort();
+    };
+  }, [otpSent]);
 
   // Demo Login State
   const [isDemoLoading, setIsDemoLoading] = useState<string | null>(null);
@@ -192,18 +231,22 @@ export default function LoginPage() {
   };
 
   // Handle Verify OTP (Email or Phone)
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp.trim()) {
+  const handleVerifyOtp = async (e?: React.FormEvent, explicitCode?: string) => {
+    if (e) e.preventDefault();
+    if (verifyingRef.current) return;
+
+    const code = (explicitCode || otp).trim();
+    if (!code) {
       toast({ title: "OTP Required", description: "Please enter the OTP code", variant: "destructive" });
       return;
     }
 
     try {
+      verifyingRef.current = true;
       setIsVerifyingOtp(true);
       if (otpChannel === "email") {
         const cleanEmail = (sentOtpTarget || emailOtp).trim().toLowerCase();
-        await loginWithOtp({ email: cleanEmail }, otp.trim(), farmerName.trim() || undefined, "Individual");
+        await loginWithOtp({ email: cleanEmail }, code, farmerName.trim() || undefined, "Individual");
         toast({ title: "Welcome to KrishiConnect!", description: "Successfully verified via Email OTP." });
       } else {
         const cleanPhone = (sentOtpTarget || phone).replace(/\D/g, "").slice(-10);
@@ -211,17 +254,20 @@ export default function LoginPage() {
 
         if (activeConfirmation && isFirebaseMode) {
           // Verify 6-digit code with Google Firebase
-          const credential = await activeConfirmation.confirm(otp.trim());
+          const credential = await activeConfirmation.confirm(code);
           const idToken = await credential.user.getIdToken();
           await loginWithFirebasePhone(idToken, cleanPhone, farmerName.trim() || undefined, "Individual");
           toast({ title: "Welcome to KrishiConnect!", description: "Phone successfully verified via Firebase." });
         } else {
           // Standard / demo verification
-          await loginWithOtp({ phone: cleanPhone }, otp.trim(), farmerName.trim() || undefined, "Individual");
+          await loginWithOtp({ phone: cleanPhone }, code, farmerName.trim() || undefined, "Individual");
           toast({ title: "Welcome to KrishiConnect!", description: "Successfully verified and logged in." });
         }
       }
     } catch (error: any) {
+      verifyingRef.current = false;
+      setIsVerifyingOtp(false);
+      setOtp("");
       toast({
         title: "Verification Failed",
         description: error.response?.data?.detail || error.message || "Invalid OTP entered. Please try again.",
@@ -324,6 +370,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
+                  verifyingRef.current = false;
                   setOtpChannel("email");
                   setOtpSent(false);
                   setOtp("");
@@ -340,6 +387,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
+                  verifyingRef.current = false;
                   setOtpChannel("phone");
                   setOtpSent(false);
                   setOtp("");
@@ -454,6 +502,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => {
+                      verifyingRef.current = false;
                       setOtpSent(false);
                       setOtp("");
                     }}
@@ -482,6 +531,11 @@ export default function LoginPage() {
                       pattern={REGEXP_ONLY_DIGITS}
                       value={otp}
                       onChange={(val) => setOtp(val)}
+                      onComplete={(completedVal) => {
+                        if (!verifyingRef.current && !isVerifyingOtp) {
+                          handleVerifyOtp(undefined, completedVal);
+                        }
+                      }}
                       autoFocus
                     >
                       <InputOTPGroup>
