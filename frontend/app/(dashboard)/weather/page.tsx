@@ -23,6 +23,7 @@ import {
   Info,
   CheckCircle2,
   XCircle,
+  Satellite,
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -612,22 +613,30 @@ export default function FarmWeatherPage() {
             </CardContent>
           </Card>
 
-          {/* Interactive ViewOnMap Integration */}
-          <Card className="bg-card shadow-sm border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
-                <MapPin className="w-4 h-4 text-primary" />
-                Live Mandi Geospatial Navigation
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Inspect physical gates, weighing bridges, and access roads for {selectedMandi.name}.
+          {/* Interactive NASA Earth Observation & Mandi Geospatial Map */}
+          <Card className="liquid-glass border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] rounded-3xl overflow-hidden">
+            <CardHeader className="pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
+                  <Satellite className="w-4 h-4 text-emerald-400 animate-pulse" />
+                  NASA Earth Observatory &amp; Mandi Satellite
+                </CardTitle>
+                <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
+                  NASA MODIS / GIBS
+                </span>
+              </div>
+              <CardDescription className="text-xs text-muted-foreground">
+                High-definition NASA satellite observation tracking live cloud cover, AQI aerosol depth, and geospatial coordinates for {selectedMandi.name}.
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-1">
+            <CardContent className="p-3">
               <ViewOnMap
                 key={selectedMandi.id}
                 locationName={selectedMandi.name}
                 address={selectedMandi.address}
+                lat={selectedMandi.lat}
+                lon={selectedMandi.lon}
+                state={selectedMandi.state}
                 className="w-full"
               />
             </CardContent>
