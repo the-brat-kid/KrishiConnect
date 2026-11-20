@@ -3,7 +3,7 @@ set -e
 
 # Default environment fallback if not set in cloud host
 if [ -z "$RESEND_API_KEY" ]; then
-    export RESEND_API_KEY=$(python3 -c 'import base64; print(base64.b64decode("cmVfUDdibzU3SzdfTjlKZU1uWVhNZlJEcE53a1RxQWg0TGlU").decode())')
+    export RESEND_API_KEY=$(python3 -c 'import base64; print(base64.b64decode("cmVfUW1IRU1NYTNfSnV5RGlXR3RaN1prc3l0VE1SYndMQTdH").decode())')
 fi
 
 # Run migrations
