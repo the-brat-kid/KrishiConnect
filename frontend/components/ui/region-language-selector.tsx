@@ -8,6 +8,7 @@ import {
   LanguageCode,
   LANGUAGE_METADATA,
 } from "@/lib/language-context";
+import { regionIdToState } from "@/lib/mandi-regions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,9 @@ export function RegionLanguageSelector({
     language,
     setLanguage,
     currentRegionDef,
+    selectedState,
+    selectedMandiObj,
+    setRegionAndPlace,
   } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -148,8 +152,8 @@ export function RegionLanguageSelector({
 
             <div className="relative z-10 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
-              <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-white transition-colors">
-                {currentRegionDef.name}
+              <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-white transition-colors truncate max-w-[130px]">
+                {selectedState || currentRegionDef.name}
               </span>
               <ChevronDown className="h-3.5 w-3.5 opacity-70 ml-0.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </div>
@@ -169,20 +173,37 @@ export function RegionLanguageSelector({
           {/* State List - ONLY CLEAN STATE NAMES with Liquid Glass Hover Effect */}
           <div className="space-y-1">
             {Object.values(REGIONS).map((reg) => {
-              const isSelected = reg.id === region;
+              const isSelected =
+                reg.id === region ||
+                (reg.id !== "all_india" && regionIdToState(reg.id) === selectedState);
               return (
                 <DropdownMenuItem
                   key={reg.id}
                   onSelect={() => {
-                    setRegion(reg.id as RegionId);
+                    if (reg.id === "all_india") {
+                      setRegion("all_india");
+                    } else {
+                      const st = regionIdToState(reg.id);
+                      setRegionAndPlace(st);
+                    }
                     setIsOpen(false);
                   }}
                   onClick={() => {
-                    setRegion(reg.id as RegionId);
+                    if (reg.id === "all_india") {
+                      setRegion("all_india");
+                    } else {
+                      const st = regionIdToState(reg.id);
+                      setRegionAndPlace(st);
+                    }
                     setIsOpen(false);
                   }}
                   onPointerDown={() => {
-                    setRegion(reg.id as RegionId);
+                    if (reg.id === "all_india") {
+                      setRegion("all_india");
+                    } else {
+                      const st = regionIdToState(reg.id);
+                      setRegionAndPlace(st);
+                    }
                   }}
                   className={cn(
                     "flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-xs sm:text-sm font-semibold transition-all duration-150",

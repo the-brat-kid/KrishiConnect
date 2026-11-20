@@ -2,10 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./auth-context";
 import {
   MandiLocation,
   REGIONAL_MANDIS,
   stateToRegionId,
+  regionIdToState,
+  detectRegionFromAddress,
   getMandisForState,
 } from "./mandi-regions";
 
@@ -1310,7 +1313,8 @@ export function applyNativeSiteTranslation(targetLang: LanguageCode) {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [region, setRegionState] = useState<RegionId>("all_india");
+  const { businessProfile } = useAuth();
+  const [region, setRegionState] = useState<RegionId>("odisha");
   const [language, setLanguageState] = useState<LanguageCode>("en");
   const [selectedState, setSelectedState] = useState<string>("Odisha");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>("bhubaneswar");
@@ -1324,11 +1328,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const savedState = localStorage.getItem(STORAGE_KEY_STATE);
       const savedPlace = localStorage.getItem(STORAGE_KEY_PLACE);
 
-      let initialRegion: RegionId = "all_india";
+      let initialRegion: RegionId = "odisha";
       let initialLang: LanguageCode = "en";
 
       if (savedState && REGIONAL_MANDIS[savedState]) {
         setSelectedState(savedState);
+        initialRegion = stateToRegionId(savedState) as RegionId;
         if (savedPlace) {
           setSelectedPlaceId(savedPlace);
         } else {
@@ -1336,7 +1341,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (savedRegion && REGIONS[savedRegion]) {
+      if (savedRegion && REGIONS[savedRegion] && savedRegion !== "all_india") {
         initialRegion = savedRegion;
         const regionDef = REGIONS[savedRegion];
         initialLang = savedLang && regionDef.supportedLangs.includes(savedLang)
@@ -1358,6 +1363,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       console.warn("Could not read language preferences from localStorage", e);
     }
   }, []);
+
+  // Sync with user's profile address when available
+  useEffect(() => {
+    if (businessProfile?.address) {
+      const detected = detectRegionFromAddress(businessProfile.address);
+      if (detected) {
+        const savedState = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY_STATE) : null;
+        if (!savedState) {
+          setSelectedState(detected.state);
+          if (detected.placeId) setSelectedPlaceId(detected.placeId);
+          const regId = stateToRegionId(detected.state) as RegionId;
+          setRegionState(regId);
+          try {
+            localStorage.setItem(STORAGE_KEY_STATE, detected.state);
+            if (detected.placeId) localStorage.setItem(STORAGE_KEY_PLACE, detected.placeId);
+            localStorage.setItem(STORAGE_KEY_REGION, regId);
+          } catch (e) {}
+        }
+      }
+    }
+  }, [businessProfile?.address]);
 
   // Re-apply native translation on route change in SPA
   useEffect(() => {
@@ -1399,6 +1425,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY_REGION, newRegion);
     } catch (e) {}
+
+    // Synchronize selectedState and selectedPlaceId with the region
+    if (newRegion !== "all_india") {
+      const st = regionIdToState(newRegion);
+      if (REGIONAL_MANDIS[st]) {
+        setSelectedState(st);
+        const placeId = REGIONAL_MANDIS[st][0].id;
+        setSelectedPlaceId(placeId);
+        try {
+          localStorage.setItem(STORAGE_KEY_STATE, st);
+          localStorage.setItem(STORAGE_KEY_PLACE, placeId);
+        } catch (e) {}
+      }
+    }
 
     const regionDef = REGIONS[newRegion];
     // If current selected language is not supported in the new region, adapt gracefully

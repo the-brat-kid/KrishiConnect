@@ -115,5 +115,56 @@ export function stateToRegionId(state: string): string {
     "West Bengal": "west_bengal",
     "Himachal Pradesh": "himachal_pradesh",
   };
-  return map[state] || "all_india";
+  return map[state] || "odisha";
+}
+
+export function regionIdToState(regId: string): string {
+  const map: Record<string, string> = {
+    odisha: "Odisha",
+    haryana: "Haryana",
+    punjab: "Punjab",
+    maharashtra: "Maharashtra",
+    madhya_pradesh: "Madhya Pradesh",
+    gujarat: "Gujarat",
+    rajasthan: "Rajasthan",
+    uttar_pradesh: "Uttar Pradesh",
+    karnataka: "Karnataka",
+    andhra_pradesh: "Andhra Pradesh",
+    west_bengal: "West Bengal",
+    himachal_pradesh: "Himachal Pradesh",
+  };
+  return map[regId] || "Odisha";
+}
+
+export function detectRegionFromAddress(address?: string): { state: string; placeId?: string } | null {
+  if (!address || typeof address !== "string") return null;
+  const lower = address.toLowerCase();
+
+  // 1. Direct state match
+  for (const [stateName, mandis] of Object.entries(REGIONAL_MANDIS)) {
+    if (lower.includes(stateName.toLowerCase())) {
+      const matchedMandi = mandis.find(
+        (m) =>
+          lower.includes(m.name.toLowerCase()) ||
+          lower.includes(m.district.toLowerCase()) ||
+          lower.includes(m.id.toLowerCase())
+      );
+      return { state: stateName, placeId: matchedMandi?.id || mandis[0].id };
+    }
+  }
+
+  // 2. City or mandi name match across all regions
+  for (const [stateName, mandis] of Object.entries(REGIONAL_MANDIS)) {
+    const matchedMandi = mandis.find(
+      (m) =>
+        lower.includes(m.name.toLowerCase()) ||
+        lower.includes(m.district.toLowerCase()) ||
+        lower.includes(m.id.toLowerCase())
+    );
+    if (matchedMandi) {
+      return { state: stateName, placeId: matchedMandi.id };
+    }
+  }
+
+  return null;
 }
