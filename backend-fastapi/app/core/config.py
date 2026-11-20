@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = os.getenv("RESEND_API_KEY") or base64.b64decode("cmVfUDdibzU3SzdfTjlKZU1uWVhNZlJEcE53a1RxQWg0TGlU").decode("utf-8")
     MAIL_FROM_INVOICE: str = "KrishiConnect Invoices <noreply@phantomstack.me>"
     MAIL_FROM_OTP: str = "KrishiConnect Security <otp@phantomstack.me>"
+    MAIL_QUERIES_EMAIL: str = "queries@phantomstack.me"
 
     # Offline Aadhaar KYC
     KYC_HASH_SECRET: str = "krishiconnect_offline_aadhaar_secret_salt_2026"

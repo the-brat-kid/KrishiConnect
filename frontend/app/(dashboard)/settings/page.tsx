@@ -547,7 +547,7 @@ export default function SettingsPage() {
                     <div>
                       <span className="text-muted-foreground">Sender Account:</span>
                       <p className="font-semibold text-foreground font-mono truncate">
-                        {user?.email || "harshsrivastava0315@gmail.com"}
+                        {user?.email || "queries@phantomstack.me"}
                       </p>
                     </div>
                     <div>
@@ -638,7 +638,7 @@ export default function SettingsPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono truncate">
-                  {user?.email || "harshsrivastava0315@gmail.com"}
+                  {user?.email || "queries@phantomstack.me"}
                 </p>
               </div>
             </div>

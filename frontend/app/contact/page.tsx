@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ParallaxBackground } from "@/components/layout/parallax-background";
 import { useToast } from "@/components/ui/use-toast";
 
-const EMAIL_ADDRESS = "harshsrivastava0315@gmail.com";
+const EMAIL_ADDRESS = "queries@phantomstack.me";
 const WHATSAPP_RAW = "9470182871";
 const WHATSAPP_INTERNATIONAL = "+91 9470182871";
 const WHATSAPP_LINK = `https://wa.me/919470182871?text=${encodeURIComponent(

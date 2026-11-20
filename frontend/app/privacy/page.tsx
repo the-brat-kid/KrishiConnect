@@ -126,7 +126,7 @@ export default function PrivacyPolicyPage() {
           <div className="rounded-md border border-border bg-card p-4 text-sm space-y-1">
             <p className="font-semibold text-foreground">Grievance Desk: KrishiConnect Operations</p>
             <p className="text-muted-foreground">Location: Bhubaneswar, Odisha 751024, India</p>
-            <p className="text-muted-foreground">Email: privacy@krishiconnect.in</p>
+            <p className="text-muted-foreground">Email: queries@phantomstack.me</p>
           </div>
         </section>
 

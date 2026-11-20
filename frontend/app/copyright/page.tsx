@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function CopyrightPage() {
   const lastUpdated = "November 2026";
-  const contactEmail = "harshsrivastava0315@gmail.com";
+  const contactEmail = "queries@phantomstack.me";
   const contactPhone = "+91 9470182871";
 
   return (

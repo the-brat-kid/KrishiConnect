@@ -321,7 +321,7 @@ async def test_email_dispatch(
     """
     Test live SMTP / Resend email dispatch from Settings page.
     """
-    target = (email or profile.user.email if hasattr(profile, "user") and profile.user else "") or "harshsrivastava0315@gmail.com"
+    target = (email or profile.user.email if hasattr(profile, "user") and profile.user else "") or "queries@phantomstack.me"
     try:
         await send_invoice_email(
             email_to=target,
