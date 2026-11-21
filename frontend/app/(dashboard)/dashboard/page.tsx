@@ -46,7 +46,7 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 
-// Baseline Mandi staples with authentic fallback emoji & data
+// Baseline Mandi staples with authentic high-definition crop imagery & 3D emojis
 const BASE_STAPLES = [
   {
     id: "potato",
@@ -57,7 +57,8 @@ const BASE_STAPLES = [
     change: "+₹1",
     status: "up",
     emoji: "🥔",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-amber-500/20 via-amber-900/10 to-transparent",
   },
   {
     id: "onion",
@@ -68,7 +69,8 @@ const BASE_STAPLES = [
     change: "-₹2",
     status: "down",
     emoji: "🧅",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-purple-500/20 via-pink-950/10 to-transparent",
   },
   {
     id: "tomato",
@@ -79,7 +81,8 @@ const BASE_STAPLES = [
     change: "+₹3",
     status: "up",
     emoji: "🍅",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-rose-500/25 via-red-950/10 to-transparent",
   },
   {
     id: "green-chilli",
@@ -90,7 +93,8 @@ const BASE_STAPLES = [
     change: "-₹3",
     status: "down",
     emoji: "🌶️",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Green%20Chilli.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-emerald-500/25 via-teal-950/10 to-transparent",
   },
   {
     id: "brinjal",
@@ -101,7 +105,8 @@ const BASE_STAPLES = [
     change: "+₹2",
     status: "up",
     emoji: "🍆",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-violet-500/20 via-indigo-950/10 to-transparent",
   },
   {
     id: "ginger",
@@ -112,26 +117,62 @@ const BASE_STAPLES = [
     change: "0",
     status: "stable",
     emoji: "🫚",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Ginger.jpg?width=128&height=128&fit=bounds",
+    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    accentGrad: "from-yellow-600/20 via-amber-950/10 to-transparent",
   },
 ];
 
-// Helper component for guaranteed vegetable icon rendering with fallback
-function CropIcon({ image, alt, emoji }: { image: string; alt: string; emoji: string }) {
+// High-definition Liquid Glass Crop Avatar with 3D Micro-Emoji Badge
+function CropIcon({
+  image,
+  alt,
+  emoji,
+  accentGrad = "from-emerald-500/20 to-transparent",
+}: {
+  image: string;
+  alt: string;
+  emoji: string;
+  accentGrad?: string;
+}) {
   const [hasError, setHasError] = useState(false);
 
-  if (hasError) {
-    return <span className="text-3xl select-none leading-none drop-shadow-md">{emoji}</span>;
-  }
-
   return (
-    <div className="relative w-12 h-12 flex items-center justify-center">
-      <img
-        src={image}
-        alt={alt}
-        onError={() => setHasError(true)}
-        className="w-12 h-12 object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-115"
+    <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center p-1 select-none">
+      {/* Specular Liquid Glass Ambient Frame */}
+      <div
+        className={cn(
+          "absolute inset-0 rounded-2xl bg-gradient-to-br border border-white/20 shadow-[inset_0_1px_2px_rgba(255,255,255,0.35),0_6px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl group-hover:scale-105 group-hover:border-primary/50 transition-all duration-300",
+          accentGrad
+        )}
       />
+
+      {/* Top Specular Glint */}
+      <div className="pointer-events-none absolute inset-x-2 top-0.5 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+
+      {/* Studio Photo */}
+      {!hasError ? (
+        <img
+          src={image}
+          alt={alt}
+          onError={() => setHasError(true)}
+          className="relative z-10 w-full h-full object-cover rounded-xl shadow-md transition-transform duration-300 group-hover:scale-110"
+        />
+      ) : (
+        /* 3D Emoji Avatar Fallback */
+        <div className="relative z-10 w-full h-full flex items-center justify-center rounded-xl bg-black/40 backdrop-blur-md">
+          <span className="text-3xl select-none leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.7)] group-hover:scale-115 transition-transform duration-200">
+            {emoji}
+          </span>
+        </div>
+      )}
+
+      {/* 3D Micro-Emoji Corner Badge */}
+      <div
+        className="absolute -bottom-1 -right-1 z-20 w-6 h-6 rounded-full bg-[#0b100d]/90 backdrop-blur-md border border-white/25 shadow-[0_2px_8px_rgba(0,0,0,0.6)] flex items-center justify-center text-xs select-none group-hover:scale-110 transition-transform"
+        title={alt}
+      >
+        <span>{emoji}</span>
+      </div>
     </div>
   );
 }
@@ -251,19 +292,19 @@ export default function DashboardPage() {
 
   // 3. Freight Corridors (Vertical List + Transport Distance Bar Chart)
   const freightCorridors = [
-    { route: "Cuttack Mandi Hub", dist: 28, cost: 1900, truck: "Pickup 1.5T", time: "45 mins" },
-    { route: "Puri Coastal Market", dist: 60, cost: 3100, truck: "Tata 407 3.5T", time: "1.5 hrs" },
-    { route: "Berhampur Trading Yard", dist: 175, cost: 7800, truck: "6-Tyre 9T", time: "3.5 hrs" },
-    { route: "Sambalpur Grain Corridor", dist: 280, cost: 12500, truck: "6-Tyre 9T", time: "6 hrs" },
-    { route: "Bargarh Paddy Market", dist: 330, cost: 14800, truck: "10-Tyre 16T", time: "7 hrs" },
+    { route: "Cuttack Mandi Hub", dist: 28, cost: 1900, truck: "Pickup 1.5T", time: "45 mins", emoji: "🛻" },
+    { route: "Puri Coastal Market", dist: 60, cost: 3100, truck: "Tata 407 3.5T", time: "1.5 hrs", emoji: "🚚" },
+    { route: "Berhampur Trading Yard", dist: 175, cost: 7800, truck: "6-Tyre 9T", time: "3.5 hrs", emoji: "🚛" },
+    { route: "Sambalpur Grain Corridor", dist: 280, cost: 12500, truck: "6-Tyre 9T", time: "6 hrs", emoji: "🚛" },
+    { route: "Bargarh Paddy Market", dist: 330, cost: 14800, truck: "10-Tyre 16T", time: "7 hrs", emoji: "🚛" },
   ];
 
   // 4. Procurement Share (Vertical List + Donut Pie Chart)
   const procurementRequirements = [
-    { entity: "Utkal Agro Commodities", crop: "Paddy (Swarna / Sona Masoori)", volume: 100, unit: "MT", type: "Rice Mill", color: "#16a34a" },
-    { entity: "Kalinga Fresh Mandi", crop: "Tomato & Onion Lots", volume: 45, unit: "MT", type: "Wholesaler", color: "#d97706" },
-    { entity: "Eastern Spices Export", crop: "Kandhamal Turmeric (Haldi)", volume: 25, unit: "MT", type: "Exporter", color: "#2563eb" },
-    { entity: "Odisha Seed Producers", crop: "Certified Mustard (Rai)", volume: 15, unit: "MT", type: "FPO Agency", color: "#9333ea" },
+    { entity: "Utkal Agro Commodities", crop: "Paddy (Swarna / Sona Masoori)", volume: 100, unit: "MT", type: "Rice Mill", color: "#16a34a", emoji: "🌾" },
+    { entity: "Kalinga Fresh Mandi", crop: "Tomato & Onion Lots", volume: 45, unit: "MT", type: "Wholesaler", color: "#d97706", emoji: "🍅" },
+    { entity: "Eastern Spices Export", crop: "Kandhamal Turmeric (Haldi)", volume: 25, unit: "MT", type: "Exporter", color: "#2563eb", emoji: "🟡" },
+    { entity: "Odisha Seed Producers", crop: "Certified Mustard (Rai)", volume: 15, unit: "MT", type: "FPO Agency", color: "#9333ea", emoji: "🌼" },
   ];
 
   const procurementPieData = procurementRequirements.map((p) => ({
@@ -433,10 +474,13 @@ export default function DashboardPage() {
 
                       {/* Top: Enlarged Glass Icon Box & Status Badge */}
                       <div className="flex items-start justify-between gap-2">
-                        {/* Enlarged Liquid Glass Icon Frame */}
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] border border-white/20 p-2 flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_6px_16px_rgba(0,0,0,0.3)] group-hover:scale-105 group-hover:border-primary/40 transition-all duration-200">
-                          <CropIcon image={crop.image} alt={crop.name} emoji={crop.emoji} />
-                        </div>
+                        {/* 3D Liquid Glass Crop Icon & Micro-Emoji Badge */}
+                        <CropIcon
+                          image={crop.image}
+                          alt={crop.name}
+                          emoji={crop.emoji}
+                          accentGrad={crop.accentGrad}
+                        />
 
                         <Badge
                           variant="outline"
@@ -594,31 +638,55 @@ export default function DashboardPage() {
               </span>
 
               <div className="space-y-3">
-                <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
-                  <div className="space-y-1">
-                    <span className="text-xs font-bold text-foreground">Top Weekly Gainer</span>
-                    <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">Tomato</p>
-                    <p className="text-xs text-muted-foreground">High institutional demand across APMC hubs</p>
+                <div className="p-3.5 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between hover:border-emerald-500/40 transition-all">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/25 via-red-950/20 to-transparent border border-rose-500/35 p-1 shrink-0 shadow-md">
+                      <img
+                        src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=160&h=160&fit=crop&crop=center&auto=format&q=85"
+                        alt="Tomato"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-black/85 border border-white/20 flex items-center justify-center text-[10px] shadow-sm select-none">
+                        🍅
+                      </span>
+                    </div>
+                    <div className="space-y-0.5 min-w-0">
+                      <span className="text-[11px] font-semibold text-emerald-400">Top Weekly Gainer</span>
+                      <p className="text-sm font-extrabold text-foreground truncate">Tomato (Bilati)</p>
+                      <p className="text-[11px] text-muted-foreground truncate">High institutional demand across APMC hubs</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                  <div className="text-right shrink-0 pl-2">
+                    <div className="text-base font-black text-emerald-500 dark:text-emerald-400">
                       <AnimatedNumber value={11.8} decimals={1} prefix="+" suffix="%" springOptions={{ bounce: 0, duration: 1800 }} />
                     </div>
-                    <span className="text-xs font-semibold text-muted-foreground">+₹4 / kg</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">+₹4 / kg</span>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
-                  <div className="space-y-1">
-                    <span className="text-xs font-bold text-foreground">Weekly Value Drop</span>
-                    <p className="text-sm font-extrabold text-rose-600 dark:text-rose-400">Onion Big</p>
-                    <p className="text-xs text-muted-foreground">Fresh harvest arrivals from key production hubs</p>
+                <div className="p-3.5 rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl flex items-center justify-between hover:border-rose-500/40 transition-all">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/25 via-pink-950/20 to-transparent border border-purple-500/35 p-1 shrink-0 shadow-md">
+                      <img
+                        src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=160&h=160&fit=crop&crop=center&auto=format&q=85"
+                        alt="Onion"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-black/85 border border-white/20 flex items-center justify-center text-[10px] shadow-sm select-none">
+                        🧅
+                      </span>
+                    </div>
+                    <div className="space-y-0.5 min-w-0">
+                      <span className="text-[11px] font-semibold text-rose-400">Weekly Value Drop</span>
+                      <p className="text-sm font-extrabold text-foreground truncate">Onion Big (Piaja)</p>
+                      <p className="text-[11px] text-muted-foreground truncate">Fresh harvest arrivals from key production hubs</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-black text-rose-600 dark:text-rose-400">
+                  <div className="text-right shrink-0 pl-2">
+                    <div className="text-base font-black text-rose-500 dark:text-rose-400">
                       <AnimatedNumber value={-7.1} decimals={1} suffix="%" springOptions={{ bounce: 0, duration: 1800 }} />
                     </div>
-                    <span className="text-xs font-semibold text-muted-foreground">-₹4 / kg</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">-₹4 / kg</span>
                   </div>
                 </div>
               </div>
@@ -697,15 +765,20 @@ export default function DashboardPage() {
                 key={c.route}
                 className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
-                <div>
-                  <p className="text-xs font-bold text-foreground">{c.route}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {c.dist} km • {c.truck} • {c.time}
-                  </p>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 via-teal-950/20 to-transparent border border-emerald-500/30 flex items-center justify-center text-lg shadow-sm shrink-0 select-none">
+                    {c.emoji}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{c.route}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {c.dist} km • {c.truck} • {c.time}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0 pl-2">
                   <p className="text-xs font-mono font-bold text-foreground">₹{c.cost.toLocaleString("en-IN")}</p>
-                  <span className="text-[10px] text-emerald-500 font-semibold">Ready</span>
+                  <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/25">Ready</span>
                 </div>
               </div>
             ))}
@@ -735,15 +808,20 @@ export default function DashboardPage() {
                 key={p.entity}
                 className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
-                <div>
-                  <p className="text-xs font-bold text-foreground">{p.entity}</p>
-                  <p className="text-[11px] text-muted-foreground">{p.crop}</p>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-yellow-950/20 to-transparent border border-amber-500/30 flex items-center justify-center text-lg shadow-sm shrink-0 select-none">
+                    {p.emoji}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{p.entity}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{p.crop}</p>
+                  </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0 pl-2">
                   <p className="text-xs font-mono font-bold text-foreground">
                     {p.volume} {p.unit}
                   </p>
-                  <span className="text-[10px] text-primary font-semibold">{p.type}</span>
+                  <span className="text-[10px] text-primary font-semibold bg-primary/10 px-2 py-0.5 rounded-full border border-primary/25">{p.type}</span>
                 </div>
               </div>
             ))}

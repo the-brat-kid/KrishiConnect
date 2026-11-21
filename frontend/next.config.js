@@ -3,7 +3,7 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
   images: {
-    domains: ["localhost", "vatsaai.com", "www.vatsaai.com", "vegetablemarketprice.com", "api.acropai.com", "acrop.app"],
+    domains: ["localhost", "vatsaai.com", "www.vatsaai.com", "vegetablemarketprice.com", "api.acropai.com", "acrop.app", "images.unsplash.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -16,6 +16,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "acrop.app",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
