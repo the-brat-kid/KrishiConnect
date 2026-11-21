@@ -105,6 +105,15 @@ def escape_like_pattern(search_term: str) -> str:
 # --------------------------------------------------------------------------
 # Combined Security Middleware (SQLi, XSS, CSRF & Security Headers)
 # --------------------------------------------------------------------------
+# Whitelist pattern for trusted origins for CSRF validation
+CSRF_TRUSTED_ORIGINS_REGEX = re.compile(
+    r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?|"
+    r"https?://([a-zA-Z0-9-]+\.)*(krishiconnect\.in|vatsaai\.com|vercel\.app|onrender\.com|render\.com|railway\.app|netlify\.app)(:\d+)?|"
+    r"null)$",
+    re.IGNORECASE,
+)
+
+
 class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
@@ -205,12 +214,7 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
 
                 if request_origin:
                     allowed_origins: List[str] = settings.CORS_ORIGINS
-                    origin_regex = settings.CORS_ORIGIN_REGEX
-                    is_allowed = request_origin in allowed_origins
-
-                    if not is_allowed and origin_regex:
-                        if re.match(origin_regex, request_origin):
-                            is_allowed = True
+                    is_allowed = (request_origin in allowed_origins) or bool(CSRF_TRUSTED_ORIGINS_REGEX.match(request_origin))
 
                     if not is_allowed:
                         logger.warning("CSRF validation blocked request to %s from untrusted origin: %s", path, request_origin)

@@ -10,7 +10,7 @@ export const config = {
   claudeApiKey: process.env.CLAUDE_API_KEY || '',
   allowedOrigins: (
     process.env.ALLOWED_ORIGINS ||
-    'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://localhost:5173,http://127.0.0.1:5173,https://krishiconnect.in,https://vatsaai.com'
+    'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://localhost:5173,http://127.0.0.1:5173,https://krishiconnect.in,https://www.krishiconnect.in,https://vatsaai.com,https://www.vatsaai.com,https://krishiconnect.onrender.com,https://krishiconnect.vercel.app'
   )
     .split(',')
     .map((origin) => origin.trim()),
