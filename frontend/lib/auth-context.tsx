@@ -13,7 +13,7 @@ interface AuthContextType {
   login: (data: any) => Promise<void>;
   loginWithOtp: (target: string | { phone?: string; email?: string }, otp: string, name?: string, role?: string) => Promise<void>;
   loginWithFirebasePhone: (idToken: string, phone: string, name?: string, role?: string) => Promise<void>;
-  loginWithGoogle: (credential: string) => Promise<void>;
+  loginWithGoogle: (credentialOrToken: string, isAccessToken?: boolean) => Promise<void>;
   demoLogin: (role: "farmer" | "trader") => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
@@ -100,8 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/dashboard");
   };
 
-  const loginWithGoogle = async (credential: string) => {
-    const res = await api.post("/auth/google", { credential });
+  const loginWithGoogle = async (credentialOrToken: string, isAccessToken: boolean = false) => {
+    const payload = isAccessToken
+      ? { access_token: credentialOrToken }
+      : { credential: credentialOrToken };
+    const res = await api.post("/auth/google", payload);
     const { access_token, refresh_token, user: userData, business_profile } = res.data;
     localStorage.setItem("access_token", access_token);
     localStorage.setItem("refresh_token", refresh_token);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Script from "next/script";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,91 +26,166 @@ export function GoogleSignInButton({ text = "continue_with", className = "" }: G
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const tokenClientRef = useRef<any>(null);
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Google Identity Services
-  useEffect(() => {
-    if (!scriptLoaded || typeof window === "undefined" || !window.google?.accounts?.id) {
-      return;
-    }
+  const handleCredentialResponse = useCallback(
+    async (response: any) => {
+      if (!response?.credential) {
+        toast({
+          title: "Google Sign-In failed",
+          description: "No credentials received from Google. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        await loginWithGoogle(response.credential, false);
+        toast({
+          title: "Welcome to KrishiConnect!",
+          description: "Signed in with Google successfully.",
+        });
+      } catch (error: any) {
+        console.error("Google login error:", error);
+        toast({
+          title: "Sign in failed",
+          description:
+            error.response?.data?.detail ||
+            error.message ||
+            "Google authentication could not be completed.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [loginWithGoogle, toast]
+  );
+
+  const handleAccessTokenResponse = useCallback(
+    async (tokenResponse: any) => {
+      if (tokenResponse?.error) {
+        setIsLoading(false);
+        if (tokenResponse.error !== "popup_closed_by_user") {
+          toast({
+            title: "Google Sign-In error",
+            description: tokenResponse.error_description || tokenResponse.error,
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (!tokenResponse?.access_token) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        await loginWithGoogle(tokenResponse.access_token, true);
+        toast({
+          title: "Welcome to KrishiConnect!",
+          description: "Signed in with Google successfully.",
+        });
+      } catch (error: any) {
+        console.error("Google access token login error:", error);
+        toast({
+          title: "Sign in failed",
+          description:
+            error.response?.data?.detail ||
+            error.message ||
+            "Google authentication could not be completed.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [loginWithGoogle, toast]
+  );
+
+  // Initialize both Google GSI ID client and OAuth2 TokenClient
+  const initGoogleClients = useCallback(() => {
+    if (typeof window === "undefined" || !window.google?.accounts) return;
 
     try {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
+      // 1. Initialize Google Identity Services (One Tap & ID token)
+      if (window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
 
-      if (googleBtnRef.current) {
-        googleBtnRef.current.innerHTML = "";
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          type: "standard",
-          theme: "outline",
-          size: "large",
-          text: text,
-          shape: "rectangular",
-          logo_alignment: "left",
-          width: 380,
+        if (googleBtnRef.current) {
+          googleBtnRef.current.innerHTML = "";
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            text: text,
+            shape: "rectangular",
+            logo_alignment: "left",
+            width: 360,
+          });
+        }
+      }
+
+      // 2. Initialize OAuth2 Token Client (Bulletproof direct popup trigger)
+      if (window.google.accounts.oauth2) {
+        tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          callback: handleAccessTokenResponse,
         });
       }
     } catch (err) {
-      console.warn("Failed to initialize Google button:", err);
+      console.warn("Failed to initialize Google clients:", err);
     }
-  }, [scriptLoaded, text]);
+  }, [handleCredentialResponse, handleAccessTokenResponse, text]);
 
-  const handleCredentialResponse = async (response: any) => {
-    if (!response?.credential) {
-      toast({
-        title: "Google Sign-In failed",
-        description: "No credentials received from Google. Please try again.",
-        variant: "destructive",
-      });
-      return;
+  useEffect(() => {
+    if (scriptLoaded || window.google?.accounts) {
+      initGoogleClients();
     }
-
-    try {
-      setIsLoading(true);
-      await loginWithGoogle(response.credential);
-      toast({
-        title: "Welcome to KrishiConnect!",
-        description: "Signed in with Google successfully.",
-      });
-    } catch (error: any) {
-      console.error("Google login error:", error);
-      toast({
-        title: "Sign in failed",
-        description:
-          error.response?.data?.detail ||
-          error.message ||
-          "Google authentication could not be completed.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [scriptLoaded, initGoogleClients]);
 
   const handleCustomClick = () => {
     if (isLoading) return;
 
-    if (window.google?.accounts?.id) {
-      // Try triggering prompt (One Tap)
-      window.google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // If prompt is suppressed, click the internal rendered button
-          const btn = googleBtnRef.current?.querySelector('div[role="button"]') as HTMLElement | null;
-          if (btn) {
-            btn.click();
-          }
-        }
-      });
-    } else {
-      toast({
-        title: "Connecting to Google...",
-        description: "Please wait a moment while the Google Sign-in service loads.",
-      });
+    // Primary: Google OAuth2 popup client
+    if (tokenClientRef.current) {
+      setIsLoading(true);
+      tokenClientRef.current.requestAccessToken({ prompt: "consent select_account" });
+      return;
     }
+
+    // Fallback: Check if google script has loaded
+    if (window.google?.accounts?.oauth2) {
+      tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "openid email profile",
+        callback: handleAccessTokenResponse,
+      });
+      setIsLoading(true);
+      tokenClientRef.current.requestAccessToken({ prompt: "consent select_account" });
+      return;
+    }
+
+    // Fallback: One Tap prompt
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt();
+      return;
+    }
+
+    toast({
+      title: "Connecting to Google...",
+      description: "Please check your network connection while the Google service loads.",
+    });
   };
 
   return (
@@ -118,7 +193,10 @@ export function GoogleSignInButton({ text = "continue_with", className = "" }: G
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={() => setScriptLoaded(true)}
+        onLoad={() => {
+          setScriptLoaded(true);
+          initGoogleClients();
+        }}
       />
 
       {/* Styled Liquid Glass Google Button (Full Width, Crisp & Responsive) */}
@@ -127,7 +205,7 @@ export function GoogleSignInButton({ text = "continue_with", className = "" }: G
           type="button"
           onClick={handleCustomClick}
           disabled={isLoading}
-          className="relative overflow-hidden w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl border border-white/20 dark:border-white/15 bg-gradient-to-b from-white/[0.12] via-white/[0.05] to-white/[0.02] dark:from-white/[0.08] dark:via-black/35 dark:to-black/50 text-foreground text-sm font-bold backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_8px_24px_rgba(0,0,0,0.3)] hover:border-white/35 hover:shadow-[inset_0_1px_2.5px_rgba(255,255,255,0.55),0_12px_30px_rgba(0,0,0,0.4)] active:scale-[0.99] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:opacity-60 disabled:cursor-not-allowed group"
+          className="relative overflow-hidden w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl border border-white/20 dark:border-white/15 bg-gradient-to-b from-white/[0.12] via-white/[0.05] to-white/[0.02] dark:from-white/[0.08] dark:via-black/35 dark:to-black/50 text-foreground text-sm font-bold backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.4),0_8px_24px_rgba(0,0,0,0.3)] hover:border-white/35 hover:shadow-[inset_0_1px_2.5px_rgba(255,255,255,0.55),0_12px_30px_rgba(0,0,0,0.4)] active:scale-[0.99] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:opacity-60 disabled:cursor-not-allowed group cursor-pointer"
         >
           {/* Top specular glint */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/[0.2] to-transparent" />
@@ -135,7 +213,7 @@ export function GoogleSignInButton({ text = "continue_with", className = "" }: G
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
-              <span>Signing in with Google...</span>
+              <span>Connecting to Google...</span>
             </>
           ) : (
             <>
@@ -165,10 +243,10 @@ export function GoogleSignInButton({ text = "continue_with", className = "" }: G
           )}
         </button>
 
-        {/* Hidden Official Google render container for browser iframe fallback */}
+        {/* Hidden Official Google render container for GSI fallback */}
         <div
           ref={googleBtnRef}
-          className="absolute inset-0 opacity-0 overflow-hidden pointer-events-auto [clip-path:inset(0)] flex items-center justify-center"
+          className="hidden"
           aria-hidden="true"
         />
       </div>

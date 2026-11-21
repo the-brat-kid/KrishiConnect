@@ -243,12 +243,12 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com; "
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com https://accounts.google.com https://apis.google.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; "
             "img-src 'self' data: blob: https:; "
             "font-src 'self' data: https:; "
-            "connect-src 'self' http: https: ws: wss:; "
-            "frame-src 'self' https://checkout.razorpay.com https://js.stripe.com; "
+            "connect-src 'self' http: https: ws: wss: https://accounts.google.com https://www.googleapis.com; "
+            "frame-src 'self' https://checkout.razorpay.com https://js.stripe.com https://accounts.google.com; "
             "object-src 'none'; "
             "base-uri 'self';"
         )
