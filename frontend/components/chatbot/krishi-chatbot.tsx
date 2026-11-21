@@ -444,7 +444,7 @@ export function KrishiChatbot() {
   return (
     <aside
       aria-label="KrishiBot AI Chat Assistant"
-      className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end select-none pointer-events-auto"
+      className="fixed bottom-28 md:bottom-24 right-4 md:right-6 z-50 flex flex-col items-end select-none pointer-events-auto"
     >
       {/* 1. Greeting Speech Bubble Popup on Dashboard Open (Liquid Glass) */}
       {showGreetingPopup && !isOpen && (
@@ -514,7 +514,7 @@ export function KrishiChatbot() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="krishibot-heading"
-          className="w-[calc(100vw-2rem)] sm:w-[390px] h-[530px] max-h-[75vh] flex flex-col rounded-3xl text-white overflow-hidden mb-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-5 duration-200 select-text"
+          className="w-[calc(100vw-2rem)] sm:w-[390px] h-[520px] max-h-[68vh] sm:max-h-[72vh] flex flex-col rounded-3xl text-white overflow-hidden mb-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-5 duration-200 select-text"
           style={{
             background:
               "linear-gradient(160deg, rgba(14, 22, 18, 0.88) 0%, rgba(9, 14, 12, 0.94) 100%)",
