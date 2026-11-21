@@ -20,9 +20,10 @@ logger = logging.getLogger("krishiconnect.soil_ai")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 # Prioritize verified working Gemini models in order
 GEMINI_MODELS = [
+    "models/gemini-flash-lite-latest",
+    "models/gemini-flash-latest",
     "models/gemini-3-flash-preview",
     "models/gemini-2.5-flash",
-    "models/gemini-flash-latest",
     "models/gemma-4-26b-a4b-it",
 ]
 

@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileBottomBar } from "@/components/layout/mobile-bottom-bar";
 import { DynamicFarmWeatherBackground } from "@/components/layout/dynamic-farm-weather-background";
+import { KrishiChatbot } from "@/components/chatbot/krishi-chatbot";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -73,6 +74,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile Bottom Navigation Dock */}
         <MobileBottomBar onOpenMenu={() => setSidebarOpen(true)} />
+
+        {/* Floating AI Robot Chatbot */}
+        <KrishiChatbot />
       </div>
     </div>
   );
