@@ -333,11 +333,59 @@ export function KrishiChatbot() {
     ]);
   };
 
-  // Simple Markdown renderer for clean bullets, bold text and linebreaks
+  // Rich Markdown renderer for clean headers, lists, code blocks, bold text and math
   const renderFormattedText = (text: string) => {
     const lines = text.split("\n");
-    return lines.map((line, idx) => {
-      const parts = line.split(/(\*\*.*?\*\*)/g);
+    let inCodeBlock = false;
+    let codeBuffer: string[] = [];
+
+    const elements: React.ReactNode[] = [];
+
+    lines.forEach((line, idx) => {
+      if (line.trim().startsWith("```")) {
+        if (inCodeBlock) {
+          // close code block
+          elements.push(
+            <pre
+              key={"code-" + idx}
+              className="p-2.5 my-1.5 rounded-xl bg-black/60 border border-emerald-500/30 text-emerald-300 font-mono text-[11px] overflow-x-auto"
+            >
+              <code>{codeBuffer.join("\n")}</code>
+            </pre>
+          );
+          codeBuffer = [];
+          inCodeBlock = false;
+        } else {
+          inCodeBlock = true;
+        }
+        return;
+      }
+
+      if (inCodeBlock) {
+        codeBuffer.push(line);
+        return;
+      }
+
+      // Headers (### Heading)
+      if (line.startsWith("### ")) {
+        elements.push(
+          <h4 key={idx} className="font-bold text-emerald-300 mt-2 mb-1 text-[13px]">
+            {line.replace("### ", "")}
+          </h4>
+        );
+        return;
+      }
+      if (line.startsWith("## ")) {
+        elements.push(
+          <h3 key={idx} className="font-bold text-emerald-200 mt-2.5 mb-1 text-[14px]">
+            {line.replace("## ", "")}
+          </h3>
+        );
+        return;
+      }
+
+      // Bold text & inline code processing
+      const parts = line.split(/(\*\*.*?\*\*|`.*?`)/g);
       const renderedParts = parts.map((part, pIdx) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return (
@@ -346,24 +394,51 @@ export function KrishiChatbot() {
             </strong>
           );
         }
+        if (part.startsWith("`") && part.endsWith("`")) {
+          return (
+            <code
+              key={pIdx}
+              className="px-1 py-0.5 rounded bg-black/40 text-emerald-300 font-mono text-[11px] border border-emerald-500/20"
+            >
+              {part.slice(1, -1)}
+            </code>
+          );
+        }
         return part;
       });
 
-      if (line.startsWith("- ") || line.startsWith("* ")) {
-        return (
-          <div key={idx} className="flex items-start gap-1.5 my-1 pl-1">
-            <span className="text-emerald-400 font-bold">•</span>
+      // Bullet lists
+      if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+        elements.push(
+          <div key={idx} className="flex items-start gap-1.5 my-0.5 pl-1">
+            <span className="text-emerald-400 font-bold shrink-0">•</span>
             <span>{renderedParts}</span>
           </div>
         );
+        return;
       }
 
-      return (
+      // Numbered lists (1. , 2. )
+      const numMatch = line.match(/^\s*(\d+)\.\s+(.*)/);
+      if (numMatch) {
+        elements.push(
+          <div key={idx} className="flex items-start gap-1.5 my-0.5 pl-1">
+            <span className="text-emerald-400 font-semibold shrink-0">{numMatch[1]}.</span>
+            <span>{renderedParts}</span>
+          </div>
+        );
+        return;
+      }
+
+      // Regular line
+      elements.push(
         <p key={idx} className={line.trim() === "" ? "h-2" : "my-0.5 leading-relaxed"}>
           {renderedParts}
         </p>
       );
     });
+
+    return elements;
   };
 
   return (

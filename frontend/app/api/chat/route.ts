@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -19,74 +21,103 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ml: "Malayalam (മലയാളം)",
 };
 
-function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
-  const q = query.toLowerCase();
+// Safe API key loader: reads env var, filesystem env files, or verified fallback
+function getGeminiApiKey(): string {
+  let key = (process.env.GEMINI_API_KEY || "").trim();
+  if (key && key !== "your_gemini_api_key") {
+    return key.replace(/^["']|["']$/g, "").trim();
+  }
 
-  // English fallback responses
+  try {
+    const cwd = process.cwd();
+    const candidateFiles = [
+      path.join(cwd, ".env.local"),
+      path.join(cwd, ".env"),
+      path.join(cwd, "..", ".env"),
+      path.join(cwd, "frontend", ".env.local"),
+    ];
+
+    for (const file of candidateFiles) {
+      if (fs.existsSync(file)) {
+        const text = fs.readFileSync(file, "utf-8");
+        const match = text.match(/GEMINI_API_KEY\s*=\s*["']?([^"'\r\n]+)["']?/);
+        if (match && match[1] && match[1] !== "your_gemini_api_key") {
+          return match[1].trim();
+        }
+      }
+    }
+  } catch (e) {
+    // ignore filesystem read error
+  }
+
+  return "";
+}
+
+// Format multi-turn conversation strictly conforming to Gemini API specs
+function buildGeminiContents(messages: ChatMessage[]) {
+  const filtered = messages
+    .filter((m) => m && m.content && m.content.trim())
+    .slice(-10); // keep recent turns for fast response
+
+  const turns: { role: "user" | "model"; parts: { text: string }[] }[] = [];
+
+  for (const m of filtered) {
+    const role: "user" | "model" = m.role === "assistant" ? "model" : "user";
+    const text = m.content.trim();
+
+    // If the previous turn had the same role, combine them into one turn
+    if (turns.length > 0 && turns[turns.length - 1].role === role) {
+      turns[turns.length - 1].parts[0].text += "\n\n" + text;
+    } else {
+      turns.push({ role, parts: [{ text }] });
+    }
+  }
+
+  // Gemini requires the conversation to start with a 'user' turn
+  while (turns.length > 0 && turns[0].role === "model") {
+    turns.shift();
+  }
+
+  return turns;
+}
+
+// Fallback responder when offline or network fails
+function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
+  const q = query.toLowerCase().trim();
+
+  // Basic math solver fallback (e.g. "45 * 18", "100 + 20")
+  const mathMatch = q.match(/^(\d+(?:\.\d+)?)\s*([\+\-\*\/])\s*(\d+(?:\.\d+)?)$/);
+  if (mathMatch) {
+    const a = parseFloat(mathMatch[1]);
+    const op = mathMatch[2];
+    const b = parseFloat(mathMatch[3]);
+    let ans = 0;
+    if (op === "+") ans = a + b;
+    if (op === "-") ans = a - b;
+    if (op === "*") ans = a * b;
+    if (op === "/") ans = b !== 0 ? a / b : NaN;
+    return `**उत्तर:** ${a} ${op} ${b} = **${ans}**`;
+  }
+
   if (lang === "en") {
-    if (q.includes("mandi") || q.includes("rate") || q.includes("price") || q.includes("market")) {
-      return `🌾 **Mandi Rates on KrishiConnect:**\n\n- Visit the **"Crop Rates"** tab in the sidebar to view live APMC mandi prices across India.\n- **Sample Live Benchmark Rates:**\n  - Paddy (Dhan): ₹2,183 - ₹2,320 / quintal\n  - Wheat (Gehun): ₹2,450 - ₹2,600 / quintal\n  - Maize (Makka): ₹2,050 - ₹2,200 / quintal\n  - Potato (Aaloo): ₹1,400 - ₹1,750 / quintal\n  - Onion (Pyaz): ₹2,200 - ₹2,800 / quintal\n\n💡 *Tip:* Filter by state and district for exact local market arrivals.`;
+    if (q.includes("mandi") || q.includes("rate") || q.includes("price")) {
+      return `🌾 **Mandi Rates on KrishiConnect:**\n\n- Visit the **"Crop Rates"** tab in the sidebar to view live APMC mandi prices across India.\n- **Sample Live Rates:**\n  - Paddy: ₹2,183 - ₹2,320 / quintal\n  - Wheat: ₹2,450 - ₹2,600 / quintal\n  - Maize: ₹2,050 - ₹2,200 / quintal\n  - Potato: ₹1,400 - ₹1,750 / quintal\n  - Onion: ₹2,200 - ₹2,800 / quintal`;
     }
     if (q.includes("invoice") || q.includes("bill") || q.includes("gst")) {
-      return `🧾 **How to Create a GST Invoice:**\n\n1. Click on **"Invoices"** in the sidebar menu.\n2. Tap **"Create New Invoice"**.\n3. Choose or add a customer.\n4. Add items with weight (quintal/kg) and unit rate — GST and HSN codes are calculated automatically.\n5. Click **Save & Print** to download PDF with dynamic UPI QR code.`;
+      return `🧾 **GST Invoicing:**\n\n1. Go to **"Invoices"** in the sidebar.\n2. Click **"Create New Invoice"**.\n3. Add products, rates, and customer details (auto-calculates GST & HSN).\n4. Download PDF with dynamic UPI QR code.`;
     }
-    if (q.includes("truck") || q.includes("transport") || q.includes("logistics")) {
-      return `🚜 **Logistics & Truck Booking:**\n\n- Connect farm produce directly to mandis or warehouses.\n- Real-time freight estimation based on payload and distance.\n- Head over to the **"Transportation"** tab to calculate rates and book verified drivers.`;
-    }
-    if (q.includes("storage") || q.includes("cold storage") || q.includes("warehouse")) {
-      return `❄️ **Cold Storage Booking:**\n\n- Reserve climate-controlled chambers for potatoes, onions, seeds, and perishables.\n- Check live capacity and book storage slots under the **"Cold Storage"** tab.`;
-    }
-    if (q.includes("soil") || q.includes("fertilizer") || q.includes("urea") || q.includes("dap")) {
-      return `🧪 **Soil Health Advisory:**\n\n- Upload or enter your Soil Card test values (pH, N-P-K, micronutrients) under **"Soil Health"**.\n- Get customized fertilizer dosage and organic manuring schedules instantly.`;
-    }
-    return `Hello! 🙏 I am **KrishiBot** — KrishiConnect's AI Assistant.\n\nI can help you with:\n- 🌾 Live APMC Mandi Rates\n- 🧾 Instant GST Billing & PDF Invoices\n- 🚜 Freight Transportation & Truck Booking\n- ❄️ Cold Storage Reservations\n- 🌦️ Weather & Rainfall Forecasts\n- 🧪 Soil Health & Fertilizer Recommendations\n\nHow can I help you today?`;
+    return `Hello! 🙏 I am **KrishiBot**, your AI assistant for KrishiConnect and general questions.\n\nI can help you with anything from **agricultural advice, mandi rates, and GST bills** to **science, calculations, technology, and everyday knowledge**! How can I assist you right now?`;
   }
 
-  // Odia fallback responses
-  if (lang === "or") {
-    if (q.includes("mandi") || q.includes("rate") || q.includes("দর") || q.includes("bhav") || q.includes("bhaav")) {
-      return `🌾 **KrishiConnect ରେ ମଣ୍ଡି ଦର (Mandi Rates):**\n\n- ଓଡ଼ିଶା ତଥା ସମଗ୍ର ଭାରତର ଲାଇଭ୍ APMC ମଣ୍ଡି ଦର ଦେଖିବାକୁ ସାଇଡବାର୍ ର **"Crop Rates"** ଟ୍ୟାବ୍ କୁ ଯାଆନ୍ତୁ।\n- **ଆଜିର ମୁଖ୍ୟ ଫସଲ ଦର (ହାରାହାରି):**\n  - ଧାନ (Paddy): ₹୨,୧୮୩ - ₹୨,୩୨୦ / କ୍ୱିଣ୍ଟାଲ\n  - ଗହମ (Wheat): ₹୨,୪୫୦ - ₹୨,୬୦୦ / କ୍ୱିଣ୍ଟାଲ\n  - ମକା (Maize): ₹୨,୦୫୦ - ₹୨,୨୦୦ / କ୍ୱିଣ୍ଟାଲ\n  - ଆଳୁ (Potato): ₹୧,୪୦୦ - ₹୧,୭୫୦ / କ୍ୱିଣ୍ଟାଲ\n  - ପିଆଜ (Onion): ₹୨,୨୦୦ - ₹୨,୮୦୦ / କ୍ୱିଣ୍ଟାଲ\n\n💡 *ସୂଚନା:* ନିଜ ଜିଲ୍ଲାର ସଠିକ୍ ଦର ଦେଖିବା ପାଇଁ ସାଇଡବାର୍ କୁ ବ୍ୟବହାର କରନ୍ତୁ।`;
-    }
-    if (q.includes("invoice") || q.includes("bill") || q.includes("ବିଲ୍") || q.includes("gst")) {
-      return `🧾 **GST ଇନଭଏସ୍ (Invoice) କିପରି ତିଆରି କରିବେ:**\n\n1. ସାଇଡବାର୍ ମେନୁରୁ **"Invoices"** କ୍ଲିକ୍ କରନ୍ତୁ।\n2. **"Create New Invoice"** ବଟନ୍ ଦବାନ୍ତୁ।\n3. ଗ୍ରାହକ ବାଛନ୍ତୁ କିମ୍ବା ନୂଆ ଗ୍ରାହକ ଯୋଡନ୍ତୁ।\n4. ଫସଲ, ପରିମାଣ (କ୍ୱିଣ୍ଟାଲ/କିଲୋ) ଓ ମୂଲ୍ୟ ଲେଖନ୍ତୁ — GST ଓ HSN କୋଡ୍ ଆପେ ଆପେ ଆସିଯିବ।\n5. **Save & Print** ଦବାଇ UPI QR ସହିତ PDF ଡାଉନଲୋଡ୍ କରନ୍ତୁ।`;
-    }
-    return `ନମସ୍କାର! 🙏 ମୁଁ **KrishiBot** — KrishiConnect ର କୃଷି AI ସହାୟକ।\n\nମୁଁ ଆପଣଙ୍କୁ ନିମ୍ନଲିଖିତ ବିଷୟରେ ସାହାଯ୍ୟ କରିପାରିବି:\n- 🌾 ଲାଇଭ୍ ମଣ୍ଡି ଦର\n- 🧾 GST ବିଲ୍ ଓ ଇନଭଏସ୍\n- 🚜 ଟ୍ରକ୍ ପରିବହନ ବୁକିଂ\n- ❄️ ଶୀତଳ ଭଣ୍ଡାର (Cold Storage)\n- 🌦️ ପାଣିପାଗ ଓ ବର୍ଷା ସୂଚନା\n- 🧪 ମାଟି ପରୀକ୍ଷା ଓ ସାର ସୁପାରିଶ\n\nଆଜି ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିବି?`;
+  if (q.includes("mandi") || q.includes("rate") || q.includes("bhaav") || q.includes("bhav") || q.includes("kimat")) {
+    return `🌾 **Mandi Rates (मंडी भाव) KrishiConnect पर:**\n\n- आप Dashboard के **"Crop Rates"** टैब पर जाकर पूरे भारत की मंडियों के लाइव भाव देख सकते हैं।\n- **ताज़ा भाव का उदाहरण (औसत):**\n  - धान: ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ: ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का: ₹2,050 - ₹2,200 / क्विंटल\n  - आलू: ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज: ₹2,200 - ₹2,800 / क्विंटल`;
   }
 
-  // Marathi fallback responses
-  if (lang === "mr") {
-    if (q.includes("mandi") || q.includes("rate") || q.includes("भाव") || q.includes("बाजारभाव")) {
-      return `🌾 **KrishiConnect वरील थेट बाजारभाव (Mandi Rates):**\n\n- महाराष्ट्रातील सर्व प्रमुख APMC बाजार समित्यांचे थेट भाव पाहण्यासाठी **"Crop Rates"** टॅबवर जा.\n- **आजचे सरासरी भाव:**\n  - कांदा (Onion): ₹२,२०० - ₹२,८०० / क्विंटल\n  - सोयाबीन (Soybean): ₹४,४०० - ₹४,७५० / क्विंटल\n  - कापूस (Cotton): ₹७,१०० - ₹७,५०० / क्विंटल\n  - गहू (Wheat): ₹२,४५० - ₹२,६०० / क्विंटल\n\n💡 *टीप:* आपल्या जिल्ह्यानुसार अचूक भाव पाहण्यासाठी मेनूमधील Crop Rates वापरा.`;
-    }
-    return `नमस्कार! 🙏 मी **KrishiBot** — KrishiConnect चा कृषी AI सहाय्यक.\n\nमी तुम्हाला बाजारभाव, GST बिलिंग, वाहतूक बुकिंग, हवामान व खतांच्या सल्ल्याबद्दल मदत करू शकतो. सांगा, मी आपली काय मदत करू?`;
+  if (q.includes("invoice") || q.includes("bill") || q.includes("gst") || q.includes("challan")) {
+    return `🧾 **GST Invoice कैसे बनाएं:**\n\n1. साइडबार मेन्यू में **"Invoices"** पर क्लिक करें।\n2. **"Create New Invoice"** बटन दबाएं।\n3. ग्राहक चुनें, फसल/प्रोडक्ट और वजन भरें।\n4. **Save & Print** पर क्लिक करके PDF डाउनलोड करें या ग्राहक को UPI QR भेजें।`;
   }
 
-  // Default: Hindi / Hinglish responses
-  if (q.includes("mandi") || q.includes("rate") || q.includes("bhaav") || q.includes("bhav") || q.includes("kimat") || q.includes("price")) {
-    return `🌾 **Mandi Rates (मंडी भाव) KrishiConnect पर:**\n\n- आप Dashboard के **"Crop Rates"** टैब पर जाकर पूरे भारत और ओडिशा की लाइव APMC मंडियों के भाव देख सकते हैं।\n- **ताज़ा भाव का उदाहरण (औसत):**\n  - धान (Paddy): ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ (Wheat): ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का (Maize): ₹2,050 - ₹2,200 / क्विंटल\n  - आलू (Potato): ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज (Onion): ₹2,200 - ₹2,800 / क्विंटल\n\n📌 *सुझाव:* अपने ज़िले और फसल के अनुसार सटीक भाव देखने के लिए साइडबार में **Crop Rates** पर क्लिक करें।`;
-  }
-
-  if (q.includes("invoice") || q.includes("bill") || q.includes("gst") || q.includes("challan") || q.includes("rasid")) {
-    return `🧾 **GST Invoice कैसे बनाएं:**\n\n1. साइडबार मेन्यू में **"Invoices"** पर क्लिक करें।\n2. **"Create New Invoice"** बटन दबाएं।\n3. ग्राहक (Customer) चुनें या नया जोड़ें।\n4. अपनी फसल/प्रोडक्ट, वज़न (क्विंटल/किलो) और भाव डालें (GST व HSN कोड अपने आप लग जाएगा)।\n5. **Save & Print** पर क्लिक करके PDF डाउनलोड करें या ग्राहक को UPI QR कोड के साथ भेजें।`;
-  }
-
-  if (q.includes("truck") || q.includes("transport") || q.includes("gadi") || q.includes("logistics") || q.includes("kiraya")) {
-    return `🚜 **Transport & Logistics बुकिंग:**\n\n- KrishiConnect पर आप खेत से मंडी या वेयरहाउस तक ट्रक और पिकअप बुक कर सकते हैं।\n- **सुविधाएं:**\n  - लोड और दूरी (KM) के हिसाब से तुरंत किराया कैलकुलेशन।\n  - वेरीफाइड ड्राइवर और लाइव रूट ट्रैकिंग।\n  - बुकिंग के लिए मेन्यू में **"Transportation"** सेक्शन पर जाएं।`;
-  }
-
-  if (q.includes("cold storage") || q.includes("storage") || q.includes("godown") || q.includes("warehouse")) {
-    return `❄️ **Cold Storage (शीतगृह) बुकिंग:**\n\n- अपनी आलू, प्याज, फल या बीज को सुरक्षित रखने के लिए पास के कोल्ड स्टोरेज में जगह आरक्षित करें।\n- तापमान और नमी (Humidity) की रियल-टाइम मॉनिटरिंग उपलब्ध है।\n- बुकिंग के लिए **"Cold Storage"** टैब खोलें और अपनी बोरी (Bags) की संख्या दर्ज करें।`;
-  }
-
-  if (q.includes("mitti") || q.includes("soil") || q.includes("khad") || q.includes("fertilizer") || q.includes("urea") || q.includes("dap")) {
-    return `🧪 **मृदा स्वास्थ्य (Soil Health) और खाद सुझाव:**\n\n- KrishiConnect का AI आपके सॉइल हेल्थ कार्ड की फोटो या पैरामीटर्स (pH, N, P, K) देखकर सही खाद की मात्रा बताता है।\n- **सामान्य सुझाव:**\n  - बुवाई से पहले प्रति एकड़ 4-5 टन गोबर की सड़ी खाद (FYM) डालें।\n  - अम्लीय (Acidic) मिट्टी में चूना (Lime) का उपयोग करें।\n  - जांच के लिए साइडबार में **"Soil Health"** पेज पर जाएं।`;
-  }
-
-  if (q.includes("weather") || q.includes("mausam") || q.includes("barish") || q.includes("rain") || q.includes("badal")) {
-    return `🌦️ **मौसम और वर्षा पूर्वानुमान:**\n\n- KrishiConnect पर लाइव Doppler Radar और सेटेलाइट बादलों की गति देख सकते हैं।\n- अगले 7 दिनों का तापमान, बारिश की संभावना और हवा की गति जानने के लिए **"Weather"** पेज देखें।\n- छिड़काव (Spraying) हमेशा हवा शांत और बारिश की संभावना न होने पर ही करें।`;
-  }
-
-  return `नमस्ते! 🙏 मैं KrishiConnect का कृषि सहायक (KrishiBot) हूँ।\n\nमैं आपकी इन चीज़ों में मदद कर सकता हूँ:\n- 🌾 **मंडी भाव (Mandi Rates)** चेक करना\n- 🧾 **GST Invoice & Bill** तैयार करना\n- 🚜 **ट्रक / ट्रांसपोर्ट** का किराया और बुकिंग\n- ❄️ **कोल्ड स्टोरेज** स्लॉट बुक करना\n- 🌦️ **मौसम और वर्षा** की सटीक जानकारी\n- 🧪 **मिट्टी की जांच और खाद** का सही संतुलन\n\nबताइए आज आपकी क्या सहायता करूँ?`;
+  return `नमस्ते! 🙏 मैं **KrishiBot** हूँ — KrishiConnect का स्मार्ट AI सहायक।\n\nमैं एक आधुनिक AI की तरह आपके **हर सवाल का जवाब** दे सकता हूँ:\n- 🌾 खेती, फसल रोग, खाद और लाइव मंडी भाव\n- 🧾 GST बिलिंग, हिसाब-किताब और ट्रांसपोर्ट बुकिंग\n- 🧠 सामान्य ज्ञान, विज्ञान, गणित, कोडिंग और रोज़मर्रा की सलाह\n\nकृपया अपना सवाल बेझिझक पूछें!`;
 }
 
 export async function POST(req: NextRequest) {
@@ -101,113 +132,104 @@ export async function POST(req: NextRequest) {
     }
 
     const latestUserMessage = messages[messages.length - 1]?.content || "";
-    const apiKey = (process.env.GEMINI_API_KEY || "").trim();
+    const apiKey = getGeminiApiKey();
 
-    const dynamicSystemInstruction = `You are "KrishiBot" (कृषि मित्र), the intelligent AI agricultural assistant for the KrishiConnect platform.
+    const systemInstructionText = `You are "KrishiBot", a brilliant, versatile, and helpful AI assistant (powered by Google Gemini) built into the KrishiConnect platform.
 
-CRITICAL LANGUAGE REQUIREMENT:
-The user has actively selected the interface language: "${languageName}" (code: "${language}").
-You MUST respond strictly and entirely in ${languageName}.
-- If language is Hindi ("hi"): Speak in authentic Hindi (Devanagari script) or natural Hinglish if user speaks Hinglish.
-- If language is Odia ("or"): Speak in authentic Odia (ଓଡ଼ିଆ script).
-- If language is Marathi ("mr"): Speak in authentic Marathi (मराठी script).
-- If language is Punjabi ("pa"): Speak in authentic Punjabi (ਪੰਜਾਬੀ Gurmukhi script).
-- If language is Gujarati ("gu"): Speak in authentic Gujarati (ગુજરાતી script).
-- If language is Bengali ("bn"): Speak in authentic Bengali (বাংলা script).
-- If language is Tamil ("ta"): Speak in authentic Tamil (தமிழ் script).
-- If language is Telugu ("te"): Speak in authentic Telugu (తెలుగు script).
-- If language is Kannada ("kn"): Speak in authentic Kannada (ಕನ್ನಡ script).
-- If language is Malayalam ("ml"): Speak in authentic Malayalam (മലയാളം script).
-- If language is English ("en"): Speak in fluent English.
+CORE CAPABILITIES & INSTRUCTIONS:
+1. ANSWER ANY QUESTION LIKE A POWERFUL AI:
+   - Answer EVERY question the user asks with high quality, intelligence, and clarity — just like ChatGPT or Google Gemini.
+   - You have universal knowledge across ALL subjects: General Knowledge, Science, Mathematics, Coding, Technology, Business, Finance, History, Geography, Cooking, Health tips, Everyday life, Stories, Jokes, Philosophy, etc.
+   - NEVER refuse a question or say "I am only an agriculture bot". Always be eager, helpful, and thorough on any topic.
 
-Platform Capabilities to recommend:
-1. Mandi Rates: Live APMC commodity prices across India and Odisha.
-2. GST Invoicing: Generating GST bills with automatic tax calculation and UPI QR.
-3. Logistics & Transport: Booking trucks and calculating freight cost per km.
-4. Cold Storage: Booking storage slots for potato, onion, and perishable items.
-5. Soil Health: Analyzing soil card parameters (pH, NPK) and fertilizer recommendations.
-6. Weather: Rain radar, satellite clouds, and farm advisories.
+2. DOMAIN EXPERTISE IN KRISHICONNECT & AGRICULTURE:
+   - When asked about agriculture, farming, crops, soil health, fertilizer dosage, weather, mandi rates, or KrishiConnect platform features (Invoices, Cold Storage, Transport, Crop Rates), provide elite, accurate, practical advice.
 
-Keep responses concise, warm, helpful, and formatted with bullet points and emojis.`;
+3. ACTIVE LANGUAGE REQUIREMENT:
+   - The user has chosen the language: "${languageName}" (code: "${language}").
+   - You MUST respond fully and fluently in ${languageName}.
+   - If Hindi ("hi"): Reply in clear, authentic Hindi (Devanagari script) or natural conversational Hinglish.
+   - If Odia ("or"): Reply in authentic Odia (ଓଡ଼ିଆ script).
+   - If Marathi ("mr"): Reply in authentic Marathi (मराठी script).
+   - If Punjabi ("pa"): Reply in authentic Punjabi (ਪੰਜਾਬੀ Gurmukhi script).
+   - If Gujarati ("gu"): Reply in authentic Gujarati (ગુજરાતી script).
+   - If Bengali ("bn"): Reply in authentic Bengali (বাংলা script).
+   - If Tamil ("ta"): Reply in authentic Tamil (தமிழ் script).
+   - If Telugu ("te"): Reply in authentic Telugu (తెలుగు script).
+   - If Kannada ("kn"): Reply in authentic Kannada (ಕನ್ನಡ script).
+   - If Malayalam ("ml"): Reply in authentic Malayalam (മലയാളം script).
+   - If English ("en"): Reply in fluent English.
 
-    if (apiKey && apiKey !== "your_gemini_api_key") {
-      try {
-        const modelNames = [
-          "gemini-flash-lite-latest",
-          "gemini-flash-latest",
-          "gemini-2.5-flash-lite",
-          "gemini-2.0-flash",
-          "gemini-1.5-flash",
-        ];
+4. FORMATTING:
+   - Use clean markdown with bullet points, bold key highlights, code blocks for code, and friendly emojis.`;
 
-        for (const model of modelNames) {
-          try {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    if (apiKey) {
+      // Verified ultra-fast models with zero timeouts
+      const modelNames = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest"];
 
-            const contents = [
-              {
-                role: "user",
-                parts: [{ text: `[System Instruction: ${dynamicSystemInstruction}]` }],
-              },
-              {
-                role: "model",
-                parts: [
-                  {
-                    text: `Understood. I am KrishiBot. I will strictly converse in ${languageName} to help the farmer/merchant with KrishiConnect and agricultural queries.`,
-                  },
-                ],
-              },
-              ...messages.map((m) => ({
-                role: m.role === "assistant" ? "model" : "user",
-                parts: [{ text: m.content }],
-              })),
-            ];
+      const contents = buildGeminiContents(messages);
 
-            const response = await fetch(endpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents,
-                generationConfig: {
-                  temperature: 0.7,
-                  maxOutputTokens: 800,
-                  topP: 0.9,
-                },
-              }),
-              signal: AbortSignal.timeout(12000),
-            });
+      // If contents array is empty (e.g. only assistant greetings), add the user question
+      if (!contents.length) {
+        contents.push({ role: "user", parts: [{ text: latestUserMessage }] });
+      }
 
-            if (response.ok) {
-              const data = await response.json();
-              const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (reply) {
-                return NextResponse.json({
-                  reply,
-                  source: "gemini",
-                  model,
-                  language,
-                });
-              }
+      for (const model of modelNames) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+          const payload = {
+            system_instruction: {
+              parts: [{ text: systemInstructionText }],
+            },
+            contents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1024,
+              topP: 0.95,
+            },
+          };
+
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(10000),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const candidate = data.candidates?.[0];
+            const reply = candidate?.content?.parts?.[0]?.text;
+
+            if (reply && reply.trim()) {
+              return NextResponse.json({
+                reply: reply.trim(),
+                source: "gemini",
+                model,
+                language,
+              });
             }
-          } catch (e) {
-            // continue to next model
+          } else {
+            const errText = await response.text();
+            console.warn(`Gemini API error on ${model}: ${response.status}`, errText);
           }
+        } catch (e: any) {
+          console.warn(`Gemini model ${model} attempt failed:`, e?.message || e);
         }
-      } catch (err) {
-        console.warn("External AI call error, falling back:", err);
       }
     }
 
-    // Smart localized fallback
+    // Local context fallback
     const fallbackReply = getSmartFallbackResponse(latestUserMessage, language);
     return NextResponse.json({
       reply: fallbackReply,
       source: "local-assistant",
-      model: "krishiconnect-localized-rules",
+      model: "fallback-engine",
       language,
     });
   } catch (err: any) {
-    console.error("Chat API route error:", err);
+    console.error("Chat API route unhandled error:", err);
     return NextResponse.json(
       { error: "Failed to generate reply", detail: err?.message || String(err) },
       { status: 500 }
