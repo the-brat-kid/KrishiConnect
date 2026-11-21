@@ -125,7 +125,7 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     if (q.includes("invoice") || q.includes("bill") || q.includes("gst")) {
       return `🧾 **GST Invoicing:**\n\n1. Go to **"Invoices"** in the sidebar.\n2. Click **"Create New Invoice"**.\n3. Add products, rates, and customer details (auto-calculates GST & HSN).\n4. Download PDF with dynamic UPI QR code.`;
     }
-    return `Hello! 🙏 I am **KrishiBot**, your AI assistant for KrishiConnect and all general queries.\n\nAsk me about **crops, mandi rates, invoices, fertilizers**, or any general knowledge, calculations, or science question!`;
+    return `Hello! 👋 I'm **KrishiBot**.\n\nAsk me anything — farming, mandi rates, invoices, transport, or any general question!`;
   }
 
   if (
@@ -135,7 +135,7 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     q.includes("bhav") ||
     q.includes("kimat")
   ) {
-    return `🌾 **Mandi Rates (मंडी भाव) KrishiConnect पर:**\n\n- आप Dashboard के **"Crop Rates"** टैब पर जाकर पूरे भारत की मंडियों के लाइव भाव देख सकते हैं।\n- **ताज़ा भाव का उदाहरण (औसत):**\n  - धान: ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ: ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का: ₹2,050 - ₹2,200 / क्विंटल\n  - आलू: ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज: ₹2,200 - ₹2,800 / क्विंटल`;
+    return `🌾 **Mandi Rates (मंडी भाव):**\n\n- Dashboard के **"Crop Rates"** टैब पर लाइव भाव देखें।\n- **ताज़ा भाव:**\n  - धान: ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ: ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का: ₹2,050 - ₹2,200 / क्विंटल\n  - आलू: ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज: ₹2,200 - ₹2,800 / क्विंटल`;
   }
 
   if (
@@ -144,10 +144,10 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     q.includes("gst") ||
     q.includes("challan")
   ) {
-    return `🧾 **GST Invoice कैसे बनाएं:**\n\n1. साइडबार मेन्यू में **"Invoices"** पर क्लिक करें।\n2. **"Create New Invoice"** बटन दबाएं।\n3. ग्राहक चुनें, फसल/प्रोडक्ट और वजन भरें।\n4. **Save & Print** पर क्लिक करके PDF डाउनलोड करें या ग्राहक को UPI QR भेजें।`;
+    return `🧾 **GST Invoice:**\n\n1. **Invoices** टैब पर जाएं।\n2. **Create New Invoice** दबाएं।\n3. ग्राहक और फसल विवरण भरें।\n4. PDF डाउनलोड करें या UPI QR भेजें।`;
   }
 
-  return `नमस्ते! 🙏 मैं **KrishiBot** हूँ — KrishiConnect का स्मार्ट AI सहायक।\n\nमैं एक आधुनिक AI की तरह आपके **हर सवाल का जवाब** दे सकता हूँ:\n- 🌾 खेती, फसल रोग, खाद और लाइव मंडी भाव\n- 🧾 GST बिलिंग, हिसाब-किताब और ट्रांसपोर्ट बुकिंग\n- 🧠 सामान्य ज्ञान, विज्ञान, गणित, कोडिंग और रोज़मर्रा की सलाह\n\nकृपया अपना सवाल बेझिझक पूछें!`;
+  return `नमस्ते! 👋 मैं **KrishiBot** हूँ।\n\nखेती, मंडी भाव, बिलिंग, या कोई भी सामान्य सवाल पूछें!`;
 }
 
 export async function POST(req: NextRequest) {
@@ -190,8 +190,9 @@ CORE CAPABILITIES & INSTRUCTIONS:
    - If Malayalam ("ml"): Reply in authentic Malayalam (മലയാളം script).
    - If English ("en"): Reply in fluent English.
 
-4. FORMATTING:
-   - Use clean markdown with bullet points, bold key highlights, code blocks for code, and friendly emojis.`;
+4. MINIMALIST, DIRECT & CLEAN FORMATTING:
+   - Be concise, direct, and structured. Avoid unnecessary filler or overly long greetings.
+   - Use clean markdown with bullet points, bold key highlights, and friendly emojis.`;
 
     if (apiKey) {
       // Primary verified ultra-fast models with zero timeouts

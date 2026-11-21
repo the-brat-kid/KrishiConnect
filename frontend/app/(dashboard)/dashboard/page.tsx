@@ -326,9 +326,9 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              {selectedMandiObj ? selectedMandiObj.name : `${currentRegionDef.primaryHubs[0]} APMC`} Live Operations
+              Live • {selectedMandiObj ? selectedMandiObj.name : currentRegionDef.primaryHubs[0]}
             </span>
           </div>
 
@@ -338,12 +338,12 @@ export default function DashboardPage() {
               {formattedDate}
             </h1>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] dark:bg-black/50 border border-white/15 dark:border-white/12 backdrop-blur-xl text-xs sm:text-sm font-mono font-bold text-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.2)]">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>{formattedTime}</span>
             </div>
           </div>
 
-          {/* Small Welcome Back with Name underneath */}
+          {/* Welcome back */}
           <p className="text-xs sm:text-sm text-muted-foreground mt-1.5">
             Welcome back, <strong className="text-foreground font-semibold">{displayName}</strong>
           </p>
@@ -354,14 +354,14 @@ export default function DashboardPage() {
             items={[
               {
                 icon: <Plus className="h-full w-full" />,
-                label: "Create Invoice",
-                labelHasKeyword: ["C"],
+                label: "Invoice",
+                labelHasKeyword: ["I"],
                 variant: "primary",
                 href: "/invoices/new",
               },
               {
                 icon: <Store className="h-full w-full" />,
-                label: "Daily Rates",
+                label: "Rates",
                 labelHasKeyword: ["R"],
                 href: "/crop-rates",
               },
@@ -373,13 +373,13 @@ export default function DashboardPage() {
               },
               {
                 icon: <MapPin className="h-full w-full" />,
-                label: "Farm Weather",
+                label: "Weather",
                 labelHasKeyword: ["W"],
                 href: "/weather",
               },
               {
                 icon: <Sprout className="h-full w-full" />,
-                label: "Season Planner",
+                label: "Planner",
                 labelHasKeyword: ["P"],
                 href: "/crop-planner",
               },
@@ -390,7 +390,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 2. SECTION: Today's Mandi Baselines (Blended Liquid Glass Container) */}
+      {/* 2. SECTION: Mandi Rates */}
       <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden">
         <CardHeader className="pb-4 border-b border-white/10 dark:border-white/[0.07]">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -398,18 +398,17 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Store className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                  <span>Today&apos;s Mandi Baselines ({selectedMandiObj.name})</span>
+                  <span>Mandi Rates</span>
                 </CardTitle>
 
-                {/* Blended Liquid Glass Live Badge */}
-                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                  <span>Live Market</span>
+                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Live</span>
                 </div>
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                <span>Wholesale modal auction rates in {selectedMandiObj.name} ({selectedState}) &amp; National APMC network.</span>
+                <span>APMC wholesale prices</span>
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 font-mono">
                   <Clock className="w-3 h-3 text-muted-foreground" />
                   {lastUpdatedText}
@@ -417,25 +416,25 @@ export default function DashboardPage() {
               </CardDescription>
             </div>
 
-            {/* Controls: Liquid Glass Live Sync & Link */}
+            {/* Controls */}
             <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
               <button
                 type="button"
                 onClick={() => refetchRates()}
                 disabled={ratesFetching}
-                className="btn-liquid-glass inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
-                title="Refresh live mandi rates from APMC auctions"
+                className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
+                title="Refresh rates"
               >
-                <RefreshCw className={cn("w-3.5 h-3.5 text-primary", ratesFetching && "animate-spin")} />
-                <span>{ratesFetching ? "Syncing..." : "Sync Live Rates"}</span>
+                <RefreshCw className={cn("w-3 h-3 text-primary", ratesFetching && "animate-spin")} />
+                <span>{ratesFetching ? "Syncing..." : "Sync"}</span>
               </button>
 
               <Link
                 href="/crop-rates"
-                className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
+                className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
               >
-                <span>View all 40+ Pan-India crops</span>
-                <ArrowRight className="w-3.5 h-3.5 text-primary" />
+                <span>View All</span>
+                <ArrowRight className="w-3 h-3 text-primary" />
               </Link>
             </div>
           </div>
@@ -443,14 +442,11 @@ export default function DashboardPage() {
 
         <CardContent className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-w-0">
-            {/* Left Column: 3D Tilt Crop Cards with Enlarged Liquid Glass Icons */}
+            {/* Left Column: Crop Cards */}
             <div className="lg:col-span-6 space-y-3 min-w-0">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Commodity Modal Rates
-                </span>
-                <span className="text-[10px] font-medium text-primary">
-                  Hover to 3D Tilt • Click for 7-day trend & profit forecast
+                  Modal Rates
                 </span>
               </div>
 
@@ -472,9 +468,8 @@ export default function DashboardPage() {
                       {/* Top Specular Rim Highlight */}
                       <div className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
-                      {/* Top: Enlarged Glass Icon Box & Status Badge */}
+                      {/* Top: Glass Icon & Status Badge */}
                       <div className="flex items-start justify-between gap-2">
-                        {/* 3D Liquid Glass Crop Icon & Micro-Emoji Badge */}
                         <CropIcon
                           image={crop.image}
                           alt={crop.name}
@@ -487,9 +482,9 @@ export default function DashboardPage() {
                           className={cn(
                             "text-[10px] font-bold rounded-full px-2 py-0.5 backdrop-blur-md whitespace-nowrap tabular-nums shrink-0",
                             crop.status === "up"
-                              ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.25)]"
+                              ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30"
                               : crop.status === "down"
-                                ? "text-rose-400 bg-rose-500/15 border-rose-500/30 shadow-[0_0_8px_rgba(244,63,94,0.25)]"
+                                ? "text-rose-400 bg-rose-500/15 border-rose-500/30"
                                 : "text-muted-foreground bg-white/5 border-white/10"
                           )}
                         >
@@ -497,19 +492,18 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
 
-                      {/* Center: Crop Name & Retail Spread */}
+                      {/* Center: Crop Name & Retail */}
                       <div className="mt-3 space-y-0.5">
                         <h3 className="font-bold text-xs text-foreground group-hover:text-primary transition-colors truncate" title={crop.name}>
                           {crop.name}
                         </h3>
                         <p className="text-[11px] text-muted-foreground">
-                          Retail: <span className="font-semibold text-foreground">{crop.retail}/{crop.unit}</span>
+                          Retail: <span className="font-medium text-foreground">{crop.retail}/{crop.unit}</span>
                         </p>
                       </div>
 
-                      {/* Bottom: Mandi Wholesale Price with AnimatedNumber */}
+                      {/* Bottom: Modal Price */}
                       <div className="mt-2.5 pt-2 border-t border-white/10 flex items-baseline justify-between">
-                        <span className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">Wholesale</span>
                         <div className="text-sm font-extrabold text-foreground tabular-nums">
                           <AnimatedNumber
                             value={crop.priceNum}
@@ -525,13 +519,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right Column: Comparative Price Graph (3D Perspective Container) */}
+            {/* Right Column: Comparative Price Graph */}
             <div className="lg:col-span-6 flex flex-col justify-between h-full min-w-0">
               <Chart3DContainer
-                title="Wholesale vs Retail Price Spread (₹/kg)"
-                subtitle={`${currentRegionDef.primaryHubs[0] || "National"} Yard`}
+                title="Price Spread (₹/kg)"
+                subtitle="Wholesale vs Retail"
                 icon={<BarChart2 className="w-4 h-4 text-emerald-400" />}
-                badge="3D Isometric"
               >
                 <div className="w-full h-64 pt-2 min-w-0 overflow-hidden">
                   <ResponsiveContainer width="100%" height="100%">
@@ -551,8 +544,8 @@ export default function DashboardPage() {
                         }}
                       />
                       <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
-                      <Bar dataKey="wholesale" name="Wholesale Mandi" fill="url(#threed-emerald)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
-                      <Bar dataKey="retail" name="Retail Baseline" fill="url(#threed-amber)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
+                      <Bar dataKey="wholesale" name="Wholesale" fill="url(#threed-emerald)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={1800} animationEasing="ease-out" />
+                      <Bar dataKey="retail" name="Retail" fill="url(#threed-amber)" shape={<ThreeDBar />} isAnimationActive={true} animationDuration={2000} animationEasing="ease-out" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -562,7 +555,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Weather Analysis Section (Positioned between Daily Rates and 7-Day Market Volatility) */}
+      {/* Weather & Radar */}
       <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
         <CardHeader className="pb-4 border-b border-white/10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -570,23 +563,23 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <CloudSun className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                  <span>Weather Analysis</span>
+                  <span>Weather & Radar</span>
                 </CardTitle>
-                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                  <span>Live Cloud Movement &amp; Weather Radar</span>
+                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Live Radar</span>
                 </div>
               </div>
               <CardDescription className="text-xs text-muted-foreground mt-1">
-                Real-time satellite cloud movement, Doppler precipitation radar, and regional agro-climate observation across major Indian Mandis.
+                Satellite precipitation & wind radar
               </CardDescription>
             </div>
             <Link
               href="/weather"
-              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
+              className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
             >
-              <span>Full Weather Center</span>
-              <ArrowRight className="w-3.5 h-3.5 text-primary" />
+              <span>Details</span>
+              <ArrowRight className="w-3 h-3 text-primary" />
             </Link>
           </div>
         </CardHeader>
@@ -606,25 +599,25 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* 3. SECTION: 7-Day Market Volatility */}
+      {/* 3. SECTION: Price Trends */}
       <Card className="border-white/10 bg-card/40 dark:bg-black/30 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden">
         <CardHeader className="pb-4 border-b border-white/10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                <span>7-Day Rate Volatility & Market Trajectory</span>
+                <span>Price Trends</span>
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground mt-1">
-                Weekly price movement history for staple commodities across {currentRegionDef.name} & National markets.
+                7-day market price movement
               </CardDescription>
             </div>
             <Link
               href="/rate-trends"
-              className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
+              className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
             >
-              <span>View full 7-day charts</span>
-              <ArrowRight className="w-3.5 h-3.5 text-primary" />
+              <span>Details</span>
+              <ArrowRight className="w-3 h-3 text-primary" />
             </Link>
           </div>
         </CardHeader>
@@ -634,7 +627,7 @@ export default function DashboardPage() {
             {/* Left Column: Vertical Volatility Highlights */}
             <div className="lg:col-span-5 space-y-3 min-w-0">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                Weekly Volatility Breakdown
+                Market Movers
               </span>
 
               <div className="space-y-3">
@@ -651,16 +644,15 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="space-y-0.5 min-w-0">
-                      <span className="text-[11px] font-semibold text-emerald-400">Top Weekly Gainer</span>
-                      <p className="text-sm font-extrabold text-foreground truncate">Tomato (Bilati)</p>
-                      <p className="text-[11px] text-muted-foreground truncate">High institutional demand across APMC hubs</p>
+                      <span className="text-[10px] font-semibold text-emerald-400">Top Gainer</span>
+                      <p className="text-sm font-extrabold text-foreground truncate">Tomato</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0 pl-2">
                     <div className="text-base font-black text-emerald-500 dark:text-emerald-400">
                       <AnimatedNumber value={11.8} decimals={1} prefix="+" suffix="%" springOptions={{ bounce: 0, duration: 1800 }} />
                     </div>
-                    <span className="text-[11px] font-semibold text-muted-foreground">+₹4 / kg</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">+₹4/kg</span>
                   </div>
                 </div>
 
@@ -677,28 +669,26 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="space-y-0.5 min-w-0">
-                      <span className="text-[11px] font-semibold text-rose-400">Weekly Value Drop</span>
-                      <p className="text-sm font-extrabold text-foreground truncate">Onion Big (Piaja)</p>
-                      <p className="text-[11px] text-muted-foreground truncate">Fresh harvest arrivals from key production hubs</p>
+                      <span className="text-[10px] font-semibold text-rose-400">Top Loser</span>
+                      <p className="text-sm font-extrabold text-foreground truncate">Onion</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0 pl-2">
                     <div className="text-base font-black text-rose-500 dark:text-rose-400">
                       <AnimatedNumber value={-7.1} decimals={1} suffix="%" springOptions={{ bounce: 0, duration: 1800 }} />
                     </div>
-                    <span className="text-[11px] font-semibold text-muted-foreground">-₹4 / kg</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">-₹4/kg</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Weekly Price Trend (3D Isometric Container) */}
+            {/* Right Column: Weekly Price Trend */}
             <div className="lg:col-span-7 flex flex-col justify-between h-full min-w-0">
               <Chart3DContainer
-                title="7-Day Price Fluctuation (₹/kg)"
-                subtitle="Historical Volatility Spectrum"
+                title="Weekly Trends"
+                subtitle="7-day fluctuation"
                 icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
-                badge="3D Depth"
               >
                 <div className="w-full h-56 pt-2 min-w-0 overflow-hidden">
                   <ResponsiveContainer width="100%" height="100%">
@@ -740,22 +730,21 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* 4. SECTION: Freight Corridors & 5. Procurement Share */}
+      {/* 4. Freight Logistics & 5. Crop Buyers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
-        {/* Freight Corridors */}
+        {/* Freight Logistics */}
         <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
           <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <Truck className="w-4 h-4 text-primary" />
-                <span>Verified Freight Corridors</span>
+                <span>Freight Logistics</span>
               </CardTitle>
               <Link
                 href="/transportation"
-                className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-foreground hover:text-white"
+                className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
               >
-                <span>Book Truck</span>
-                <ArrowRight className="w-3 h-3 text-primary" />
+                <span>Book →</span>
               </Link>
             </div>
           </CardHeader>
@@ -785,20 +774,19 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Procurement Requirements */}
+        {/* Crop Buyers */}
         <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
           <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary" />
-                <span>Institutional Crop Buyers</span>
+                <span>Crop Buyers</span>
               </CardTitle>
               <Link
                 href="/customers"
-                className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-foreground hover:text-white"
+                className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
               >
-                <span>View Buyers</span>
-                <ArrowRight className="w-3 h-3 text-primary" />
+                <span>View All →</span>
               </Link>
             </div>
           </CardHeader>
@@ -829,24 +817,23 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* 6. Farm Billing & Financial Overview */}
+      {/* 6. Financial Overview */}
       <div className="space-y-4 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
-              <span>Farm Billing & Financial Overview</span>
+              <span>Financial Overview</span>
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Receivables tracking, paid ratios, and customer ledger balances.
+              Invoices & receivables summary
             </p>
           </div>
           <Link
             href="/invoices"
-            className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white"
+            className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
           >
-            <span>Invoices ledger</span>
-            <ArrowRight className="w-3.5 h-3.5 text-primary" />
+            <span>Invoices →</span>
           </Link>
         </div>
         <StatsCards />

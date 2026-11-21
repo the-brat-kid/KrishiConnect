@@ -61,7 +61,7 @@ export function StatsCards() {
 
         <div className="relative z-10 pt-4 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
           <TrendingUp className="w-3.5 h-3.5" />
-          <span>Verified Mandi turnover</span>
+          <span>Verified turnover</span>
         </div>
       </div>
 
@@ -90,7 +90,6 @@ export function StatsCards() {
                 }}
               />
             </span>
-            <span className="text-xs text-muted-foreground font-medium">issued</span>
           </div>
         </div>
 
@@ -162,13 +161,12 @@ export function StatsCards() {
                 }}
               />
             </span>
-            <span className="text-xs text-muted-foreground font-medium">registered</span>
           </div>
         </div>
 
         <div className="relative z-10 pt-4 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
           <TrendingUp className="w-3.5 h-3.5" />
-          <span>Active buyer ledger</span>
+          <span>Active buyers</span>
         </div>
       </div>
 
@@ -197,13 +195,12 @@ export function StatsCards() {
                 }}
               />
             </span>
-            <span className="text-xs text-muted-foreground font-medium">SKUs</span>
           </div>
         </div>
 
         <div className="relative z-10 pt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Catalog in sync</span>
+          <span>Catalog synced</span>
         </div>
       </div>
     </div>

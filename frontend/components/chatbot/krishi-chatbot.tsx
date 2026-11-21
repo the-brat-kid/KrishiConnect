@@ -32,179 +32,168 @@ interface LanguageData {
 
 const LOCALIZED_DATA: Record<string, LanguageData> = {
   hi: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "मुझसे मंडी भाव, बिल, या खेती के बारे में कुछ भी पूछें!",
-    botTitle: "कृषि AI (KrishiBot)",
-    onlineStatus: "ऑनलाइन • कृषि व मंडी सहायक",
-    placeholder: "फसल, मंडी भाव या बिल के बारे में पूछें...",
-    initialMessage:
-      "नमस्ते! 🙏 मैं **KrishiBot** हूँ — KrishiConnect का कृषि AI सहायक।\n\nआप मुझसे **मंडी भाव**, **GST बिल**, **ट्रक ट्रांसपोर्ट**, **मौसम**, या **फसल व खाद** के बारे में कुछ भी पूछ सकते हैं!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "मुझसे कुछ भी पूछें!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "कुछ भी पूछें...",
+    initialMessage: "नमस्ते! 👋 मैं आपकी क्या मदद कर सकता हूँ?",
     chips: [
-      { label: "🌾 Mandi Rates", query: "Aaj ke taza mandi bhav aur rates bataiye" },
-      { label: "🧾 GST Invoice", query: "KrishiConnect me naya GST invoice kaise banaye?" },
-      { label: "🚜 Transport Booking", query: "Fasal transport ke liye truck kaise book karein?" },
-      { label: "🌦️ Mausam Alert", query: "Aaj ka mausam aur barish ka forecast kya hai?" },
-      { label: "🧪 Khad & Mitti", query: "Soil health test aur mitti me khad ka sahi dose kya hai?" },
+      { label: "🌾 Mandi", query: "आज के ताज़ा मंडी भाव क्या हैं?" },
+      { label: "🧾 Invoices", query: "KrishiConnect में GST invoice कैसे बनाएं?" },
+      { label: "🚜 Transport", query: "फसल ट्रांसपोर्ट के लिए ट्रक कैसे बुक करें?" },
+      { label: "🌦️ Weather", query: "आज का मौसम और बारिश का पूर्वानुमान क्या है?" },
+      { label: "🧪 Soil", query: "मिट्टी परीक्षण और खाद की सलाह बताएं" },
     ],
   },
   en: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "Ask me anything about mandi rates, invoices, or crops!",
-    botTitle: "KrishiBot AI",
-    onlineStatus: "Online • Farm & Platform Assistant",
-    placeholder: "Ask about crops, mandi rates, invoices...",
-    initialMessage:
-      "Hello! 🙏 I am **KrishiBot** — KrishiConnect's agricultural AI assistant.\n\nYou can ask me anything about **Mandi Rates**, **GST Invoicing**, **Truck Logistics**, **Weather**, or **Crops & Soil**!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "Ask me anything!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "Ask anything...",
+    initialMessage: "Hello! 👋 How can I help you today?",
     chips: [
-      { label: "🌾 Mandi Rates", query: "Show me today's latest APMC mandi rates and crop prices" },
-      { label: "🧾 GST Invoice", query: "How to create a new GST compliant invoice in KrishiConnect?" },
-      { label: "🚜 Truck Logistics", query: "How do I calculate freight and book truck transportation?" },
-      { label: "🌦️ Weather Alert", query: "What is the weather radar and rainfall forecast for my region?" },
-      { label: "🧪 Soil & Fertilizer", query: "How can I analyze my soil health card and get fertilizer advice?" },
+      { label: "🌾 Mandi", query: "Show today's latest APMC mandi rates and crop prices" },
+      { label: "🧾 Invoices", query: "How to create a GST invoice in KrishiConnect?" },
+      { label: "🚜 Transport", query: "How do I calculate freight and book transport?" },
+      { label: "🌦️ Weather", query: "What is the weather radar and rainfall forecast?" },
+      { label: "🧪 Soil", query: "How can I analyze soil health and fertilizer dosage?" },
     ],
   },
   or: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "ମୋତେ ମଣ୍ଡି ଦର, ବିଲ୍ କିମ୍ବା ଚାଷ ବିଷୟରେ ଯାହା ବି ପଚାରନ୍ତୁ!",
-    botTitle: "କୃଷି AI (KrishiBot)",
-    onlineStatus: "ଅନଲାଇନ୍ • କୃଷି ସହାୟକ",
-    placeholder: "ଫସଲ, ମଣ୍ଡି ଦର କିମ୍ବା ବିଲ୍ ବିଷୟରେ ପଚାରନ୍ତୁ...",
-    initialMessage:
-      "ନମସ୍କାର! 🙏 ମୁଁ **KrishiBot** — KrishiConnect ର କୃଷି AI ସହାୟକ।\n\nଆପଣ ମୋତେ **ମଣ୍ଡି ଦର**, **GST ବିଲ୍**, **ଟ୍ରକ୍ ପରିବହନ**, **ପାଣିପାଗ**, କିମ୍ବା **ଫସଲ ଓ ସାର** ବିଷୟରେ ଯାହା ବି ପଚାରି ପାରିବେ!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "ମୋତେ ଯାହା ବି ପଚାରନ୍ତୁ!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "ଯାହା ବି ପଚାରନ୍ତୁ...",
+    initialMessage: "ନମସ୍କାର! 👋 ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?",
     chips: [
-      { label: "🌾 ମଣ୍ଡି ଦର", query: "ଆଜିର ଲାଇଭ୍ ମଣ୍ଡି ଦର ଏବଂ ଫସଲ ମୂଲ୍ୟ କେତେ?" },
-      { label: "🧾 GST ବିଲ୍", query: "KrishiConnect ରେ ନୂଆ GST ଇନଭଏସ୍ କିପରି ତିଆରି କରିବି?" },
-      { label: "🚜 ପରିବହନ ବୁକିଂ", query: "ଫସଲ ପାଇଁ ଟ୍ରକ୍ ଏବଂ ପରିବହନ କିପରି ବୁକ୍ କରିବି?" },
-      { label: "🌦️ ପାଣିପାଗ", query: "ଆଜିର ପାଣିପାଗ ଏବଂ ବର୍ଷାର ପୂର୍ବାନୁମାନ କ'ଣ ଅଛି?" },
-      { label: "🧪 ମାଟି ଓ ସାର", query: "ମାଟି ପରୀକ୍ଷା (Soil Health) ଓ ଉପଯୁକ୍ତ ସାର ସୁପାରିଶ କ'ଣ?" },
+      { label: "🌾 Mandi", query: "ଆଜିର ଲାଇଭ୍ ମଣ୍ଡି ଦର କେତେ?" },
+      { label: "🧾 Invoices", query: "KrishiConnect ରେ GST ଇନଭଏସ୍ କିପରି ତିଆରି କରିବି?" },
+      { label: "🚜 Transport", query: "ଫସଲ ପାଇଁ ଟ୍ରକ୍ କିପରି ବୁକ୍ କରିବି?" },
+      { label: "🌦️ Weather", query: "ଆଜିର ପାଣିପାଗ ପୂର୍ବାନୁମାନ କ'ଣ?" },
+      { label: "🧪 Soil", query: "ମାଟି ପରୀକ୍ଷା ଓ ଉପଯୁକ୍ତ ସାର ସୁପାରିଶ କ'ଣ?" },
     ],
   },
   mr: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "मला बाजारभाव, GST बिल किंवा शेतीबद्दल काहीही विचारा!",
-    botTitle: "कृषी AI (KrishiBot)",
-    onlineStatus: "ऑनलाइन • कृषी व बाजार सहाय्यक",
-    placeholder: "पीक, बाजारभाव किंवा बिलाबद्दल विचारा...",
-    initialMessage:
-      "नमस्कार! 🙏 मी **KrishiBot** आहे — KrishiConnect चा कृषी AI सहाय्यक.\n\nतुम्ही मला **बाजारभाव**, **GST बिल**, **ट्रक वाहतूक**, **हवामान**, किंवा **पिके आणि खते** याबद्दल काहीही विचारू शकता!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "मला काहीही विचारा!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "काहीही विचारा...",
+    initialMessage: "नमस्कार! 👋 मी तुम्हाला कशी मदत करू शकतो?",
     chips: [
-      { label: "🌾 बाजारभाव", query: "आजचे थेट कृषी उत्पन्न बाजार समिती (APMC) बाजारभाव काय आहेत?" },
-      { label: "🧾 GST बिल", query: "KrishiConnect मध्ये नवीन GST बिल कसे तयार करावे?" },
-      { label: "🚜 वाहतूक बुकिंग", query: "मालाच्या वाहतुकीसाठी ट्रक कसा बुक करावा?" },
-      { label: "🌦️ हवामान अंदाज", query: "आजचे हवामान व पावसाचा अंदाज काय आहे?" },
-      { label: "🧪 माती व खते", query: "माती परीक्षण व योग्य खत नियोजनाबद्दल सांगा." },
+      { label: "🌾 Mandi", query: "आजचे थेट APMC बाजारभाव काय आहेत?" },
+      { label: "🧾 Invoices", query: "नवीन GST बिल कसे तयार करावे?" },
+      { label: "🚜 Transport", query: "मालाच्या वाहतुकीसाठी ट्रक कसा बुक करावा?" },
+      { label: "🌦️ Weather", query: "आजचे हवामान व पावसाचा अंदाज काय आहे?" },
+      { label: "🧪 Soil", query: "माती परीक्षण व योग्य खत नियोजनाबद्दल सांगा" },
     ],
   },
   pa: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "ਮੈਨੂੰ ਮੰਡੀ ਦੇ ਭਾਅ, ਬਿੱਲ ਜਾਂ ਖੇਤੀ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ!",
-    botTitle: "ਖੇਤੀਬਾੜੀ AI (KrishiBot)",
-    onlineStatus: "ਆਨਲਾਈਨ • ਕਿਸਾਨ ਸਹਾਇਕ",
-    placeholder: "ਫ਼ਸਲ, ਮੰਡੀ ਦੇ ਭਾਅ ਜਾਂ ਬਿੱਲ ਬਾਰੇ ਪੁੱਛੋ...",
-    initialMessage:
-      "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 🙏 ਮੈਂ **KrishiBot** ਹਾਂ — KrishiConnect ਦਾ ਖੇਤੀਬਾੜੀ AI ਸਹਾਇਕ।\n\nਤੁਸੀਂ ਮੈਨੂੰ **ਮੰਡੀ ਦੇ ਭਾਅ**, **GST ਬਿੱਲ**, **ਟਰੱਕ ਟਰਾਂਸਪੋਰਟ**, **ਮੌਸਮ**, ਜਾਂ **ਫ਼ਸਲਾਂ ਤੇ ਖਾਦਾਂ** ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛ ਸਕਦੇ ਹੋ!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "ਮੈਨੂੰ ਕੁਝ ਵੀ ਪੁੱਛੋ!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "ਕੁਝ ਵੀ ਪੁੱਛੋ...",
+    initialMessage: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 👋 ਮੈਂ ਤੁਹਾਡੀ ਕੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?",
     chips: [
-      { label: "🌾 ਮੰਡੀ ਭਾਅ", query: "ਅੱਜ ਦੇ ਤਾਜ਼ਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹਨ?" },
-      { label: "🧾 GST ਬਿੱਲ", query: "KrishiConnect ਵਿੱਚ GST ਬਿੱਲ ਕਿਵੇਂ ਬਣਾਈਏ?" },
-      { label: "🚜 ਟਰਾਂਸਪੋਰਟ", query: "ਫ਼ਸਲ ਢੋਣ ਲਈ ਟਰੱਕ ਕਿਵੇਂ ਬੁੱਕ ਕਰੀਏ?" },
-      { label: "🌦️ ਮੌਸਮ", query: "ਅੱਜ ਦੇ ਮੌਸਮ ਅਤੇ ਮੀਂਹ ਦਾ ਕੀ ਅਨੁਮਾਨ ਹੈ?" },
-      { label: "🧪 ਮਿੱਟੀ ਤੇ ਖਾਦ", query: "ਮਿੱਟੀ ਦੀ ਜਾਂਚ ਅਤੇ ਸਹੀ ਖਾਦ ਦੀ ਮਾਤਰਾ ਕੀ ਹੈ?" },
+      { label: "🌾 Mandi", query: "ਅੱਜ ਦੇ ਤਾਜ਼ਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹਨ?" },
+      { label: "🧾 Invoices", query: "GST ਬਿੱਲ ਕਿਵੇਂ ਬਣਾਈਏ?" },
+      { label: "🚜 Transport", query: "ਫ਼ਸਲ ਢੋਣ ਲਈ ਟਰੱਕ ਕਿਵੇਂ ਬੁੱਕ ਕਰੀਏ?" },
+      { label: "🌦️ Weather", query: "ਅੱਜ ਦੇ ਮੌਸਮ ਦਾ ਕੀ ਅਨੁਮਾਨ ਹੈ?" },
+      { label: "🧪 Soil", query: "ਮਿੱਟੀ ਦੀ ਜਾਂਚ ਅਤੇ ਸਹੀ ਖਾਦ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ" },
     ],
   },
   gu: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "મને માર્કેટ યાર્ડ ભાવ, બિલ અથવા ખેતી વિશે કંઈપણ પૂછો!",
-    botTitle: "કૃષિ AI (KrishiBot)",
-    onlineStatus: "ઓનલાઈન • ખેડૂત સહાયક",
-    placeholder: "પાક, બજાર ભાવ અથવા બિલ વિશે પૂછો...",
-    initialMessage:
-      "નમસ્તે! 🙏 હું **KrishiBot** છું — KrishiConnect નો કૃષિ AI સહાયક.\n\nતમે મને **માર્કેટ યાર્ડ ભાવ**, **GST બિલ**, **ટ્રક ટ્રાન્સપોર્ટ**, **હવામાન**, અથવા **પાક અને ખાતર** વિશે કંઈપણ પૂછી શકો છો!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "મને કંઈપણ પૂછો!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "કંઈપણ પૂછો...",
+    initialMessage: "નમસ્તે! 👋 હું તમને કેવી રીતે મદદ કરી શકું?",
     chips: [
-      { label: "🌾 બજાર ભાવ", query: "આજના તાજા માર્કેટ યાર્ડ ભાવ જણાવો" },
-      { label: "🧾 GST બિલ", query: "KrishiConnect માં નવું GST બિલ કેવી રીતે બનાવવું?" },
-      { label: "🚜 ટ્રાન્સપોર્ટ", query: "પાક પરિવહન માટે ટ્રક કેવી રીતે બુક કરવો?" },
-      { label: "🌦️ હવામાન", query: "આજનું હવામાન અને વરસાદની આગાહી શું છે?" },
-      { label: "🧪 જમીન અને ખાતર", query: "સોઇલ હેલ્થ કાર્ડ અને ખાતરનું યોગ્ય પ્રમાણ શું છે?" },
+      { label: "🌾 Mandi", query: "આજના માર્કેટ યાર્ડ ભાવ જણાવો" },
+      { label: "🧾 Invoices", query: "નવું GST બિલ કેવી રીતે બનાવવું?" },
+      { label: "🚜 Transport", query: "ટ્રાન્સપોર્ટ માટે ટ્રક કેવી રીતે બુક કરવો?" },
+      { label: "🌦️ Weather", query: "આજની હવામાન આગાહી શું છે?" },
+      { label: "🧪 Soil", query: "જમીન ચકાસણી અને ખાતરનું યોગ્ય પ્રમાણ જણાવો" },
     ],
   },
   bn: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "আমাকে মণ্ডির দর, বিল বা চাষাবাদ নিয়ে যেকোনো প্রশ্ন করুন!",
-    botTitle: "কৃষি AI (KrishiBot)",
-    onlineStatus: "অনলাইন • কৃষি সহায়ক",
-    placeholder: "ফসল, মণ্ডির দর বা বিল সম্পর্কে জিজ্ঞাসা করুন...",
-    initialMessage:
-      "নমস্কার! 🙏 আমি **KrishiBot** — KrishiConnect-এর কৃষি AI সহায়ক।\n\nআপনি আমাকে **মণ্ডির দর**, **GST বিল**, **ট্রাক পরিবহন**, **আবহাওয়া**, বা **ফসল ও সার** সম্পর্কে যেকোনো প্রশ্ন করতে পারেন!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "আমাকে যেকোনো প্রশ্ন করুন!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "যেকোনো প্রশ্ন করুন...",
+    initialMessage: "নমস্কার! 👋 আমি আপনাকে কীভাবে সাহায্য করতে পারি?",
     chips: [
-      { label: "🌾 মণ্ডির দর", query: "আজকের লাইভ মণ্ডির দর এবং ফসলের দাম কত?" },
-      { label: "🧾 GST বিল", query: "KrishiConnect-এ নতুন GST চালান কীভাবে তৈরি করবেন?" },
-      { label: "🚜 পরিবহন", query: "ফসল পরিবহনের জন্য কীভাবে ট্রাক বুক করবেন?" },
-      { label: "🌦️ আবহাওয়া", query: "আজকের আবহাওয়া ও বৃষ্টির পূর্বাভাস কী?" },
-      { label: "🧪 মাটি ও সার", query: "মাটি পরীক্ষা এবং সঠিক সারের ডোজ কী?" },
+      { label: "🌾 Mandi", query: "আজকের লাইভ মণ্ডির দর কত?" },
+      { label: "🧾 Invoices", query: "নতুন GST চালান কীভাবে তৈরি করবেন?" },
+      { label: "🚜 Transport", query: "ফসল পরিবহনের ট্রাক কীভাবে বুক করবেন?" },
+      { label: "🌦️ Weather", query: "আজকের আবহাওয়ার পূর্বাভাস কী?" },
+      { label: "🧪 Soil", query: "মাটি পরীক্ষা এবং সারের ডোজ সম্পর্কে বলুন" },
     ],
   },
   ta: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "சந்தை விலை, பில் அல்லது விவசாயம் பற்றி என்னிடம் கேளுங்கள்!",
-    botTitle: "விவசாய AI (KrishiBot)",
-    onlineStatus: "ஆன்லைன் • விவசாய உதவியாளர்",
-    placeholder: "பயிர், சந்தை விலை அல்லது பில் பற்றி கேட்கவும்...",
-    initialMessage:
-      "வணக்கம்! 🙏 நான் **KrishiBot** — KrishiConnect-ன் விவசாய AI உதவியாளர்.\n\nநீங்கள் என்னிடம் **சந்தை விலைகள்**, **GST பில்**, **லாரி போக்குவரத்து**, **வானிலை**, அல்லது **பயிர்கள் & உரம்** பற்றி எதையும் கேட்கலாம்!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "என்னிடம் எதையும் கேளுங்கள்!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "எதையும் கேட்கவும்...",
+    initialMessage: "வணக்கம்! 👋 நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?",
     chips: [
-      { label: "🌾 சந்தை விலை", query: "இன்றைய நேரடி சந்தை விலைகள் என்ன?" },
-      { label: "🧾 GST பில்", query: "KrishiConnect இல் புதிய GST பில் தயாரிப்பது எப்படி?" },
-      { label: "🚜 போக்குவரத்து", query: "பயிர் போக்குவரத்துக்கு லாரி முன்பதிவு செய்வது எப்படி?" },
-      { label: "🌦️ வானிலை", query: "இன்றைய வானிலை மற்றும் மழை முன்னறிவிப்பு என்ன?" },
-      { label: "🧪 மண் & உரம்", query: "மண் பரிசோதனை மற்றும் சரியான உர அளவு என்ன?" },
+      { label: "🌾 Mandi", query: "இன்றைய சந்தை விலைகள் என்ன?" },
+      { label: "🧾 Invoices", query: "புதிய GST பில் தயாரிப்பது எப்படி?" },
+      { label: "🚜 Transport", query: "போக்குவரத்து லாரி முன்பதிவு செய்வது எப்படி?" },
+      { label: "🌦️ Weather", query: "இன்றைய வானிலை முன்னறிவிப்பு என்ன?" },
+      { label: "🧪 Soil", query: "மண் பரிசோதனை மற்றும் உர அளவு என்ன?" },
     ],
   },
   te: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "మార్కెట్ ధరలు, బిల్లు లేదా వ్యవసాయం గురించి నన్ను ఏదైనా అడగండి!",
-    botTitle: "వ్యవసాయ AI (KrishiBot)",
-    onlineStatus: "ఆన్‌లైన్ • వ్యవసాయ సహాయకుడు",
-    placeholder: "పంటలు, మార్కెట్ ధరలు లేదా బిల్లు గురించి అడగండి...",
-    initialMessage:
-      "నమస్కారం! 🙏 నేను **KrishiBot** — KrishiConnect వ్యవసాయ AI సహాయకుడిని.\n\nమీరు నన్ను **మార్కెట్ ధరలు**, **GST బిల్లు**, **ట్రక్ రవాణా**, **వాతావరణం**, లేదా **పంటలు & ఎరువులు** గురించి ఏదైనా అడగవచ్చు!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "నన్ను ఏదైనా అడగండి!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "ఏదైనా అడగండి...",
+    initialMessage: "నమస్కారం! 👋 నేను మీకు ఎలా సహాయపడగలను?",
     chips: [
-      { label: "🌾 మార్కెట్ ధరలు", query: "ఈరోజు మార్కెట్ యార్డ్ ధరలు ఏమిటి?" },
-      { label: "🧾 GST బిల్లు", query: "KrishiConnect లో కొత్త GST బిల్లు ఎలా తయారు చేయాలి?" },
-      { label: "🚜 రవాణా బుకింగ్", query: "రవాణా కోసం ట్రక్ ఎలా బుక్ చేసుకోవాలి?" },
-      { label: "🌦️ వాతావరణం", query: "ఈరోజు వాతావరణం మరియు వర్షపాతం ఎలా ఉంది?" },
-      { label: "🧪 నేల & ఎరువులు", query: "నేల పరీక్ష మరియు ఎరువుల సిఫార్సులు ఏమిటి?" },
+      { label: "🌾 Mandi", query: "ఈరోజు మార్కెట్ ధరలు ఏమిటి?" },
+      { label: "🧾 Invoices", query: "కొత్త GST బిల్లు ఎలా తయారు చేయాలి?" },
+      { label: "🚜 Transport", query: "ట్రక్ రవాణా ఎలా బుక్ చేసుకోవాలి?" },
+      { label: "🌦️ Weather", query: "ఈరోజు వాతావరణ సమాచారం ఏమిటి?" },
+      { label: "🧪 Soil", query: "నేల పరీక్ష మరియు ఎరువుల సిఫార్సులు ఏమిటి?" },
     ],
   },
   kn: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "ಮಾರುಕಟ್ಟೆ ದರ, ಬಿಲ್ ಅಥವಾ ಕೃಷಿ ಬಗ್ಗೆ ನನ್ನನ್ನು ಏನಾದರೂ ಕೇಳಿ!",
-    botTitle: "ಕೃಷಿ AI (KrishiBot)",
-    onlineStatus: "ಆನ್‌ಲೈನ್ • ಕೃಷಿ ಸಹಾಯಕ",
-    placeholder: "ಬೆಳೆ, ಮಾರುಕಟ್ಟೆ ದರ ಅಥವಾ ಬಿಲ್ ಬಗ್ಗೆ ಕೇಳಿ...",
-    initialMessage:
-      "ನಮಸ್ಕಾರ! 🙏 ನಾನು **KrishiBot** — KrishiConnect ನ ಕೃಷಿ AI ಸಹಾಯಕ.\n\nನೀವು ನನ್ನನ್ನು **ಮಾರುಕಟ್ಟೆ ದರಗಳು**, **GST ಬಿಲ್**, **ಟ್ರಕ್ ಸಾರಿಗೆ**, **ಹವಾಮಾನ**, ಅಥವಾ **ಬೆಳೆಗಳು & ಗೊಬ್ಬರ** ಬಗ್ಗೆ ಏನಾದರೂ ಕೇಳಬಹುದು!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "ನನ್ನನ್ನು ಏನಾದರೂ ಕೇಳಿ!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "ಏನಾದರೂ ಕೇಳಿ...",
+    initialMessage: "ನಮಸ್ಕಾರ! 👋 ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
     chips: [
-      { label: "🌾 ಮಾರುಕಟ್ಟೆ ದರ", query: "ಇಂದಿನ ಮಾರುಕಟ್ಟೆ ದರಗಳನ್ನು ತಿಳಿಸಿ" },
-      { label: "🧾 GST ಬಿಲ್", query: "KrishiConnect ನಲ್ಲಿ ಹೊಸ GST ಬಿಲ್ ಹೇಗೆ ರಚಿಸುವುದು?" },
-      { label: "🚜 ಸಾರಿಗೆ", query: "ಸಾರಿಗೆಗಾಗಿ ಟ್ರಕ್ ಹೇಗೆ ಬುಕ್ ಮಾಡುವುದು?" },
-      { label: "🌦️ ಹವಾಮಾನ", query: "ಇಂದಿನ ಹವಾಮಾನ ಮತ್ತು ಮಳೆಯ ಮುನ್ಸೂಚನೆ ಏನು?" },
-      { label: "🧪 ಮಣ್ಣು & ಗೊಬ್ಬರ", query: "ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮತ್ತು ರಸಗೊಬ್ಬರಗಳ ಮಾಹಿತಿ ನೀಡಿ" },
+      { label: "🌾 Mandi", query: "ಇಂದಿನ ಮಾರುಕಟ್ಟೆ ದರಗಳು ತಿಳಿಸಿ" },
+      { label: "🧾 Invoices", query: "ಹೊಸ GST ಬಿಲ್ ಹೇಗೆ ರಚಿಸುವುದು?" },
+      { label: "🚜 Transport", query: "ಸಾರಿಗೆ ಟ್ರಕ್ ಹೇಗೆ ಬುಕ್ ಮಾಡುವುದು?" },
+      { label: "🌦️ Weather", query: "ಇಂದಿನ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಏನು?" },
+      { label: "🧪 Soil", query: "ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮತ್ತು ರಸಗೊಬ್ಬರ ಮಾಹಿತಿ ತಿಳಿಸಿ" },
     ],
   },
   ml: {
-    popupGreeting: "Hii from KrishiBot! 👋",
-    popupSubtext: "വിപണി നിരക്കുകൾ, ബിൽ, കൃഷി എന്നിവയെക്കുറിച്ച് എന്നോട് ചോദിക്കാം!",
-    botTitle: "കാർഷിക AI (KrishiBot)",
-    onlineStatus: "ഓൺലൈൻ • കാർഷിക സഹായി",
-    placeholder: "വിളകൾ, വിപണി നിരക്കുകൾ, ബില്ലുകൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കുക...",
-    initialMessage:
-      "നമസ്കാരം! 🙏 ഞാൻ **KrishiBot** — KrishiConnect-ന്റെ കാർഷിക AI സഹായി.\n\nനിങ്ങൾക്ക് എന്നോട് **വിപണി നിരക്കുകൾ**, **GST ബിൽ**, **ട്രക്ക് ഗതാഗതം**, **കാലാവസ്ഥ**, അല്ലെങ്കിൽ **വിളകളും വളങ്ങളും** എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം!",
+    popupGreeting: "KrishiBot 👋",
+    popupSubtext: "എന്നോട് എന്തും ചോദിക്കാം!",
+    botTitle: "KrishiBot",
+    onlineStatus: "Online",
+    placeholder: "എന്തും ചോദിക്കുക...",
+    initialMessage: "നമസ്കാരം! 👋 എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?",
     chips: [
-      { label: "🌾 വിപണി നിരക്ക്", query: "ഇന്നത്തെ വിപണി നിരക്കുകൾ എന്തൊക്കെയാണ്?" },
-      { label: "🧾 GST ബിൽ", query: "KrishiConnect-ൽ GST ബിൽ എങ്ങനെ ഉണ്ടാക്കാം?" },
-      { label: "🚜 ഗതാഗതം", query: "ചരക്ക് ഗതാഗതത്തിനായി ട്രക്ക് എങ്ങനെ ബുക്ക് ചെയ്യാം?" },
-      { label: "🌦️ കാലാവസ്ഥ", query: "ഇന്നത്തെ കാലാവസ്ഥയും മഴ സാധ്യതയും എന്താണ്?" },
-      { label: "🧪 മണ്ണും വളവും", query: "മണ്ണ് പരിശോധനയും വളം ശുപാർശകളും എന്തൊക്കെയാണ്?" },
+      { label: "🌾 Mandi", query: "ഇന്നത്തെ വിപണി നിരക്കുകൾ എന്തൊക്കെയാണ്?" },
+      { label: "🧾 Invoices", query: "GST ബിൽ എങ്ങനെ ഉണ്ടാക്കാം?" },
+      { label: "🚜 Transport", query: "ട്രക്ക് എങ്ങനെ ബുക്ക് ചെയ്യാം?" },
+      { label: "🌦️ Weather", query: "ഇന്നത്തെ കാലാവസ്ഥ എന്താണ്?" },
+      { label: "🧪 Soil", query: "മണ്ണ് പരിശോധനയും വളം ശുപാർശകളും എന്തൊക്കെയാണ്?" },
     ],
   },
 };
@@ -488,13 +477,9 @@ export function KrishiChatbot() {
                 <span>{langData.popupGreeting}</span>
                 <Sparkles className="w-3 h-3 text-amber-400 inline" />
               </div>
-              <p className="text-[11px] text-zinc-200 mt-1 leading-snug">
+              <p className="text-[11px] text-zinc-300 mt-0.5 leading-snug">
                 {langData.popupSubtext}
               </p>
-              <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 group-hover:underline">
-                <MessageCircle className="w-3 h-3" />
-                <span>Click here to chat</span>
-              </div>
             </div>
           </div>
 
@@ -639,7 +624,7 @@ export function KrishiChatbot() {
                   <Bot className="w-4 h-4 animate-spin" />
                 </div>
                 <div className="liquid-glass rounded-2xl px-3.5 py-2 flex items-center gap-1.5 text-emerald-300">
-                  <span>KrishiBot thinking...</span>
+                  <span>Thinking...</span>
                   <span className="flex gap-1 items-center">
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                     <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
@@ -683,8 +668,8 @@ export function KrishiChatbot() {
               </button>
             </form>
             <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-400 px-1">
-              <span>KrishiConnect AI Assistant</span>
-              <span className="text-emerald-400/80 font-medium">Powered by Gemini AI</span>
+              <span>KrishiBot</span>
+              <span className="text-emerald-400/80 font-medium">Gemini AI</span>
             </div>
           </div>
         </div>

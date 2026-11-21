@@ -27,19 +27,19 @@ export function RecentTransactions() {
           </div>
           <div className="min-w-0">
             <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground tracking-tight flex items-center gap-2 truncate">
-              Recent Transactions
+              Recent Invoices
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
-              Live ledger of recent verified trade invoices
+              Recent verified invoices
             </p>
           </div>
         </div>
 
         <Link
           href="/invoices"
-          className="btn-liquid-glass inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-foreground hover:text-white self-start sm:self-auto shrink-0"
+          className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white self-start sm:self-auto shrink-0"
         >
-          <span>View all invoices</span>
+          <span>View All</span>
           <ArrowRight className="w-3.5 h-3.5 text-primary" />
         </Link>
       </div>
