@@ -108,7 +108,7 @@ def escape_like_pattern(search_term: str) -> str:
 # Whitelist pattern for trusted origins for CSRF validation
 CSRF_TRUSTED_ORIGINS_REGEX = re.compile(
     r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?|"
-    r"https?://([a-zA-Z0-9-]+\.)*(krishiconnect\.in|vatsaai\.com|vercel\.app|onrender\.com|render\.com|railway\.app|netlify\.app)(:\d+)?|"
+    r"https?://([a-zA-Z0-9-]+\.)*(phantomstack\.me|krishiconnect\.in|vatsaai\.com|vercel\.app|onrender\.com|render\.com|railway\.app|netlify\.app)(:\d+)?|"
     r"null)$",
     re.IGNORECASE,
 )
@@ -117,8 +117,10 @@ CSRF_TRUSTED_ORIGINS_REGEX = re.compile(
 class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
-        # Whitelisted paths that do not require CSRF checks (e.g. webhooks authenticated by HMAC signatures)
+        # Whitelisted paths that do not require CSRF checks:
+        # Public auth endpoints (login, otp, refresh) and webhooks (verified via HMAC signatures)
         self.csrf_exempt_prefixes = {
+            "/api/v1/auth/",
             "/api/v1/payments/stripe/webhook",
             "/api/v1/payments/upi/webhook",
             "/api/v1/payments/webhook",
@@ -199,7 +201,10 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
         # ------------------------------------------------------------------
         if method in {"POST", "PUT", "PATCH", "DELETE"}:
             is_exempt = (path == "/") or any(path.startswith(prefix) for prefix in self.csrf_exempt_prefixes)
-            if not is_exempt:
+            # Custom client headers (Authorization / X-Requested-With) cannot be sent in cross-site CSRF attacks
+            has_custom_auth = bool(request.headers.get("authorization") or request.headers.get("x-requested-with"))
+
+            if not is_exempt and not has_custom_auth:
                 origin = request.headers.get("origin")
                 referer = request.headers.get("referer")
 

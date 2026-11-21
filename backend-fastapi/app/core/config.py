@@ -68,6 +68,8 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3001",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://phantomstack.me",
+        "https://www.phantomstack.me",
         "https://krishiconnect.in",
         "https://www.krishiconnect.in",
         "https://vatsaai.com",
@@ -76,7 +78,7 @@ class Settings(BaseSettings):
 
     CORS_ORIGIN_REGEX_DEFAULT: str = (
         r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?|"
-        r"https?://([a-zA-Z0-9-]+\.)*(krishiconnect\.in|vatsaai\.com|vercel\.app|onrender\.com|render\.com|railway\.app|netlify\.app)(:\d+)?|"
+        r"https?://([a-zA-Z0-9-]+\.)*(phantomstack\.me|krishiconnect\.in|vatsaai\.com|vercel\.app|onrender\.com|render\.com|railway\.app|netlify\.app)(:\d+)?|"
         r"https?://.*|"
         r"null)$"
     )
