@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     ]
 
     CORS_ORIGIN_REGEX_DEFAULT: str = (
-        r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?|"
+        r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?|"
         r"https://([a-zA-Z0-9-]+\.)*(krishiconnect\.in|vatsaai\.com|vercel\.app|render\.com))$"
     )
 

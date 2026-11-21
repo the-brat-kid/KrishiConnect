@@ -196,7 +196,12 @@ CORE CAPABILITIES & INSTRUCTIONS:
 
     if (apiKey) {
       // Primary verified ultra-fast models with zero timeouts
-      const modelNames = ["gemini-3.5-flash-lite", "gemini-flash-lite-latest"];
+      const modelNames = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-flash-latest",
+      ];
 
       const contents = buildGeminiContents(messages);
 

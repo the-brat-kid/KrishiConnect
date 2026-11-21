@@ -154,6 +154,11 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
         if method in {"POST", "PUT", "PATCH", "DELETE"} and "application/json" in content_type:
             try:
                 body_bytes = await request.body()
+                # Ensure downstream route handlers can re-read the request body stream
+                async def receive():
+                    return {"type": "http.request", "body": body_bytes}
+                request._receive = receive
+
                 if body_bytes:
                     try:
                         body_json = json.loads(body_bytes.decode("utf-8"))
@@ -233,7 +238,7 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
             "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: blob: https:; "
             "font-src 'self' data: https:; "
-            "connect-src 'self' https: wss:; "
+            "connect-src 'self' http: https: ws: wss:; "
             "frame-src 'self' https://checkout.razorpay.com https://js.stripe.com; "
             "object-src 'none'; "
             "base-uri 'self';"

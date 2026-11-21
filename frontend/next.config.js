@@ -37,43 +37,49 @@ const nextConfig = {
     ];
   },
   async headers() {
+    const isProdSecure = process.env.NODE_ENV === "production" && process.env.ENABLE_HSTS === "true";
+    const headersList = [
+      {
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
+      },
+      {
+        key: "X-XSS-Protection",
+        value: "1; mode=block",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "SAMEORIGIN",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(self), microphone=(), geolocation=(self)",
+      },
+      {
+        key: "Content-Security-Policy",
+        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' http: https: ws: wss: data: blob:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://js.stripe.com; object-src 'none'; base-uri 'self';",
+      },
+    ];
+
+    if (isProdSecure) {
+      headersList.push({
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      });
+    }
+
     return [
       {
         source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(self), microphone=(), geolocation=(self)",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://api.acropai.com https://vegetablemarketprice.com https://*.razorpay.com; connect-src 'self' http://localhost:* http://127.0.0.1:* https://*.krishiconnect.in https://api.razorpay.com https://generativelanguage.googleapis.com wss: ws:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://js.stripe.com; object-src 'none'; base-uri 'self';",
-          },
-        ],
+        headers: headersList,
       },
     ];
   },

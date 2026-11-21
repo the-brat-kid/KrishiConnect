@@ -19,41 +19,44 @@ async def lifespan(app: FastAPI):
     # Auto-create all tables on startup (if they don't exist)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Ensure recently added columns exist on existing tables in all environments
-        for ddl in [
-            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR DEFAULT 'upi'",
-            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS currency VARCHAR DEFAULT 'inr'",
-            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS upi_tn VARCHAR",
-            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_session_id VARCHAR",
-            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR",
-            "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
-            "CREATE INDEX IF NOT EXISTS ix_users_phone ON users (phone)",
-            "CREATE INDEX IF NOT EXISTS ix_business_profiles_user_id ON business_profiles (user_id)",
-            "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_user_id ON cold_storage_bookings (user_id)",
-            "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_facility_id ON cold_storage_bookings (facility_id)",
-            "CREATE INDEX IF NOT EXISTS ix_invoices_bp_status ON invoices (business_profile_id, status)",
-            "CREATE INDEX IF NOT EXISTS ix_invoices_bp_created ON invoices (business_profile_id, created_at DESC)",
-            "CREATE INDEX IF NOT EXISTS ix_invoice_items_invoice_id ON invoice_items (invoice_id)",
-            "CREATE INDEX IF NOT EXISTS ix_customers_bp_id ON customers (business_profile_id)",
-            "CREATE INDEX IF NOT EXISTS ix_products_bp_id ON products (business_profile_id)",
-            "CREATE INDEX IF NOT EXISTS ix_expenses_bp_date ON expenses (business_profile_id, date DESC)",
-            "CREATE INDEX IF NOT EXISTS ix_payments_invoice_status ON payments (invoice_id, status)",
-            "CREATE INDEX IF NOT EXISTS ix_payments_bp_status ON payments (business_profile_id, status)",
-            "CREATE INDEX IF NOT EXISTS ix_payments_bp_created ON payments (business_profile_id, created_at DESC)",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR DEFAULT 'PENDING'",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_name VARCHAR",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dob VARCHAR",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_pincode VARCHAR",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dedup_hash VARCHAR",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_filename VARCHAR",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_uploaded_at TIMESTAMP",
-            "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kyc_dedup_hash ON users (kyc_dedup_hash)",
-        ]:
-            try:
+
+    # Ensure recently added columns exist on existing tables in all environments
+    ddls = [
+        "ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR DEFAULT 'upi'",
+        "ALTER TABLE payments ADD COLUMN IF NOT EXISTS currency VARCHAR DEFAULT 'inr'",
+        "ALTER TABLE payments ADD COLUMN IF NOT EXISTS upi_tn VARCHAR",
+        "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_session_id VARCHAR",
+        "ALTER TABLE payments ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR",
+        "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
+        "CREATE INDEX IF NOT EXISTS ix_users_phone ON users (phone)",
+        "CREATE INDEX IF NOT EXISTS ix_business_profiles_user_id ON business_profiles (user_id)",
+        "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_user_id ON cold_storage_bookings (user_id)",
+        "CREATE INDEX IF NOT EXISTS ix_cold_storage_bookings_facility_id ON cold_storage_bookings (facility_id)",
+        "CREATE INDEX IF NOT EXISTS ix_invoices_bp_status ON invoices (business_profile_id, status)",
+        "CREATE INDEX IF NOT EXISTS ix_invoices_bp_created ON invoices (business_profile_id, created_at DESC)",
+        "CREATE INDEX IF NOT EXISTS ix_invoice_items_invoice_id ON invoice_items (invoice_id)",
+        "CREATE INDEX IF NOT EXISTS ix_customers_bp_id ON customers (business_profile_id)",
+        "CREATE INDEX IF NOT EXISTS ix_products_bp_id ON products (business_profile_id)",
+        "CREATE INDEX IF NOT EXISTS ix_expenses_bp_date ON expenses (business_profile_id, date DESC)",
+        "CREATE INDEX IF NOT EXISTS ix_payments_invoice_status ON payments (invoice_id, status)",
+        "CREATE INDEX IF NOT EXISTS ix_payments_bp_status ON payments (business_profile_id, status)",
+        "CREATE INDEX IF NOT EXISTS ix_payments_bp_created ON payments (business_profile_id, created_at DESC)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR DEFAULT 'PENDING'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_name VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dob VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_pincode VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dedup_hash VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_filename VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_uploaded_at TIMESTAMP",
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kyc_dedup_hash ON users (kyc_dedup_hash)",
+    ]
+    for ddl in ddls:
+        try:
+            async with engine.begin() as conn:
                 await conn.execute(text(ddl))
-            except Exception:
-                pass
+        except Exception:
+            pass
     print("✅ Database tables verified/created successfully")
     yield
 
