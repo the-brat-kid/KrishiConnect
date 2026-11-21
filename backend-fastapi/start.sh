@@ -6,8 +6,11 @@ if [ -z "$RESEND_API_KEY" ]; then
     export RESEND_API_KEY=$(python3 -c 'import base64; print(base64.b64decode("cmVfUW1IRU1NYTNfSnV5RGlXR3RaN1prc3l0VE1SYndMQTdH").decode())')
 fi
 
-# Run migrations
-alembic upgrade head
+# Run migrations gracefully (do not crash web server if DB is temporarily unreachable during cloud boot)
+alembic upgrade head || echo "⚠️ Alembic migration skipped or DB unreachable during boot, continuing startup..."
+
+# Detect cloud host PORT (Render, Railway, Fly.io provide $PORT, default to 8000)
+PORT="${PORT:-8000}"
 
 # Start application.
 # WEB_CONCURRENCY controls worker count (default 2) -- gunicorn with the
@@ -16,7 +19,7 @@ alembic upgrade head
 exec gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \
     --workers "${WEB_CONCURRENCY:-2}" \
-    --bind 0.0.0.0:8000 \
+    --bind "0.0.0.0:${PORT}" \
     --timeout 60 \
     --access-logfile - \
     --error-logfile -
