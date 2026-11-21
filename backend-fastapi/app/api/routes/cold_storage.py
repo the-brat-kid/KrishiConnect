@@ -17,6 +17,8 @@ from app.api.deps import get_current_user
 
 router = APIRouter()
 
+from app.core.security_middleware import escape_like_pattern
+
 @router.get("/facilities", response_model=List[FacilityResponse])
 async def list_facilities(
     district: Optional[str] = Query(None, description="Filter by Odisha district"),
@@ -27,7 +29,8 @@ async def list_facilities(
     query = select(ColdStorageFacility).where(ColdStorageFacility.is_active == True)
     
     if district:
-        query = query.where(ColdStorageFacility.district.ilike(f"%{district}%"))
+        safe_district = escape_like_pattern(district)
+        query = query.where(ColdStorageFacility.district.ilike(f"%{safe_district}%"))
     if min_capacity:
         query = query.where(ColdStorageFacility.available_capacity_quintals >= min_capacity)
         

@@ -12,6 +12,8 @@ from app.services.audit_service import log_audit
 
 router = APIRouter()
 
+from app.core.security_middleware import escape_like_pattern
+
 @router.get("", response_model=List[ProductResponse])
 async def list_products(
     search: Optional[str] = None,
@@ -25,7 +27,8 @@ async def list_products(
     skip = (page - 1) * limit
     q = select(Product).where(Product.business_profile_id == profile.id)
     if search:
-        q = q.where(Product.name.ilike(f"%{search}%"))
+        safe_search = escape_like_pattern(search)
+        q = q.where(Product.name.ilike(f"%{safe_search}%"))
     if category:
         q = q.where(Product.category == category)
     if low_stock:

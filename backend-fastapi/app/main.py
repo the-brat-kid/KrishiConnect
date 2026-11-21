@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import engine
+from app.core.security_middleware import EnterpriseSecurityMiddleware
 from app.models import Base
 from app.api.routes import auth, dashboard, customers, products, invoices, payments, expenses, reports, business_profile, crop_rates, cold_storage, soil_health, aadhaar_kyc, support
 from slowapi import _rate_limit_exceeded_handler
@@ -45,6 +46,8 @@ async def lifespan(app: FastAPI):
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dob VARCHAR",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_pincode VARCHAR",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dedup_hash VARCHAR",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_filename VARCHAR",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_uploaded_at TIMESTAMP",
             "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kyc_dedup_hash ON users (kyc_dedup_hash)",
         ]:
             try:
@@ -90,6 +93,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(EnterpriseSecurityMiddleware)
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(dashboard.router, prefix=f"{settings.API_V1_STR}/dashboard", tags=["dashboard"])

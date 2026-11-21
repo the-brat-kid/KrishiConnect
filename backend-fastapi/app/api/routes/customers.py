@@ -14,6 +14,7 @@ from app.models.business_profile import BusinessProfile
 from app.models.user import User
 from app.schemas.customer import CustomerCreate, CustomerUpdate, CustomerResponse
 from app.services.audit_service import log_audit
+from app.core.security_middleware import escape_like_pattern
 
 router = APIRouter()
 
@@ -28,10 +29,11 @@ async def list_customers(
     skip = (page - 1) * limit
     q = select(Customer).where(Customer.business_profile_id == profile.id)
     if search:
+        safe_search = escape_like_pattern(search)
         q = q.where(or_(
-            Customer.name.ilike(f"%{search}%"),
-            Customer.email.ilike(f"%{search}%"),
-            Customer.phone.ilike(f"%{search}%")
+            Customer.name.ilike(f"%{safe_search}%"),
+            Customer.email.ilike(f"%{safe_search}%"),
+            Customer.phone.ilike(f"%{safe_search}%")
         ))
     
     res = await db.execute(q.offset(skip).limit(limit))

@@ -129,8 +129,20 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
   const handleFileChange = (file: File) => {
     setErrorMessage(null);
     setErrorType(null);
-    if (!file.type.startsWith("image/")) {
-      setErrorMessage("Please select a valid image file (JPEG, PNG, WebP, or e-Aadhaar crop).");
+    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+      setErrorMessage("Please select a valid image or PDF document (JPEG, PNG, WebP, PDF).");
+      setErrorType("general");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage("Document size exceeds maximum 10MB limit. Please upload a smaller file.");
+      setErrorType("general");
+      return;
+    }
+
+    if (file.size < 100) {
+      setErrorMessage("Document file is too small or empty. Please upload an authentic document.");
       setErrorType("general");
       return;
     }
@@ -429,10 +441,19 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
           {/* TAB 1: UPLOAD QR IMAGE (DEFAULT) */}
           {activeTab === "upload" && (
             <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  Mandatory Document Upload
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Official identity document required
+                </span>
+              </div>
+
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/png,image/jpeg,image/jpg,image/webp"
+                accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -458,14 +479,14 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-foreground">
-                      Click to upload or drag &amp; drop your Aadhaar QR code
+                      Click to upload mandatory Aadhaar document
                     </p>
                     <p className="text-xs text-muted-foreground max-w-md mx-auto">
                       Supports high-resolution camera photos, screenshots from the <strong>mAadhaar app</strong>, or cropped QR codes from an <strong>e-Aadhaar PDF</strong>.
                     </p>
                   </div>
                   <span className="inline-block px-3 py-1 rounded-full text-[10px] font-semibold bg-white/5 border border-white/10 text-muted-foreground">
-                    PNG, JPG, or WEBP up to 10MB
+                    PNG, JPG, WEBP, or PDF up to 10MB (Mandatory)
                   </span>
                 </div>
               ) : (

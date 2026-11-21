@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import { config } from './config';
 import { initWebSocket } from './websocket/handler';
+import { securityHeaders, sanitizeRequest } from './middleware/security';
 import aiRoutes from './routes/ai';
 import notificationRoutes from './routes/notifications';
 
@@ -12,8 +13,10 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
+app.use(securityHeaders);
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeRequest);
 
 // Routes
 app.use('/api/ai', aiRoutes);

@@ -74,7 +74,10 @@ class Settings(BaseSettings):
         "https://www.vatsaai.com",
     ]
 
-    CORS_ORIGIN_REGEX_DEFAULT: str = r"^(https?://.*|null)$"
+    CORS_ORIGIN_REGEX_DEFAULT: str = (
+        r"^(https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?|"
+        r"https://([a-zA-Z0-9-]+\.)*(krishiconnect\.in|vatsaai\.com|vercel\.app|render\.com))$"
+    )
 
     @property
     def CORS_ORIGINS(self) -> List[str]:

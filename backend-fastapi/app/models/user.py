@@ -21,4 +21,6 @@ class User(Base):
     kyc_dob: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     kyc_pincode: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     kyc_dedup_hash: Mapped[Optional[str]] = mapped_column(String, unique=True, index=True, nullable=True)
+    kyc_document_filename: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    kyc_document_uploaded_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
