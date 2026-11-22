@@ -381,6 +381,108 @@ html.light {
 }
 
 /* ============================================================ */
+/* SUPER-SMOOTH GPU-ACCELERATED WALLPAPER BLUR CROSS-FADE      */
+/* ============================================================ */
+@keyframes smoothBlurIn {
+  0% {
+    opacity: 0;
+    filter: blur(28px) brightness(1.12);
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  35% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes smoothBlurOut {
+  0% {
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  45% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(32px) brightness(0.85);
+    transform: scale(1.07) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes dreamBlurPulse {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  35% {
+    opacity: 0.6;
+    backdrop-filter: blur(16px);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+@keyframes themeMenuSlideIn {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes smoothSpinSpring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-smooth-blur-in {
+  animation: smoothBlurIn 1000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.animate-smooth-blur-out {
+  animation: smoothBlurOut 1000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.animate-dream-blur {
+  animation: dreamBlurPulse 1000ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, backdrop-filter;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.animate-theme-menu-in {
+  animation: themeMenuSlideIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+.animate-smooth-spin {
+  animation: smoothSpinSpring 650ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ============================================================ */
 /* MORPHING POPOVER & DIALOG BLUR TRANSITIONS                   */
 /* ============================================================ */
 @keyframes morphPopupOpen {

@@ -203,8 +203,8 @@ export function DynamicFarmWeatherBackground({
   // Active theme and blur cross-fade states
   const [activeSceneKey, setActiveSceneKey] = useState<string>("night");
   const [outgoingSceneKey, setOutgoingSceneKey] = useState<string | null>(null);
-  const [blurAmount, setBlurAmount] = useState<number>(0);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto weather sync state
   const [isWeatherAuto, setIsWeatherAuto] = useState<boolean>(true);
@@ -231,28 +231,25 @@ export function DynamicFarmWeatherBackground({
   // Parallax container ref
   const parallaxRef = useRef<HTMLDivElement>(null);
 
-  // Apply a theme with smooth cinematic blur-out animation
+  // Apply a theme with super-smooth cinematic blur-out GPU transition
   const applyThemeWithBlur = useCallback((targetKey: string, isManualChoice = false) => {
     setActiveSceneKey((currentActive) => {
       if (targetKey === currentActive) return currentActive;
 
-      // Stage outgoing scene
+      // Cancel previous transition timer if rapid clicks occur
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+
+      // Stage outgoing scene for smooth blur cross-fade
       setOutgoingSceneKey(currentActive);
       setIsTransitioning(true);
-      setBlurAmount(22); // Start with heavy dreamlike blur
 
-      // Transition to clear in the next frame
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          setBlurAmount(0);
-        }, 30);
-      });
-
-      // Cleanup outgoing buffer after transition ends
-      setTimeout(() => {
+      // Transition completes at 1000ms
+      transitionTimerRef.current = setTimeout(() => {
         setOutgoingSceneKey(null);
         setIsTransitioning(false);
-      }, 750);
+      }, 1000);
 
       return targetKey;
     });
@@ -264,6 +261,33 @@ export function DynamicFarmWeatherBackground({
         localStorage.setItem("krishi-nano-scene", targetKey);
       } catch {}
     }
+  }, []);
+
+  // Preload all 7 high-definition scenes into browser GPU cache for instant, zero-delay switching
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    SCENE_KEYS.forEach((key) => {
+      const sc = NANO_BANANA_SCENES[key];
+      if (sc) {
+        if (sc.localImg) {
+          const img = new Image();
+          img.src = sc.localImg;
+        }
+        if (sc.fallbackUrl) {
+          const img = new Image();
+          img.src = sc.fallbackUrl;
+        }
+      }
+    });
+  }, []);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
   }, []);
 
   // Initialize preferences from localStorage on mount
@@ -424,7 +448,7 @@ export function DynamicFarmWeatherBackground({
   // Quick 1-click cycle to the next background
   const handleCycleNextScene = () => {
     setIsSpinning(true);
-    setTimeout(() => setIsSpinning(false), 500);
+    setTimeout(() => setIsSpinning(false), 650);
 
     const keys = SCENE_KEYS;
     const currentIdx = keys.indexOf(activeSceneKey);
@@ -540,34 +564,39 @@ export function DynamicFarmWeatherBackground({
       >
         {/* Parallax Container for Interactive Depth */}
         <div ref={parallaxRef} className="absolute -inset-6 pointer-events-none will-change-transform">
-          {/* Outgoing Scene (Smooth Blur-Out Fade Away) */}
+          {/* Outgoing Scene (Hardware-accelerated Smooth Blur Out) */}
           {outgoingScene && (
             <div
-              className="absolute inset-0 bg-cover bg-center will-change-transform transition-all duration-700 ease-out"
+              key={`prev-${outgoingSceneKey}`}
+              className="absolute inset-0 bg-cover bg-center pointer-events-none will-change-transform animate-smooth-blur-out"
               style={{
                 backgroundImage: `url('${getImageUrl(outgoingScene)}'), url('${outgoingScene.fallbackUrl}')`,
                 backgroundPosition: "center 38%",
                 backgroundSize: "cover",
-                filter: "blur(26px) scale(1.08)",
-                opacity: 0,
               }}
             />
           )}
 
-          {/* Active Scene (Transitions In with Blur-to-Sharp Cross-Fade) */}
+          {/* Active Scene (Transitions In with Hardware-accelerated Smooth Blur In) */}
           <div
-            className="absolute inset-0 bg-cover bg-center animate-lodge-breathe will-change-transform"
+            key={`active-${activeSceneKey}`}
+            className={`absolute inset-0 bg-cover bg-center will-change-transform ${
+              isTransitioning ? "animate-smooth-blur-in" : "animate-lodge-breathe"
+            }`}
             style={{
               backgroundImage: `url('${getImageUrl(activeScene)}'), url('${activeScene.fallbackUrl}')`,
               backgroundPosition: "center 38%",
               backgroundSize: "cover",
-              filter: `blur(${blurAmount}px)`,
-              opacity: 1,
-              transition: isTransitioning
-                ? "filter 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s ease-out"
-                : "none",
             }}
           />
+
+          {/* Ambient Dream-Blur Pulse Overlay (Seamlessly dissolves transitions) */}
+          {isTransitioning && (
+            <div
+              key={`dream-pulse-${activeSceneKey}`}
+              className="absolute inset-0 pointer-events-none z-10 animate-dream-blur"
+            />
+          )}
 
           {/* Deep Obsidian-Emerald Ambient Undertone */}
           <div className="absolute inset-0 bg-[#040807]/35 dark:bg-[#030705]/50 mix-blend-multiply" />
@@ -677,7 +706,7 @@ export function DynamicFarmWeatherBackground({
         >
           {/* Popover Menu: Opens directly above the bottom-left button */}
           {isThemeMenuOpen && (
-            <div className="mb-2.5 w-[310px] sm:w-[370px] max-w-[calc(100vw-1.5rem)] rounded-3xl bg-black/90 dark:bg-[#070d0a]/95 backdrop-blur-2xl border border-white/20 p-3.5 sm:p-4 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_20px_rgba(16,185,129,0.15)] text-white space-y-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-200">
+            <div className="mb-2.5 w-[310px] sm:w-[370px] max-w-[calc(100vw-1.5rem)] rounded-3xl bg-black/90 dark:bg-[#070d0a]/95 backdrop-blur-2xl border border-white/20 p-3.5 sm:p-4 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_20px_rgba(16,185,129,0.15)] text-white space-y-3 animate-theme-menu-in">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2">
@@ -755,7 +784,7 @@ export function DynamicFarmWeatherBackground({
                         applyThemeWithBlur(key, true);
                         setIsThemeMenuOpen(false);
                       }}
-                      className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                      className={`p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between gap-1.5 active:scale-95 ${
                         isActive
                           ? "bg-emerald-500/25 border-emerald-400 text-white shadow-[0_0_14px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/50"
                           : "bg-white/[0.04] border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/85"
@@ -849,11 +878,11 @@ export function DynamicFarmWeatherBackground({
             <button
               type="button"
               onClick={handleCycleNextScene}
-              className="p-1.5 rounded-full bg-white/5 hover:bg-emerald-500/25 text-white/80 hover:text-emerald-300 transition-all cursor-pointer border border-transparent hover:border-emerald-400/30"
+              className="p-1.5 rounded-full bg-white/5 hover:bg-emerald-500/25 text-white/80 hover:text-emerald-300 transition-all cursor-pointer border border-transparent hover:border-emerald-400/30 active:scale-90"
               title="Click to immediately switch to next background (Blur Transition)"
               aria-label="Cycle next theme"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? "animate-spin" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? "animate-smooth-spin" : "transition-transform duration-300"}`} />
             </button>
           </div>
         </div>
