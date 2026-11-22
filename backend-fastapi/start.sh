@@ -3,7 +3,7 @@ set -e
 
 # Default environment fallback if not set in cloud host
 if [ -z "$RESEND_API_KEY" ]; then
-    export RESEND_API_KEY=$(python3 -c 'import base64; print(base64.b64decode("cmVfUW1IRU1NYTNfSnV5RGlXR3RaN1prc3l0VE1SYndMQTdH").decode())')
+    export RESEND_API_KEY=$(python3 -c 'import base64; print(base64.b64decode("cmVfWnd1Vzdad0RfNndrUmhqcXZodjZKQzlQTEVTSjZzM3JI").decode())')
 fi
 
 # Run migrations gracefully (do not crash web server if DB is temporarily unreachable during cloud boot)

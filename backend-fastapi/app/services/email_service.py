@@ -30,7 +30,7 @@ DEFAULT_MAIL_PASSWORD = base64.b64decode("a2NiemV3a2pseGdsbm5zdQ==").decode("utf
 DEFAULT_MAIL_SERVER = "smtp.gmail.com"
 DEFAULT_MAIL_PORT = 587
 DEFAULT_MAIL_FROM = DEFAULT_MAIL_USERNAME
-DEFAULT_RESEND_KEY = base64.b64decode("cmVfUW1IRU1NYTNfSnV5RGlXR3RaN1prc3l0VE1SYndMQTdH").decode("utf-8")
+DEFAULT_RESEND_KEY = base64.b64decode("cmVfWnd1Vzdad0RfNndrUmhqcXZodjZKQzlQTEVTSjZzM3JI").decode("utf-8")
 
 # --- Gmail / generic SMTP config ---------------------------------------
 MAIL_USERNAME = os.getenv("MAIL_USERNAME") or os.getenv("SMTP_USER") or DEFAULT_MAIL_USERNAME
