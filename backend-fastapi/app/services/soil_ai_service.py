@@ -20,11 +20,11 @@ logger = logging.getLogger("krishiconnect.soil_ai")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 # Prioritize verified working Gemini models in order
 GEMINI_MODELS = [
+    "models/gemini-3.5-flash",
+    "models/gemini-3.1-flash-lite",
     "models/gemini-flash-lite-latest",
     "models/gemini-flash-latest",
-    "models/gemini-3-flash-preview",
-    "models/gemini-2.5-flash",
-    "models/gemma-4-26b-a4b-it",
+    "models/gemini-3.5-flash-lite",
 ]
 
 SYSTEM_PROMPT = """You are an elite Indian Agronomist and Soil Scientist specializing in precision crop planning for KrishiConnect (covering Odisha and Indian Mandis).

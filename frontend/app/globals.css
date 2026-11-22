@@ -350,6 +350,36 @@ html.light {
   will-change: transform, opacity;
 }
 
+/* Animated Monsoon Rain & Wind Streaks for Nano Banana Live Background */
+@keyframes rainFall {
+  0% {
+    transform: translate3d(0, -80px, 0) rotate(14deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.65;
+  }
+  85% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translate3d(-70px, 105vh, 0) rotate(14deg);
+    opacity: 0;
+  }
+}
+
+.nano-rain-streak {
+  position: absolute;
+  width: 1.5px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(147, 197, 253, 0.6) 65%, rgba(255, 255, 255, 0.95) 100%);
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 3px rgba(147, 197, 253, 0.5));
+  pointer-events: none;
+  animation: rainFall var(--rain-duration, 1.4s) linear infinite;
+  animation-delay: var(--rain-delay, 0s);
+  will-change: transform, opacity;
+}
+
 /* ============================================================ */
 /* MORPHING POPOVER & DIALOG BLUR TRANSITIONS                   */
 /* ============================================================ */
