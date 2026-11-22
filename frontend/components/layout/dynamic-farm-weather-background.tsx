@@ -13,6 +13,11 @@ import {
   Trees,
   Moon,
   Mountain,
+  Palette,
+  Check,
+  ChevronUp,
+  RefreshCw,
+  Flower2,
 } from "lucide-react";
 
 interface DynamicFarmWeatherBackgroundProps {
@@ -44,7 +49,9 @@ interface RainParticle {
 export interface NanoScene {
   id: string;
   title: string;
+  hindiTitle: string;
   subtitle: string;
+  emoji: string;
   localImg: string;
   fallbackUrl: string;
   fireflyColor: "amber" | "emerald" | "cyan";
@@ -52,11 +59,37 @@ export interface NanoScene {
   hasMeteors: boolean;
 }
 
-const NANO_BANANA_SCENES: Record<string, NanoScene> = {
+export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
+  night: {
+    id: "night",
+    title: "Night Theme",
+    hindiTitle: "तारों भरी रात (नाइट)",
+    subtitle: "Starfall Midnight • Glowing Fireflies & Meteors",
+    emoji: "🌙",
+    localImg: "/farm-night.jpg",
+    fallbackUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop",
+    fireflyColor: "cyan",
+    hasRain: false,
+    hasMeteors: true,
+  },
+  garden: {
+    id: "garden",
+    title: "Garden Theme",
+    hindiTitle: "हरा-भरा बगीचा (गार्डन)",
+    subtitle: "Botanical Garden • Lush Foliage & Soft Sunlight",
+    emoji: "🌿",
+    localImg: "/farm-background.jpg",
+    fallbackUrl: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2560&auto=format&fit=crop",
+    fireflyColor: "emerald",
+    hasRain: false,
+    hasMeteors: false,
+  },
   golden: {
     id: "golden",
-    title: "Golden Harvest",
-    subtitle: "Nano Banana AI • Sunlit Wheat Horizon",
+    title: "Golden Farm",
+    hindiTitle: "स्वर्ण फसल (गोल्डन फार्म)",
+    subtitle: "Sunlit Wheat Horizon • Golden Hour Pollen",
+    emoji: "🌾",
     localImg: "/farm-day.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
@@ -65,28 +98,34 @@ const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   },
   monsoon: {
     id: "monsoon",
-    title: "Monsoon Paddy",
-    subtitle: "Nano Banana AI • Emerald Terraces & Rain",
+    title: "Monsoon Rain",
+    hindiTitle: "मॉनसून वर्षा व धान",
+    subtitle: "Emerald Rice Terraces • Live Rain Streaks & Mist",
+    emoji: "🌧️",
     localImg: "/farm-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "emerald",
     hasRain: true,
     hasMeteors: false,
   },
-  night: {
-    id: "night",
-    title: "Starfall Fireflies",
-    subtitle: "Nano Banana AI • Bioluminescent Midnight",
-    localImg: "/farm-night.jpg",
-    fallbackUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop",
-    fireflyColor: "cyan",
+  blossom: {
+    id: "blossom",
+    title: "Blossom Orchard",
+    hindiTitle: "फूलों का बाग (ब्लॉसम)",
+    subtitle: "Spring Orchard Garden • Floral Breezes",
+    emoji: "🌸",
+    localImg: "/farm-day.jpg",
+    fallbackUrl: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=2560&auto=format&fit=crop",
+    fireflyColor: "amber",
     hasRain: false,
-    hasMeteors: true,
+    hasMeteors: false,
   },
   alpine: {
     id: "alpine",
-    title: "Misty Valley Ridge",
-    subtitle: "Nano Banana AI • Alpine Tea Terraces",
+    title: "Misty Mountain",
+    hindiTitle: "पर्वतीय वादियां (माउंटेन)",
+    subtitle: "Alpine Forest Valley • Rolling Mountain Mist",
+    emoji: "🌄",
     localImg: "/lodge-luxury-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
@@ -95,16 +134,22 @@ const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   },
 };
 
+const SCENE_KEYS = Object.keys(NANO_BANANA_SCENES);
+
 export function DynamicFarmWeatherBackground({
   className = "",
-  showControls = false,
+  showControls = true,
 }: DynamicFarmWeatherBackgroundProps) {
-  const [currentSceneKey, setCurrentSceneKey] = useState<string>("golden");
+  const [currentSceneKey, setCurrentSceneKey] = useState<string>("night");
   const [customScene, setCustomScene] = useState<NanoScene | null>(null);
   const [showEmbers, setShowEmbers] = useState(true);
   const [showRain, setShowRain] = useState(false);
   const [showMeteors, setShowMeteors] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  // Bottom-Left Theme Menu Popover State
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
 
   // AI Prompt Modal State
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
@@ -136,16 +181,36 @@ export function DynamicFarmWeatherBackground({
     }
   }, []);
 
-  // Update rain default whenever active scene changes (unless manually toggled)
+  // Update rain/meteors default whenever active scene changes
   useEffect(() => {
-    const sc = currentSceneKey === "custom" && customScene ? customScene : NANO_BANANA_SCENES[currentSceneKey];
-    if (sc && sc.hasRain !== undefined) {
-      setShowRain(sc.hasRain);
-    }
-    if (sc && sc.hasMeteors !== undefined) {
-      setShowMeteors(sc.hasMeteors);
+    const sc =
+      currentSceneKey === "custom" && customScene
+        ? customScene
+        : NANO_BANANA_SCENES[currentSceneKey] || NANO_BANANA_SCENES.night;
+
+    if (sc) {
+      if (sc.hasRain !== undefined) setShowRain(sc.hasRain);
+      if (sc.hasMeteors !== undefined) setShowMeteors(sc.hasMeteors);
     }
   }, [currentSceneKey, customScene]);
+
+  // Click outside listener to close the bottom-left theme menu
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuContainerRef.current &&
+        !menuContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsThemeMenuOpen(false);
+      }
+    }
+    if (isThemeMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isThemeMenuOpen]);
 
   // Subtle interactive 3D mouse parallax
   useEffect(() => {
@@ -201,6 +266,13 @@ export function DynamicFarmWeatherBackground({
     } catch {}
   };
 
+  const handleCycleNextScene = () => {
+    const keys = SCENE_KEYS;
+    const currentIdx = keys.indexOf(currentSceneKey);
+    const nextIdx = (currentIdx + 1) % keys.length;
+    handleSceneChange(keys[nextIdx]);
+  };
+
   const handleToggleEmbers = () => {
     const next = !showEmbers;
     setShowEmbers(next);
@@ -234,16 +306,18 @@ export function DynamicFarmWeatherBackground({
 
       const data = await res.json();
       if (data.success) {
-        const theme = data.params?.theme || "golden";
-        const basePreset = NANO_BANANA_SCENES[theme] || NANO_BANANA_SCENES.golden;
+        const theme = data.params?.theme || "garden";
+        const basePreset = NANO_BANANA_SCENES[theme] || NANO_BANANA_SCENES.garden;
 
         const newCustom: NanoScene = {
           id: "custom",
-          title: data.params?.title || promptInput.slice(0, 24),
+          title: data.params?.title || promptInput.slice(0, 22),
+          hindiTitle: "कस्टम AI थीम",
           subtitle: `Nano Banana AI • ${data.params?.subtitle || "Generative Agro Atmosphere"}`,
+          emoji: "✨",
           localImg: data.imageUrl || basePreset.localImg,
           fallbackUrl: data.imageUrl || basePreset.fallbackUrl,
-          fireflyColor: data.params?.fireflyColor || "amber",
+          fireflyColor: data.params?.fireflyColor || "emerald",
           hasRain: data.params?.rainEnabled ?? false,
           hasMeteors: theme === "night",
         };
@@ -256,6 +330,7 @@ export function DynamicFarmWeatherBackground({
         } catch {}
 
         setIsGeneratorOpen(false);
+        setIsThemeMenuOpen(false);
         setPromptInput("");
       } else {
         setGeneratorMessage("Failed: " + (data.error || "Please try again"));
@@ -317,7 +392,7 @@ export function DynamicFarmWeatherBackground({
   const activeScene =
     currentSceneKey === "custom" && customScene
       ? customScene
-      : NANO_BANANA_SCENES[currentSceneKey] || NANO_BANANA_SCENES.golden;
+      : NANO_BANANA_SCENES[currentSceneKey] || NANO_BANANA_SCENES.night;
 
   // Luminescent firefly color gradient mapping
   const emberGradient =
@@ -446,72 +521,170 @@ export function DynamicFarmWeatherBackground({
       <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-background/60 dark:from-[#050b08]/90 dark:via-[#030605]/35 dark:to-[#040807]/75 backdrop-blur-[0.5px]" />
       <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-background/70 via-background/25 to-transparent dark:from-black/80 dark:via-black/20 dark:to-transparent pointer-events-none" />
 
-      {/* 9. Interactive Nano Banana AI Scene Controller (Bottom Right) */}
+      {/* ========================================================================= */}
+      {/* 9. BOTTOM-LEFT THEME CONTROLLER BUTTON & POPOVER DRAWER (User Requested) */}
+      {/* ========================================================================= */}
       {showControls && mounted && (
-        <div className="pointer-events-auto fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-40 flex items-center gap-1.5 p-1 rounded-full bg-black/70 dark:bg-black/85 backdrop-blur-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.6)] text-[11px] text-white/90 transition-all hover:bg-black/90">
-          {/* Active Scene Badge & Quick Cycle */}
-          <div className="flex items-center gap-1 pr-1">
+        <div
+          ref={menuContainerRef}
+          className="pointer-events-auto fixed bottom-20 md:bottom-5 left-3 sm:left-5 z-40 select-none flex flex-col items-start"
+        >
+          {/* Popover Menu: Opens directly above the bottom-left button */}
+          {isThemeMenuOpen && (
+            <div className="mb-2.5 w-[310px] sm:w-[360px] rounded-3xl bg-black/85 dark:bg-[#070d0a]/95 backdrop-blur-2xl border border-white/20 p-3.5 sm:p-4 shadow-[0_20px_60px_rgba(0,0,0,0.85)] text-white space-y-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-200">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <Palette className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white tracking-wide">
+                      Select Theme • बैकग्राउंड चुनें
+                    </h4>
+                    <p className="text-[10px] text-muted-foreground">
+                      Night, Garden, Farm, Monsoon &amp; More
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsThemeMenuOpen(false)}
+                  className="h-6 w-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 transition-colors cursor-pointer"
+                  title="Close Menu"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* 6 Theme Grid Cards */}
+              <div className="grid grid-cols-2 gap-2 max-h-[290px] overflow-y-auto no-scrollbar pr-0.5">
+                {SCENE_KEYS.map((key) => {
+                  const sc = NANO_BANANA_SCENES[key];
+                  const isActive = currentSceneKey === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        handleSceneChange(key);
+                        setIsThemeMenuOpen(false);
+                      }}
+                      className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                        isActive
+                          ? "bg-emerald-500/25 border-emerald-400 text-white shadow-[0_0_14px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/50"
+                          : "bg-white/[0.04] border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/85"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-xl">{sc.emoji}</span>
+                        {isActive && (
+                          <span className="flex items-center gap-0.5 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500 text-black">
+                            <Check className="h-2.5 w-2.5 stroke-[3]" />
+                            <span>ON</span>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-xs font-extrabold leading-tight">{sc.title}</div>
+                        <div className="text-[9.5px] text-muted-foreground truncate mt-0.5">
+                          {sc.hindiTitle}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Footer Quick Toggles (Rain, Fireflies, AI Prompt) */}
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-1.5">
+                  {/* Rain Toggle */}
+                  <button
+                    type="button"
+                    onClick={handleToggleRain}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold transition-all cursor-pointer ${
+                      showRain
+                        ? "bg-sky-500/25 text-sky-300 border-sky-400/40"
+                        : "bg-white/5 text-white/50 border-white/10 hover:text-white"
+                    }`}
+                    title="Toggle Live Monsoon Rain Streaks"
+                  >
+                    <CloudRain className="w-3 h-3 text-sky-400" />
+                    <span>Rain</span>
+                  </button>
+
+                  {/* Fireflies / Embers Toggle */}
+                  <button
+                    type="button"
+                    onClick={handleToggleEmbers}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold transition-all cursor-pointer ${
+                      showEmbers
+                        ? "bg-amber-500/25 text-amber-300 border-amber-400/40"
+                        : "bg-white/5 text-white/50 border-white/10 hover:text-white"
+                    }`}
+                    title="Toggle Floating Bioluminescent Fireflies"
+                  >
+                    <Flame className="w-3 h-3 text-amber-400" />
+                    <span>Fireflies</span>
+                  </button>
+                </div>
+
+                {/* AI Generator Prompt Trigger */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsThemeMenuOpen(false);
+                    setIsGeneratorOpen(true);
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold transition-all cursor-pointer"
+                  title="Prompt AI for Custom Background"
+                >
+                  <Wand2 className="w-3 h-3 text-emerald-400" />
+                  <span>AI Prompt</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Primary Bottom-Left Theme Button */}
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/80 dark:bg-[#070d0a]/90 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.7)] text-[11px] text-white transition-all hover:bg-black/95 hover:border-emerald-400/40">
+            {/* Main Menu Opener Pill */}
             <button
               type="button"
-              onClick={() => {
-                const keys = ["golden", "monsoon", "night", "alpine"];
-                const nextIdx = (keys.indexOf(currentSceneKey) + 1) % keys.length;
-                handleSceneChange(keys[nextIdx]);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-amber-500/20 hover:from-emerald-500/30 hover:to-amber-500/30 border border-emerald-400/30 transition-all font-semibold text-white cursor-pointer shadow-xs"
-              title="Click to cycle Nano Banana AI background scenes"
+              onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 transition-all font-bold text-white cursor-pointer shadow-xs group"
+              title="Click to choose background theme (Night, Garden, Farm, etc.)"
             >
-              <span className="text-sm">🍌</span>
-              <span className="font-mono text-[10.5px] tracking-wide text-emerald-300">
+              <span className="text-base leading-none">{activeScene.emoji}</span>
+              <span className="font-sans text-xs tracking-tight text-white group-hover:text-emerald-300 transition-colors">
                 {activeScene.title}
               </span>
+              <ChevronUp
+                className={`w-3.5 h-3.5 text-emerald-400 transition-transform duration-200 ${
+                  isThemeMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Quick 1-Click Cycle Button */}
+            <button
+              type="button"
+              onClick={handleCycleNextScene}
+              className="p-1.5 rounded-full bg-white/5 hover:bg-emerald-500/25 text-white/80 hover:text-emerald-300 transition-all cursor-pointer border border-transparent hover:border-emerald-400/30"
+              title="Click to immediately switch to next background"
+              aria-label="Cycle next theme"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
-
-          {/* Rain / Monsoon Streaks Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleRain}
-            className={`p-1.5 rounded-full transition-all cursor-pointer ${
-              showRain
-                ? "bg-sky-500/30 text-sky-300 hover:bg-sky-500/40 border border-sky-400/40"
-                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
-            }`}
-            title={showRain ? "Disable Monsoon Rain Streaks" : "Enable Monsoon Rain Streaks"}
-            aria-label="Toggle rain streaks"
-          >
-            <CloudRain className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Fireflies / Embers Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleEmbers}
-            className={`p-1.5 rounded-full transition-all cursor-pointer ${
-              showEmbers
-                ? "bg-amber-500/30 text-amber-300 hover:bg-amber-500/40 border border-amber-400/40"
-                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
-            }`}
-            title={showEmbers ? "Disable Fireflies & Embers" : "Enable Fireflies & Embers"}
-            aria-label="Toggle embers"
-          >
-            {showEmbers ? <Flame className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-          </button>
-
-          {/* AI Generator Modal Opener */}
-          <button
-            type="button"
-            onClick={() => setIsGeneratorOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-semibold transition-all cursor-pointer shadow-xs"
-            title="Generate Custom Background with Nano Banana AI"
-          >
-            <Wand2 className="w-3 h-3 text-emerald-400" />
-            <span className="hidden md:inline font-mono text-[10px]">AI Prompt</span>
-          </button>
         </div>
       )}
 
-      {/* 10. Nano Banana AI Background Prompt Modal */}
+      {/* ========================================================================= */}
+      {/* 10. NANO BANANA AI BACKGROUND CUSTOM PROMPT MODAL                         */}
+      {/* ========================================================================= */}
       {isGeneratorOpen && (
         <div className="pointer-events-auto fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
           <div className="relative w-full max-w-md rounded-3xl bg-[#090f0c] border border-white/20 p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.8)] text-white space-y-4">
@@ -523,7 +696,7 @@ export function DynamicFarmWeatherBackground({
                 </div>
                 <div>
                   <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                    <span>Nano Banana AI Background</span>
+                    <span>Nano Banana AI Custom Theme</span>
                   </h3>
                   <p className="text-[11px] text-muted-foreground">
                     Powered by Google Gemini Multimodal Engine
@@ -539,102 +712,18 @@ export function DynamicFarmWeatherBackground({
               </button>
             </div>
 
-            {/* Presets Quick Pick */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
-                Quick AI Themes:
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSceneChange("golden");
-                    setIsGeneratorOpen(false);
-                  }}
-                  className={`p-2.5 rounded-2xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                    currentSceneKey === "golden"
-                      ? "bg-amber-500/20 border-amber-400/50 text-amber-200"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white/80"
-                  }`}
-                >
-                  <Wheat className="w-4 h-4 text-amber-400 shrink-0" />
-                  <div>
-                    <div className="font-bold">Golden Harvest</div>
-                    <div className="text-[10px] text-muted-foreground">Wheat fields & sun</div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSceneChange("monsoon");
-                    setIsGeneratorOpen(false);
-                  }}
-                  className={`p-2.5 rounded-2xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                    currentSceneKey === "monsoon"
-                      ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-200"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white/80"
-                  }`}
-                >
-                  <CloudRain className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <div>
-                    <div className="font-bold">Monsoon Paddy</div>
-                    <div className="text-[10px] text-muted-foreground">Emerald rain mist</div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSceneChange("night");
-                    setIsGeneratorOpen(false);
-                  }}
-                  className={`p-2.5 rounded-2xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                    currentSceneKey === "night"
-                      ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-200"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white/80"
-                  }`}
-                >
-                  <Moon className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <div>
-                    <div className="font-bold">Starfall Farm</div>
-                    <div className="text-[10px] text-muted-foreground">Night & fireflies</div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleSceneChange("alpine");
-                    setIsGeneratorOpen(false);
-                  }}
-                  className={`p-2.5 rounded-2xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                    currentSceneKey === "alpine"
-                      ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-200"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white/80"
-                  }`}
-                >
-                  <Mountain className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <div>
-                    <div className="font-bold">Alpine Valley</div>
-                    <div className="text-[10px] text-muted-foreground">Tea terraces & fog</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
             {/* Custom Prompt Input */}
             <form onSubmit={handleGenerateAIScene} className="space-y-3 pt-1">
               <div>
                 <label className="text-[11px] font-bold text-white/80 block mb-1.5">
-                  Generate with Custom AI Prompt:
+                  Enter your scene description:
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={promptInput}
                     onChange={(e) => setPromptInput(e.target.value)}
-                    placeholder="e.g. Punjab mustard fields during sunset with fireflies..."
+                    placeholder="e.g. Punjab mustard fields at sunset with fireflies, or Kerala tea garden..."
                     className="w-full rounded-2xl bg-black/60 border border-white/20 px-3.5 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-emerald-400 pr-9"
                     disabled={isGenerating}
                   />
@@ -677,7 +766,7 @@ export function DynamicFarmWeatherBackground({
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Generate Scene</span>
+                      <span>Apply AI Theme</span>
                     </>
                   )}
                 </button>
