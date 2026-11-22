@@ -334,18 +334,18 @@ export default function DashboardPage() {
 
           {/* Large Date with Live Updating Time Pill */}
           <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3.5">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-editorial">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-editorial drop-shadow-md">
               {formattedDate}
             </h1>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] dark:bg-black/50 border border-white/15 dark:border-white/12 backdrop-blur-xl text-xs sm:text-sm font-mono font-bold text-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.2)]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-white/20 backdrop-blur-xl text-xs sm:text-sm font-mono font-bold text-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.2)]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>{formattedTime}</span>
             </div>
           </div>
 
           {/* Welcome back */}
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1.5">
-            Welcome back, <strong className="text-foreground font-semibold">{displayName}</strong>
+          <p className="text-xs sm:text-sm text-foreground/90 font-medium mt-1.5 drop-shadow-sm">
+            Welcome back, <strong className="text-foreground font-bold">{displayName}</strong>
           </p>
         </div>
 

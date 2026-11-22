@@ -55,8 +55,8 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
     id: "summer",
     title: "Summer Theme",
     emoji: "☀️",
-    localImg: "/farm-day.jpg",
-    fallbackUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2560&auto=format&fit=crop",
+    localImg: "/farm-sunny-day.jpg",
+    fallbackUrl: "https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
     hasRain: false,
     hasMeteors: false,
@@ -576,22 +576,13 @@ export function DynamicFarmWeatherBackground({
             />
           )}
 
-          {/* Deep Obsidian-Emerald Undertone for Night; Radiant Warm Sunlight for Summer/Day */}
+          {/* Deep Obsidian-Emerald Undertone for Night; Natural Warm Daylight for Summer/Day */}
           {isNightScene ? (
             <div className="absolute inset-0 bg-[#040807]/45 dark:bg-[#030705]/55 mix-blend-multiply pointer-events-none" />
           ) : isSummerScene ? (
             <div className="absolute inset-0 pointer-events-none">
-              {/* Brilliant Sunburst Light Source in Top-Right */}
-              <div
-                className="absolute -top-28 right-[-8%] w-[850px] h-[850px] rounded-full pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(255, 255, 220, 0.45) 0%, rgba(254, 240, 138, 0.22) 28%, rgba(251, 191, 36, 0.08) 55%, transparent 75%)",
-                  filter: "blur(28px)",
-                }}
-              />
-              {/* Subtle Warm Day Amber Tint */}
-              <div className="absolute inset-0 bg-gradient-to-b from-amber-200/10 via-transparent to-emerald-950/20 pointer-events-none" />
+              {/* Natural Warm Golden Daylight Glow */}
+              <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-amber-100/5 to-emerald-950/20 pointer-events-none" />
             </div>
           ) : (
             <div className="absolute inset-0 bg-[#040807]/20 pointer-events-none" />
@@ -687,11 +678,11 @@ export function DynamicFarmWeatherBackground({
           )}
         </div>
 
-        {/* Contrast Mask for Text Legibility (Deep for Night, Luminous for Summer) */}
+        {/* Contrast Mask for Text Legibility (Deep for Night, Crisp for Summer) */}
         {isSummerScene ? (
           <>
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent dark:from-[#050b08]/80 dark:via-[#050b08]/20 dark:to-transparent pointer-events-none" />
-            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-background/40 to-transparent dark:from-black/40 dark:to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/25 to-transparent dark:from-[#050b08]/90 dark:via-[#050b08]/25 dark:to-transparent pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-44 bg-gradient-to-b from-black/75 via-black/35 to-transparent pointer-events-none" />
           </>
         ) : (
           <>
