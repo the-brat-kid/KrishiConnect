@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   Upload,
@@ -560,6 +561,64 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
 
                     <h5 className="font-bold text-base text-foreground mb-1">{rec.crop}</h5>
                     <p className="text-xs text-muted-foreground leading-relaxed">{rec.reason}</p>
+
+                    {/* Best Fertilizer Advisory for this Crop */}
+                    {rec.best_fertilizer && (
+                      <div className="mt-3 p-3 rounded-xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/25 space-y-1.5 text-xs text-left">
+                        <div className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-400">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span>Best Fertilizer (सर्वोत्तम खाद):</span>
+                        </div>
+                        <p className="text-[11.5px] text-foreground font-medium leading-relaxed">
+                          {rec.best_fertilizer}
+                        </p>
+
+                        {rec.fertilizer_schedule && (
+                          <div className="grid grid-cols-1 gap-1 pt-1.5 border-t border-amber-500/20 text-[10.5px]">
+                            {rec.fertilizer_schedule.basal && (
+                              <div>
+                                <span className="font-bold text-muted-foreground">🚜 Basal (बुवाई):</span>{" "}
+                                <span className="text-foreground/90">{rec.fertilizer_schedule.basal}</span>
+                              </div>
+                            )}
+                            {rec.fertilizer_schedule.top_dressing && (
+                              <div>
+                                <span className="font-bold text-muted-foreground">⏱️ Top Dressing:</span>{" "}
+                                <span className="text-foreground/90">{rec.fertilizer_schedule.top_dressing}</span>
+                              </div>
+                            )}
+                            {rec.fertilizer_schedule.micronutrients && (
+                              <div>
+                                <span className="font-bold text-muted-foreground">🧪 Micronutrients:</span>{" "}
+                                <span className="text-foreground/90">{rec.fertilizer_schedule.micronutrients}</span>
+                              </div>
+                            )}
+                            {rec.fertilizer_schedule.organic && (
+                              <div>
+                                <span className="font-bold text-muted-foreground">🌿 Organic:</span>{" "}
+                                <span className="text-foreground/90">{rec.fertilizer_schedule.organic}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {rec.application_tip && (
+                          <p className="text-[10px] text-amber-800 dark:text-amber-300 italic pt-1">
+                            💡 {rec.application_tip}
+                          </p>
+                        )}
+
+                        <div className="pt-2">
+                          <Link
+                            href={`/fertilizer?crop=${encodeURIComponent(rec.crop.split(" ")[0].toLowerCase())}`}
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 hover:underline"
+                          >
+                            <span>Calculate Cost & Subsidy in Fertilizer Hub</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {rec.expected_yield_boost && (
