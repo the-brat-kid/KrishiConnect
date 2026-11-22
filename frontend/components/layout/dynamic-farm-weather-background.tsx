@@ -51,11 +51,22 @@ export interface NanoScene {
 
 // 7 Minimalist High-Definition Background Themes
 export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
+  summer: {
+    id: "summer",
+    title: "Summer Theme",
+    emoji: "☀️",
+    localImg: "/farm-day.jpg",
+    fallbackUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2560&auto=format&fit=crop",
+    fireflyColor: "amber",
+    hasRain: false,
+    hasMeteors: false,
+    sunBeamPulse: true,
+  },
   night: {
     id: "night",
     title: "Night Theme",
     emoji: "🌙",
-    localImg: "/farm-night.jpg",
+    localImg: "/starfall-night.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "cyan",
     hasRain: false,
@@ -69,17 +80,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
     fireflyColor: "emerald",
     hasRain: false,
     hasMeteors: false,
-  },
-  summer: {
-    id: "summer",
-    title: "Summer Theme",
-    emoji: "☀️",
-    localImg: "/farm-day.jpg",
-    fallbackUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2560&auto=format&fit=crop",
-    fireflyColor: "amber",
-    hasRain: false,
-    hasMeteors: false,
-    sunBeamPulse: true,
   },
   monsoon: {
     id: "monsoon",
@@ -171,14 +171,14 @@ export function DynamicFarmWeatherBackground({
 }: DynamicFarmWeatherBackgroundProps) {
   const { selectedMandiObj, selectedState } = useLanguage();
 
-  // Active theme and blur cross-fade states
-  const [activeSceneKey, setActiveSceneKey] = useState<string>("night");
+  // Active theme and blur cross-fade states - default to Summer (Bright Sunny Day)
+  const [activeSceneKey, setActiveSceneKey] = useState<string>("summer");
   const [outgoingSceneKey, setOutgoingSceneKey] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto weather sync state
-  const [isWeatherAuto, setIsWeatherAuto] = useState<boolean>(true);
+  // Auto weather sync state (default false to keep user's bright daytime choice)
+  const [isWeatherAuto, setIsWeatherAuto] = useState<boolean>(false);
   const [liveWeather, setLiveWeather] = useState<{
     condition: string;
     temp: number;
@@ -266,12 +266,14 @@ export function DynamicFarmWeatherBackground({
     setMounted(true);
     try {
       const savedAuto = localStorage.getItem("krishi-bg-auto");
-      const isAuto = savedAuto !== "false";
+      const isAuto = savedAuto === "true";
       setIsWeatherAuto(isAuto);
 
       const savedScene = localStorage.getItem("krishi-nano-scene");
-      if (!isAuto && savedScene && NANO_BANANA_SCENES[savedScene]) {
+      if (savedScene && NANO_BANANA_SCENES[savedScene]) {
         setActiveSceneKey(savedScene);
+      } else {
+        setActiveSceneKey("summer");
       }
 
       const savedEmbers = localStorage.getItem("krishi-nano-embers");
@@ -317,7 +319,7 @@ export function DynamicFarmWeatherBackground({
 
         // If in Auto Weather mode, automatically calibrate the background theme
         const savedAuto = localStorage.getItem("krishi-bg-auto");
-        if (savedAuto !== "false") {
+        if (savedAuto === "true") {
           const matchedTheme = determineWeatherTheme(current);
           applyThemeWithBlur(matchedTheme, false);
         }
@@ -524,6 +526,9 @@ export function DynamicFarmWeatherBackground({
   // Image URL helper prioritizing local file, with graceful remote fallback
   const getImageUrl = (scene: NanoScene) => scene.localImg || scene.fallbackUrl;
 
+  const isNightScene = activeSceneKey === "night" || activeSceneKey === "storm";
+  const isSummerScene = activeSceneKey === "summer";
+
   return (
     <>
       {/* ========================================================================= */}
@@ -531,7 +536,9 @@ export function DynamicFarmWeatherBackground({
       {/* ========================================================================= */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none fixed inset-0 z-0 overflow-hidden select-none bg-[#050b08] ${className}`}
+        className={`pointer-events-none fixed inset-0 z-0 overflow-hidden select-none transition-colors duration-1000 ${
+          isSummerScene ? "bg-[#142c1c]" : "bg-[#050b08]"
+        } ${className}`}
       >
         {/* Parallax Container for Interactive Depth */}
         <div ref={parallaxRef} className="absolute -inset-6 pointer-events-none will-change-transform">
@@ -569,8 +576,26 @@ export function DynamicFarmWeatherBackground({
             />
           )}
 
-          {/* Deep Obsidian-Emerald Ambient Undertone */}
-          <div className="absolute inset-0 bg-[#040807]/35 dark:bg-[#030705]/50 mix-blend-multiply" />
+          {/* Deep Obsidian-Emerald Undertone for Night; Radiant Warm Sunlight for Summer/Day */}
+          {isNightScene ? (
+            <div className="absolute inset-0 bg-[#040807]/45 dark:bg-[#030705]/55 mix-blend-multiply pointer-events-none" />
+          ) : isSummerScene ? (
+            <div className="absolute inset-0 pointer-events-none">
+              {/* Brilliant Sunburst Light Source in Top-Right */}
+              <div
+                className="absolute -top-28 right-[-8%] w-[850px] h-[850px] rounded-full pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(255, 255, 220, 0.45) 0%, rgba(254, 240, 138, 0.22) 28%, rgba(251, 191, 36, 0.08) 55%, transparent 75%)",
+                  filter: "blur(28px)",
+                }}
+              />
+              {/* Subtle Warm Day Amber Tint */}
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-200/10 via-transparent to-emerald-950/20 pointer-events-none" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-[#040807]/20 pointer-events-none" />
+          )}
 
           {/* Rolling 3D Mountain / Valley Mist Drifts */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-45 dark:opacity-40">
@@ -662,9 +687,18 @@ export function DynamicFarmWeatherBackground({
           )}
         </div>
 
-        {/* Contrast Mask for Razor-Sharp Text Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-background/60 dark:from-[#050b08]/90 dark:via-[#030605]/35 dark:to-[#040807]/75 backdrop-blur-[0.5px]" />
-        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-background/70 via-background/25 to-transparent dark:from-black/80 dark:via-black/20 dark:to-transparent pointer-events-none" />
+        {/* Contrast Mask for Text Legibility (Deep for Night, Luminous for Summer) */}
+        {isSummerScene ? (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent dark:from-[#050b08]/80 dark:via-[#050b08]/20 dark:to-transparent pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-background/40 to-transparent dark:from-black/40 dark:to-transparent pointer-events-none" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-background/60 dark:from-[#050b08]/90 dark:via-[#030605]/35 dark:to-[#040807]/75 backdrop-blur-[0.5px]" />
+            <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-background/70 via-background/25 to-transparent dark:from-black/80 dark:via-black/20 dark:to-transparent pointer-events-none" />
+          </>
+        )}
       </div>
 
       {/* ========================================================================= */}
