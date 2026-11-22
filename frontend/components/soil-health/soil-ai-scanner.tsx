@@ -98,8 +98,8 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
 
       setAnalysisResult(data);
       toast({
-        title: "Gemini AI Scan Complete! ✨",
-        description: `Analyzed soil report for ${district}. Recommended crops ready!`,
+        title: "Analysis Complete",
+        description: `Soil report analyzed for ${district}. Crop recommendations ready.`,
       });
     } catch (err: any) {
       console.error("AI Scan error:", err);
@@ -121,8 +121,8 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
       });
       setAnalysisResult(data);
       toast({
-        title: "Gemini AI Analysis Ready! 🌾",
-        description: `Recommended crops generated for ${district}.`,
+        title: "Analysis Ready",
+        description: `Crop advisory generated for ${district}.`,
       });
     } catch (err: any) {
       console.error("Manual AI error:", err);
@@ -187,6 +187,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-4">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setMode("upload")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 mode === "upload"
@@ -194,9 +195,10 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                   : "text-muted-foreground hover:text-foreground bg-muted/50"
               }`}
             >
-              📷 Photo / PDF Upload
+              Upload Document
             </button>
             <button
+              type="button"
               onClick={() => setMode("manual")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 mode === "manual"
@@ -204,7 +206,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                   : "text-muted-foreground hover:text-foreground bg-muted/50"
               }`}
             >
-              ✍️ Enter Values Manually
+              Manual Input
             </button>
           </div>
 
@@ -539,7 +541,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
           <div className="space-y-3">
             <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
               <Sprout className="w-4 h-4 text-emerald-500" />
-              <span>🌟 Top Recommended Crops for Maximum Yield</span>
+              <span>Recommended Crops</span>
             </h4>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -567,7 +569,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                       <div className="mt-3 p-3 rounded-xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/25 space-y-1.5 text-xs text-left">
                         <div className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-400">
                           <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span>Best Fertilizer (सर्वोत्तम खाद):</span>
+                          <span>Optimal Fertilizer:</span>
                         </div>
                         <p className="text-[11.5px] text-foreground font-medium leading-relaxed">
                           {rec.best_fertilizer}
@@ -577,25 +579,25 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                           <div className="grid grid-cols-1 gap-1 pt-1.5 border-t border-amber-500/20 text-[10.5px]">
                             {rec.fertilizer_schedule.basal && (
                               <div>
-                                <span className="font-bold text-muted-foreground">🚜 Basal (बुवाई):</span>{" "}
+                                <span className="font-bold text-muted-foreground">Basal:</span>{" "}
                                 <span className="text-foreground/90">{rec.fertilizer_schedule.basal}</span>
                               </div>
                             )}
                             {rec.fertilizer_schedule.top_dressing && (
                               <div>
-                                <span className="font-bold text-muted-foreground">⏱️ Top Dressing:</span>{" "}
+                                <span className="font-bold text-muted-foreground">Top Dressing:</span>{" "}
                                 <span className="text-foreground/90">{rec.fertilizer_schedule.top_dressing}</span>
                               </div>
                             )}
                             {rec.fertilizer_schedule.micronutrients && (
                               <div>
-                                <span className="font-bold text-muted-foreground">🧪 Micronutrients:</span>{" "}
+                                <span className="font-bold text-muted-foreground">Micronutrients:</span>{" "}
                                 <span className="text-foreground/90">{rec.fertilizer_schedule.micronutrients}</span>
                               </div>
                             )}
                             {rec.fertilizer_schedule.organic && (
                               <div>
-                                <span className="font-bold text-muted-foreground">🌿 Organic:</span>{" "}
+                                <span className="font-bold text-muted-foreground">Organic:</span>{" "}
                                 <span className="text-foreground/90">{rec.fertilizer_schedule.organic}</span>
                               </div>
                             )}
@@ -604,7 +606,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
 
                         {rec.application_tip && (
                           <p className="text-[10px] text-amber-800 dark:text-amber-300 italic pt-1">
-                            💡 {rec.application_tip}
+                            Note: {rec.application_tip}
                           </p>
                         )}
 
@@ -613,7 +615,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                             href={`/fertilizer?crop=${encodeURIComponent(rec.crop.split(" ")[0].toLowerCase())}`}
                             className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 hover:underline"
                           >
-                            <span>Calculate Cost & Subsidy in Fertilizer Hub</span>
+                            <span>Calculate Cost & Subsidy</span>
                             <ArrowRight className="w-3 h-3" />
                           </Link>
                         </div>
@@ -623,7 +625,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
 
                   {rec.expected_yield_boost && (
                     <div className="mt-3 pt-2 border-t border-border/50 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                      ⚡ Expected: {rec.expected_yield_boost}
+                      Expected Yield: {rec.expected_yield_boost}
                     </div>
                   )}
                 </div>
@@ -636,7 +638,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
             <div className="p-4 rounded-2xl border border-destructive/25 bg-destructive/5 space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-destructive flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4" />
-                <span>⚠️ Crops to Avoid (Agronomically Incompatible)</span>
+                <span>Incompatible Crops</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {analysisResult.crops_to_avoid.map((avoid: any, idx: number) => (
@@ -654,7 +656,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
             <div className="p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[#0c0d0e]/80 backdrop-blur-xl space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span>💡 Precision Fertilizer & Liming Prescription</span>
+                <span>Fertilizer & Soil Amendments</span>
               </h4>
               <ul className="space-y-2 text-xs text-foreground/90">
                 {analysisResult.fertilizer_prescription.map((step: string, idx: number) => (
