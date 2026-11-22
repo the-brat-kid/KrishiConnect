@@ -2,22 +2,9 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
-  Sparkles,
   Flame,
-  EyeOff,
   CloudRain,
-  Wand2,
   X,
-  Loader2,
-  Wheat,
-  Trees,
-  Moon,
-  Mountain,
-  Sun,
-  Zap,
-  Flower2,
-  Palette,
-  Check,
   ChevronUp,
   RefreshCw,
   Compass,
@@ -53,8 +40,6 @@ interface RainParticle {
 export interface NanoScene {
   id: string;
   title: string;
-  hindiTitle: string;
-  subtitle: string;
   emoji: string;
   localImg?: string;
   fallbackUrl: string;
@@ -64,13 +49,11 @@ export interface NanoScene {
   sunBeamPulse?: boolean;
 }
 
-// 7 Distinct, Visually High-Definition Background Themes
+// 7 Minimalist High-Definition Background Themes
 export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   night: {
     id: "night",
     title: "Night Theme",
-    hindiTitle: "तारों भरी रात (नाइट)",
-    subtitle: "Starfall Midnight • Milky Way & Bioluminescent Fireflies",
     emoji: "🌙",
     localImg: "/farm-night.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop",
@@ -81,8 +64,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   garden: {
     id: "garden",
     title: "Garden Theme",
-    hindiTitle: "हरा-भरा गार्डन (बॉटनिकल)",
-    subtitle: "Serene Botanical Sanctuary • Lush Foliage & Sunlight",
     emoji: "🌿",
     fallbackUrl: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "emerald",
@@ -92,8 +73,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   summer: {
     id: "summer",
     title: "Summer Theme",
-    hindiTitle: "धूप व सुनहरे खेत (समर)",
-    subtitle: "Sun-drenched Wheat Harvest • Golden Hour Sunburst",
     emoji: "☀️",
     localImg: "/farm-day.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2560&auto=format&fit=crop",
@@ -105,8 +84,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   monsoon: {
     id: "monsoon",
     title: "Monsoon Theme",
-    hindiTitle: "मॉनसून वर्षा व धान (रेनी)",
-    subtitle: "Emerald Rice Terraces • Live Falling Rain Streaks",
     emoji: "🌧️",
     localImg: "/farm-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=2560&auto=format&fit=crop",
@@ -117,8 +94,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   blossom: {
     id: "blossom",
     title: "Blossom Theme",
-    hindiTitle: "फूलों का बगीचा (वसंत बहार)",
-    subtitle: "Spring Blooming Orchard • Petals & Floral Breeze",
     emoji: "🌸",
     fallbackUrl: "https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
@@ -128,8 +103,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   alpine: {
     id: "alpine",
     title: "Mountain Theme",
-    hindiTitle: "पर्वतीय वादियां (माउंटेन मिस्ट)",
-    subtitle: "Alpine Pine Forests • Rolling Mountain Mist Banks",
     emoji: "🌄",
     localImg: "/lodge-luxury-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2560&auto=format&fit=crop",
@@ -140,8 +113,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   storm: {
     id: "storm",
     title: "Storm Theme",
-    hindiTitle: "आंधी-तूफान (थंडरस्टॉर्म)",
-    subtitle: "Moody Storm Clouds • Rain & Atmospheric Wind",
     emoji: "⚡",
     fallbackUrl: "https://images.unsplash.com/photo-1511289081-d06dda19034d?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "cyan",
@@ -706,73 +677,44 @@ export function DynamicFarmWeatherBackground({
         >
           {/* Popover Menu: Opens directly above the bottom-left button */}
           {isThemeMenuOpen && (
-            <div className="mb-2.5 w-[310px] sm:w-[370px] max-w-[calc(100vw-1.5rem)] rounded-3xl bg-black/90 dark:bg-[#070d0a]/95 backdrop-blur-2xl border border-white/20 p-3.5 sm:p-4 shadow-[0_20px_60px_rgba(0,0,0,0.85),0_0_20px_rgba(16,185,129,0.15)] text-white space-y-3 animate-theme-menu-in">
+            <div className="mb-2 w-[260px] rounded-2xl bg-black/90 dark:bg-[#070d0a]/95 backdrop-blur-2xl border border-white/15 p-3 shadow-2xl text-white space-y-2.5 animate-theme-menu-in">
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    <Palette className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white tracking-wide flex items-center gap-1.5">
-                      <span>Choose Background Theme</span>
-                    </h4>
-                    <p className="text-[10px] text-muted-foreground">
-                      Night, Garden, Summer, Monsoon &amp; More
-                    </p>
-                  </div>
-                </div>
-
+              <div className="flex items-center justify-between pb-2 border-b border-white/10 px-0.5">
+                <span className="text-xs font-semibold text-white/90 tracking-wide">Theme</span>
                 <button
                   type="button"
                   onClick={() => setIsThemeMenuOpen(false)}
-                  className="h-6 w-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 transition-colors cursor-pointer"
-                  title="Close Menu"
+                  className="h-5 w-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-3 w-3" />
                 </button>
               </div>
 
-              {/* 1. AUTO WEATHER FEATURE BANNER (NASA Telemetry Sync) */}
-              <div
+              {/* Auto Weather Row */}
+              <button
+                type="button"
                 onClick={handleToggleAutoWeather}
-                className={`p-2.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
+                className={`w-full px-2.5 py-1.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                   isWeatherAuto
-                    ? "bg-gradient-to-r from-emerald-500/25 via-sky-500/20 to-teal-500/20 border-emerald-400/60 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
-                    : "bg-white/[0.04] border-white/10 hover:bg-white/[0.08]"
+                    ? "bg-emerald-500/20 border-emerald-400/50 text-white"
+                    : "bg-white/[0.04] border-white/10 text-white/70 hover:bg-white/[0.08]"
                 }`}
-                title="Automatically adapt theme based on real-time NASA regional weather"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                    <Compass className="h-4 w-4 text-emerald-300" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-extrabold text-white">Auto Weather Sync</span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                        NASA LIVE
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                      {liveWeather
-                        ? `${liveWeather.mandiName}: ${liveWeather.temp}°C • ${liveWeather.condition}`
-                        : `Synced with ${selectedMandiObj?.name || "Local APMC"}`}
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Compass className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-xs font-medium">Auto Weather</span>
                 </div>
-
                 <div
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors shrink-0 flex items-center ${
+                  className={`w-7 h-4 rounded-full p-0.5 transition-colors shrink-0 flex items-center ${
                     isWeatherAuto ? "bg-emerald-500 justify-end" : "bg-white/20 justify-start"
                   }`}
                 >
-                  <span className="w-4 h-4 rounded-full bg-white shadow-md block" />
+                  <span className="w-3 h-3 rounded-full bg-white shadow-xs block" />
                 </div>
-              </div>
+              </button>
 
-              {/* 2. THEME CARDS GRID */}
-              <div className="grid grid-cols-2 gap-2 max-h-[290px] overflow-y-auto no-scrollbar pr-0.5">
+              {/* Theme Grid */}
+              <div className="grid grid-cols-2 gap-1.5 pt-0.5">
                 {SCENE_KEYS.map((key) => {
                   const sc = NANO_BANANA_SCENES[key];
                   const isActive = activeSceneKey === key;
@@ -784,67 +726,46 @@ export function DynamicFarmWeatherBackground({
                         applyThemeWithBlur(key, true);
                         setIsThemeMenuOpen(false);
                       }}
-                      className={`p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between gap-1.5 active:scale-95 ${
+                      className={`px-2.5 py-2 rounded-xl border text-left transition-all duration-200 cursor-pointer flex items-center gap-2 active:scale-95 ${
                         isActive
-                          ? "bg-emerald-500/25 border-emerald-400 text-white shadow-[0_0_14px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/50"
-                          : "bg-white/[0.04] border-white/10 hover:bg-white/[0.09] hover:border-white/20 text-white/85"
+                          ? "bg-emerald-500/25 border-emerald-400 text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                          : "bg-white/[0.04] border-white/10 hover:bg-white/[0.08] text-white/80"
                       }`}
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="text-xl leading-none">{sc.emoji}</span>
-                        {isActive && (
-                          <span className="flex items-center gap-0.5 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500 text-black shadow-xs">
-                            <Check className="h-2.5 w-2.5 stroke-[3]" />
-                            <span>ON</span>
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-xs font-extrabold leading-tight">{sc.title}</div>
-                        <div className="text-[9.5px] text-muted-foreground truncate mt-0.5">
-                          {sc.hindiTitle}
-                        </div>
-                      </div>
+                      <span className="text-base leading-none">{sc.emoji}</span>
+                      <span className="text-xs font-medium truncate">{sc.title.replace(" Theme", "")}</span>
                     </button>
                   );
                 })}
               </div>
 
-              {/* 3. FOOTER QUICK CONTROLS (Rain Streaks, Fireflies) */}
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={handleToggleRain}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold transition-all cursor-pointer ${
-                      showRain
-                        ? "bg-sky-500/25 text-sky-300 border-sky-400/40"
-                        : "bg-white/5 text-white/50 border-white/10 hover:text-white"
-                    }`}
-                    title="Toggle Live Falling Rain Streaks"
-                  >
-                    <CloudRain className="w-3 h-3 text-sky-400" />
-                    <span>Rain</span>
-                  </button>
+              {/* Atmosphere Toggles */}
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs px-0.5">
+                <button
+                  type="button"
+                  onClick={handleToggleRain}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
+                    showRain
+                      ? "bg-sky-500/25 text-sky-300 border-sky-400/40"
+                      : "bg-white/5 text-white/40 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <CloudRain className="w-3 h-3 text-sky-400" />
+                  <span>Rain</span>
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={handleToggleEmbers}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold transition-all cursor-pointer ${
-                      showEmbers
-                        ? "bg-amber-500/25 text-amber-300 border-amber-400/40"
-                        : "bg-white/5 text-white/50 border-white/10 hover:text-white"
-                    }`}
-                    title="Toggle Floating Bioluminescent Fireflies"
-                  >
-                    <Flame className="w-3 h-3 text-amber-400" />
-                    <span>Fireflies</span>
-                  </button>
-                </div>
-
-                <div className="text-[10px] text-muted-foreground font-mono">
-                  {isWeatherAuto ? "Live NASA Sync" : "Manual Override"}
-                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleEmbers}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all cursor-pointer ${
+                    showEmbers
+                      ? "bg-amber-500/25 text-amber-300 border-amber-400/40"
+                      : "bg-white/5 text-white/40 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <Flame className="w-3 h-3 text-amber-400" />
+                  <span>Fireflies</span>
+                </button>
               </div>
             </div>
           )}
@@ -857,16 +778,13 @@ export function DynamicFarmWeatherBackground({
             <button
               type="button"
               onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 transition-all font-bold text-white cursor-pointer shadow-xs group"
-              title="Click to choose background theme (Night, Garden, Summer, Monsoon, etc.)"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 transition-all font-semibold text-white cursor-pointer shadow-xs group"
+              title="Theme"
             >
               <span className="text-base leading-none drop-shadow-xs">{activeScene.emoji}</span>
-              <span className="font-sans text-xs font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
+              <span className="font-sans text-xs font-semibold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
                 {activeScene.title}
               </span>
-              {isWeatherAuto && (
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" title="Weather Auto Active" />
-              )}
               <ChevronUp
                 className={`w-3.5 h-3.5 text-emerald-400 transition-transform duration-200 ${
                   isThemeMenuOpen ? "rotate-180" : ""
@@ -879,8 +797,8 @@ export function DynamicFarmWeatherBackground({
               type="button"
               onClick={handleCycleNextScene}
               className="p-1.5 rounded-full bg-white/5 hover:bg-emerald-500/25 text-white/80 hover:text-emerald-300 transition-all cursor-pointer border border-transparent hover:border-emerald-400/30 active:scale-90"
-              title="Click to immediately switch to next background (Blur Transition)"
-              aria-label="Cycle next theme"
+              aria-label="Cycle theme"
+              title="Next Theme"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? "animate-smooth-spin" : "transition-transform duration-300"}`} />
             </button>
