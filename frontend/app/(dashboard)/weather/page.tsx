@@ -229,15 +229,15 @@ export default function FarmWeatherPage() {
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#34d399]" />
             <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-emerald-400 border border-emerald-500/30">
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-              <span>Live Cloud Movement &amp; Doppler Radar Feed</span>
+              <span>Live Wind Flow &amp; Doppler Rain Radar Feed</span>
             </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2 font-plus-jakarta">
             <CloudSun className="h-7 w-7 text-primary drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
-            <span>Farm Weather &amp; Live Cloud Radar</span>
+            <span>Farm Weather &amp; Live Wind &amp; Rain Radar</span>
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-            Real-time atmospheric cloud movement, live Doppler precipitation radar, spray window forecasting, and agrarian logistics synchronized with the selected APMC Mandi.
+            Real-time atmospheric wind streamlines, live Doppler precipitation radar, spray window forecasting, and agrarian logistics synchronized with the selected APMC Mandi.
           </p>
         </div>
 

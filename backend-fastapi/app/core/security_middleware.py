@@ -248,7 +248,7 @@ class EnterpriseSecurityMiddleware(BaseHTTPMiddleware):
             "img-src 'self' data: blob: https:; "
             "font-src 'self' data: https:; "
             "connect-src 'self' http: https: ws: wss: https://accounts.google.com https://www.googleapis.com; "
-            "frame-src 'self' https://checkout.razorpay.com https://js.stripe.com https://accounts.google.com; "
+            "frame-src 'self' https://checkout.razorpay.com https://js.stripe.com https://accounts.google.com https://embed.windy.com https://*.windy.com https://embed2.windy.com; "
             "object-src 'none'; "
             "base-uri 'self';"
         )

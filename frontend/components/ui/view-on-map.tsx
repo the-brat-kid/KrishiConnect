@@ -41,9 +41,10 @@ export interface ViewOnMapProps {
 }
 
 export type LayerMode =
-  | "live_clouds"
-  | "live_radar"
+  | "live_rain"
   | "live_wind"
+  | "live_radar"
+  | "live_clouds"
   | "truecolor"
   | "aqi"
   | "hybrid";
@@ -86,10 +87,11 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   const currentPlaceName = activePlace.name;
   const currentAddress = activePlace.address;
 
-  // Active Layer: Defaults to Live Cloud Movement
-  const [activeLayer, setActiveLayer] = useState<LayerMode>("live_clouds");
+  // Active Layer: Defaults to Live Rain & Wind Flow across all regions (har jagah)
+  const [activeLayer, setActiveLayer] = useState<LayerMode>("live_rain");
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isAllIndia, setIsAllIndia] = useState(false);
+  // Default to All India (panoramic subcontinent view) so wind and rain flow opens everywhere at start
+  const [isAllIndia, setIsAllIndia] = useState(true);
 
   const [nasaData, setNasaData] = useState<{
     temperature_c?: number;
@@ -204,26 +206,29 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
     }
   };
 
-  // Dynamic live stream embed URL for animated cloud, radar, and wind movement
+  // Dynamic live stream embed URL for animated wind, rain radar, and cloud flow
   const liveStreamUrl = useMemo(() => {
     const overlay =
-      activeLayer === "live_radar"
-        ? "radar"
-        : activeLayer === "live_wind"
+      activeLayer === "live_wind"
         ? "wind"
-        : "clouds";
+        : activeLayer === "live_radar"
+        ? "radar"
+        : activeLayer === "live_clouds"
+        ? "clouds"
+        : "rain"; // Default: Live rain precipitation radar WITH active animated wind streamline flow
 
-    const zoom = isAllIndia ? 5 : 6;
+    const zoom = isAllIndia ? 5 : 7;
     const centerLat = isAllIndia ? 22.8 : currentLat;
     const centerLon = isAllIndia ? 82.5 : currentLon;
 
-    return `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${zoom}&overlay=${overlay}&product=ecmwf&level=surface&lat=${centerLat}&lon=${centerLon}&detailLat=${currentLat}&detailLon=${currentLon}&marker=true&pressure=true&message=true`;
+    return `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km%2Fh&zoom=${zoom}&overlay=${overlay}&product=ecmwf&level=surface&lat=${centerLat}&lon=${centerLon}&detailLat=${currentLat}&detailLon=${currentLon}&marker=true&pressure=true&message=true`;
   }, [activeLayer, isAllIndia, currentLat, currentLon]);
 
   const isLiveStreamActive =
-    activeLayer === "live_clouds" ||
+    activeLayer === "live_rain" ||
+    activeLayer === "live_wind" ||
     activeLayer === "live_radar" ||
-    activeLayer === "live_wind";
+    activeLayer === "live_clouds";
 
   // Initialize and update Leaflet Map when satellite/AQI/hybrid is selected
   useEffect(() => {
@@ -249,6 +254,10 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
         mapInstanceRef.current = null;
       }
 
+      if ((mapContainerRef.current as any)._leaflet_id) {
+        delete (mapContainerRef.current as any)._leaflet_id;
+      }
+
       map = L.map(mapContainerRef.current, {
         center: isAllIndia ? [22.8, 82.5] : [currentLat, currentLon],
         zoom: isAllIndia ? 5 : 8,
@@ -258,47 +267,66 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
       mapInstanceRef.current = map;
 
+      // Force recalculation of map container dimensions once mounted
+      setTimeout(() => {
+        if (map && isMounted) {
+          map.invalidateSize();
+        }
+      }, 120);
+
       // Zoom Control bottom-right
       L.control.zoom({ position: "bottomright" }).addTo(map);
 
       // 1. Satellite Base Layer Selection
       if (activeLayer === "truecolor") {
+        // High-res satellite base imagery underneath
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 18, minZoom: 2 }
+        ).addTo(map);
+
+        // NASA MODIS Terra TrueColor Daily Earth Observation Overpass
         L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
-          { maxZoom: 9, minZoom: 3 }
+          { maxZoom: 18, maxNativeZoom: 9, minZoom: 2, opacity: 0.92 }
         ).addTo(map);
       } else if (activeLayer === "aqi") {
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-          { maxZoom: 16 }
+          { maxZoom: 18, minZoom: 2 }
         ).addTo(map);
 
         L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Aqua_Aerosol_Optical_Depth_3km/default/${gibsDate}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
-          { maxZoom: 8, minZoom: 3, opacity: 0.85 }
+          { maxZoom: 18, maxNativeZoom: 6, minZoom: 2, opacity: 0.88 }
         ).addTo(map);
       } else if (activeLayer === "hybrid") {
         L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 18, minZoom: 2 }
+        ).addTo(map);
+
+        L.tileLayer(
           `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
-          { maxZoom: 9, minZoom: 3 }
+          { maxZoom: 18, maxNativeZoom: 9, minZoom: 2, opacity: 0.88 }
         ).addTo(map);
 
         L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
-          { maxZoom: 16, opacity: 0.95 }
+          { maxZoom: 18, opacity: 0.95 }
         ).addTo(map);
       }
 
       // 2. Geospatial State Boundaries & Coastlines of India
       L.tileLayer(
         "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/Reference_Features_15m/default/default/GoogleMapsCompatible_Level13/{z}/{y}/{x}.png",
-        { opacity: 0.7, maxZoom: 13 }
+        { opacity: 0.75, maxZoom: 18, maxNativeZoom: 9 }
       ).addTo(map);
 
       // 3. Geographic City & Mandi Labels
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
-        { opacity: 0.9, maxZoom: 16 }
+        { opacity: 0.9, maxZoom: 18 }
       ).addTo(map);
 
       // 4. Custom Glowing Mandi Pin Marker
@@ -438,7 +466,21 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="font-extrabold tracking-wide">LIVE CLOUD RADAR</span>
+            <span className="font-extrabold tracking-wide">
+              {activeLayer === "live_rain"
+                ? "LIVE WIND & RAIN FLOW"
+                : activeLayer === "live_wind"
+                ? "LIVE WIND STREAM"
+                : activeLayer === "live_radar"
+                ? "DOPPLER WEATHER RADAR"
+                : activeLayer === "live_clouds"
+                ? "LIVE CLOUD RADAR"
+                : activeLayer === "truecolor"
+                ? "NASA EARTH OBSERVATION"
+                : activeLayer === "aqi"
+                ? "SATELLITE AEROSOL & AQI"
+                : "MANDI CORRIDOR NETWORK"}
+            </span>
           </div>
 
           <button
@@ -454,33 +496,20 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
       {/* Layer Selector Bar */}
       <div className="absolute top-16 left-3 right-3 z-20 flex items-center gap-1.5 pointer-events-auto overflow-x-auto no-scrollbar py-0.5">
-        {/* 1. Live Animated Cloud Movement */}
+        {/* 1. Live Rain & Animated Wind Flow (Default at startup) */}
         <button
           type="button"
-          onClick={() => setActiveLayer("live_clouds")}
+          onClick={() => setActiveLayer("live_rain")}
           className={`px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
-            activeLayer === "live_clouds"
-              ? "bg-emerald-500 text-black border-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.6)] font-extrabold"
+            activeLayer === "live_rain"
+              ? "bg-gradient-to-r from-emerald-500 to-sky-500 text-black border-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.7)] font-black"
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>☁️ Live Cloud Movement</span>
+          <span>🌧️💨 Rain &amp; Wind Flow</span>
         </button>
 
-        {/* 2. Live Doppler Rain Radar */}
-        <button
-          type="button"
-          onClick={() => setActiveLayer("live_radar")}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
-            activeLayer === "live_radar"
-              ? "bg-sky-500 text-black border-sky-300 shadow-[0_0_16px_rgba(14,165,233,0.6)] font-extrabold"
-              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
-          }`}
-        >
-          <span>🌧️ Live Rain Radar</span>
-        </button>
-
-        {/* 3. Live Wind Stream */}
+        {/* 2. Live Wind Stream */}
         <button
           type="button"
           onClick={() => setActiveLayer("live_wind")}
@@ -490,10 +519,36 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>💨 Wind &amp; Storm Flow</span>
+          <span>💨 Wind Stream</span>
         </button>
 
-        {/* 4. NASA Terra Satellite HD */}
+        {/* 3. Live Doppler Rain Radar */}
+        <button
+          type="button"
+          onClick={() => setActiveLayer("live_radar")}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1 shrink-0 ${
+            activeLayer === "live_radar"
+              ? "bg-sky-500 text-black border-sky-300 shadow-[0_0_16px_rgba(14,165,233,0.6)] font-extrabold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
+          }`}
+        >
+          <span>📡 Doppler Radar</span>
+        </button>
+
+        {/* 4. Live Animated Cloud Movement */}
+        <button
+          type="button"
+          onClick={() => setActiveLayer("live_clouds")}
+          className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
+            activeLayer === "live_clouds"
+              ? "bg-slate-200 text-black border-white shadow-[0_0_16px_rgba(255,255,255,0.6)] font-extrabold"
+              : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
+          }`}
+        >
+          <span>☁️ Cloud Flow</span>
+        </button>
+
+        {/* 5. NASA Terra Satellite HD */}
         <button
           type="button"
           onClick={() => setActiveLayer("truecolor")}
@@ -506,7 +561,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           <span>🛰️ NASA Satellite HD</span>
         </button>
 
-        {/* 5. Air Quality & AQI */}
+        {/* 6. Air Quality & AQI */}
         <button
           type="button"
           onClick={() => setActiveLayer("aqi")}
@@ -519,7 +574,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
           <span>🌫️ Air Quality &amp; AQI</span>
         </button>
 
-        {/* 6. Mandi Transport Corridors */}
+        {/* 7. Mandi Transport Corridors */}
         <button
           type="button"
           onClick={() => setActiveLayer("hybrid")}

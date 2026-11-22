@@ -567,7 +567,7 @@ export default function DashboardPage() {
                 </CardTitle>
                 <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
                   <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Live Radar</span>
+                  <span>Live Wind &amp; Rain Radar</span>
                 </div>
               </div>
               <CardDescription className="text-xs text-muted-foreground mt-1">
