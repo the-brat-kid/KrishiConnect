@@ -69,15 +69,11 @@ export default function LoginPage() {
     if (!otpSent || isVerifyingOtp || verifyingRef.current) return;
 
     const trimmed = otp.trim();
-    // 6-digit auto-verify for Email OTP or Firebase SMS
+    // 6-digit auto-verify for all OTP verification
     if (trimmed.length === 6) {
       handleVerifyOtp(undefined, trimmed);
     }
-    // 4-digit auto-verify for local demo phone code (1234)
-    else if (otpChannel === "phone" && !isFirebaseMode && trimmed.length === 4) {
-      handleVerifyOtp(undefined, trimmed);
-    }
-  }, [otp, otpSent, isVerifyingOtp, otpChannel, isFirebaseMode]);
+  }, [otp, otpSent, isVerifyingOtp]);
 
   // Optional WebOTP API for automatic SMS OTP capture on mobile browsers
   useEffect(() => {
@@ -198,8 +194,8 @@ export default function LoginPage() {
         await api.post("/auth/otp/send", { phone: cleanPhone });
         setIsFirebaseMode(false);
         toast({
-          title: "SMS Gateway Notice",
-          description: "Firebase SMS offline. Local test OTP is active (Code: 1234).",
+          title: "OTP Dispatched",
+          description: `Verification code has been dispatched to +91 ${cleanPhone}.`,
         });
       }
 
@@ -481,11 +477,6 @@ export default function LoginPage() {
                     <span className="text-sm sm:text-base font-extrabold text-foreground truncate block">
                       {otpChannel === "email" ? (sentOtpTarget || emailOtp) : `+91 ${sentOtpTarget || phone}`}
                     </span>
-                    {otpChannel === "phone" && !isFirebaseMode && (
-                      <span className="inline-block mt-0.5 text-[10px] font-bold text-amber-300 bg-amber-500/20 border border-amber-500/30 px-1.5 py-0.5 rounded">
-                        Test code: 1234
-                      </span>
-                    )}
                   </div>
                   <button
                     type="button"

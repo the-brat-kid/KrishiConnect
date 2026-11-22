@@ -48,7 +48,6 @@ async def send_otp(req: OtpSendRequest, background_tasks: BackgroundTasks):
             "success": True,
             "message": f"Verification OTP code sent to {clean_email}",
             "email": clean_email,
-            "demo_otp": otp,
         }
 
     if not req.phone:
@@ -58,22 +57,22 @@ async def send_otp(req: OtpSendRequest, background_tasks: BackgroundTasks):
     if len(clean_phone) != 10:
         raise HTTPException(status_code=400, detail="Please enter a valid 10-digit Indian mobile number")
 
-    otp = "1234"
+    otp = f"{secrets.randbelow(900000) + 100000}"
     _otp_store[clean_phone] = otp
     return {
         "success": True,
         "message": f"OTP sent to +91 {clean_phone}",
         "phone": clean_phone,
-        "demo_otp": otp,
     }
 
 @router.post("/otp/verify", response_model=TokenResponse)
 async def verify_otp(req: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
     if req.email:
         clean_email = req.email.strip().lower()
-        expected_otp = _otp_store.get(clean_email, "1234")
-        if req.otp not in [expected_otp, "1234", "0000"]:
+        expected_otp = _otp_store.get(clean_email)
+        if not expected_otp or req.otp != expected_otp:
             raise HTTPException(status_code=400, detail="Invalid OTP code. Please try again.")
+        _otp_store.pop(clean_email, None)
 
         result = await db.execute(select(User).where(User.email == clean_email))
         user = result.scalars().first()
@@ -118,11 +117,11 @@ async def verify_otp(req: OtpVerifyRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Either email or mobile number is required")
 
     clean_phone = "".join(filter(str.isdigit, req.phone))[-10:]
-    expected_otp = _otp_store.get(clean_phone, "1234")
+    expected_otp = _otp_store.get(clean_phone)
 
-    # Accept 1234 as universal test/demo OTP
-    if req.otp not in [expected_otp, "1234", "0000"]:
-        raise HTTPException(status_code=400, detail="Invalid OTP. Please enter 1234.")
+    if not expected_otp or req.otp != expected_otp:
+        raise HTTPException(status_code=400, detail="Invalid or expired OTP. Please try again.")
+    _otp_store.pop(clean_phone, None)
 
     synthetic_email = f"user_{clean_phone}@krishiconnect.in"
 
