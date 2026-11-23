@@ -391,9 +391,9 @@ export function CropDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl bg-card border-border shadow-2xl p-0 overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] sm:max-h-[88vh] flex flex-col gap-0 bg-card border-border shadow-2xl p-0 overflow-hidden">
         {/* Modal Top Header */}
-        <DialogHeader className="p-5 pb-4 border-b border-border/80 bg-muted/20">
+        <DialogHeader className="shrink-0 p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border/80 bg-muted/20 space-y-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -429,11 +429,11 @@ export function CropDetailModal({
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex items-center gap-2 pt-3">
+          <div className="flex items-center gap-2 pt-3 overflow-x-auto no-scrollbar scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveTab("history")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
                 activeTab === "history"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -445,7 +445,7 @@ export function CropDetailModal({
             <button
               type="button"
               onClick={() => setActiveTab("profit")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
                 activeTab === "profit"
                   ? "bg-emerald-600 text-white shadow-xs"
                   : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -458,7 +458,7 @@ export function CropDetailModal({
               <button
                 type="button"
                 onClick={() => setActiveTab("soil")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "soil"
                     ? "bg-amber-600 text-white shadow-xs"
                     : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -477,7 +477,7 @@ export function CropDetailModal({
         </DialogHeader>
 
         {/* Modal Body Content */}
-        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-4 overscroll-contain [scrollbar-width:thin] [scrollbar-color:hsl(var(--muted-foreground)/0.3)_transparent]">
           {/* TAB 1: 7-DAY PRICE HISTORY & VOLATILITY */}
           {activeTab === "history" && (
             <div className="space-y-4 animate-in fade-in duration-200">
@@ -821,7 +821,7 @@ export function CropDetailModal({
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="p-4 border-t border-border/80 bg-muted/20 flex flex-wrap items-center justify-between gap-3">
+        <div className="shrink-0 p-3.5 sm:p-4 border-t border-border/80 bg-muted/20 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
               Close
