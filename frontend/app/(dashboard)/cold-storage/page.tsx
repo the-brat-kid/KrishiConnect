@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Warehouse,
   Search,
@@ -270,25 +271,37 @@ const STATES = [
   "Odisha",
 ];
 
-export default function ColdStoragePage() {
+function ColdStorageContent() {
   const { currentRegionDef } = useLanguage();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("search") || searchParams.get("crop") || "";
+
   const [facilities] = useState<ColdStorageFacility[]>(PAN_INDIA_FACILITIES);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialQuery);
   const [selectedState, setSelectedState] = useState(
-    currentRegionDef?.name && STATES.includes(currentRegionDef.name)
+    initialQuery
+      ? "All India"
+      : currentRegionDef?.name && STATES.includes(currentRegionDef.name)
       ? currentRegionDef.name
       : "All India"
   );
 
   useEffect(() => {
-    if (currentRegionDef?.name) {
+    if (initialQuery) {
+      setSearch(initialQuery);
+      setSelectedState("All India");
+    }
+  }, [initialQuery]);
+
+  useEffect(() => {
+    if (!initialQuery && currentRegionDef?.name) {
       if (STATES.includes(currentRegionDef.name)) {
         setSelectedState(currentRegionDef.name);
       } else {
         setSelectedState("All India");
       }
     }
-  }, [currentRegionDef?.name]);
+  }, [currentRegionDef?.name, initialQuery]);
   const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -458,5 +471,19 @@ export default function ColdStoragePage() {
         onSuccess={() => alert("Chamber booking request submitted successfully! Facility manager will contact you.")}
       />
     </div>
+  );
+}
+
+export default function ColdStoragePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-muted-foreground animate-pulse">
+          Loading Cold Storage Facilities...
+        </div>
+      }
+    >
+      <ColdStorageContent />
+    </Suspense>
   );
 }

@@ -292,20 +292,20 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
     <div className={`space-y-6 ${className}`}>
       {/* 1. VERIFIED SUMMARY STATE */}
       {verifiedData ? (
-        <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-black/80 to-emerald-950/30 backdrop-blur-2xl shadow-[0_0_35px_rgba(16,185,129,0.2)] space-y-6 animate-page-enter">
+        <div className="p-6 sm:p-7 rounded-3xl border border-emerald-500/40 bg-[#07140e]/95 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6),0_0_35px_rgba(16,185,129,0.2)] space-y-6 animate-page-enter">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div className="flex items-center gap-2.5">
               <div className="h-10 w-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <span>Offline Aadhaar Secure QR Verified</span>
                   <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2 font-mono">
                     UIDAI Certified
                   </span>
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-medium text-zinc-300">
                   Cryptographically verified using UIDAI RSA-SHA256 signature without third-party APIs.
                 </p>
               </div>
@@ -347,39 +347,39 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
 
             {/* Demographic Details Grid */}
             <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-black/40 border border-white/10 space-y-0.5">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold block">
+              <div className="p-3 rounded-xl bg-black/50 border border-white/15 space-y-0.5">
+                <span className="text-[10px] text-zinc-300 uppercase tracking-wider font-semibold block">
                   Full Name (as per UIDAI)
                 </span>
-                <span className="text-sm font-bold text-foreground block truncate">
+                <span className="text-sm font-bold text-white block truncate">
                   {verifiedData.name}
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-black/40 border border-white/10 space-y-0.5">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold block">
+              <div className="p-3 rounded-xl bg-black/50 border border-white/15 space-y-0.5">
+                <span className="text-[10px] text-zinc-300 uppercase tracking-wider font-semibold block">
                   Date of Birth &amp; Gender
                 </span>
-                <span className="text-sm font-bold text-foreground block">
+                <span className="text-sm font-bold text-white block">
                   {verifiedData.dob} • {verifiedData.gender === "M" ? "Male" : verifiedData.gender === "F" ? "Female" : verifiedData.gender}
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-black/40 border border-white/10 space-y-0.5 sm:col-span-2">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold block">
+              <div className="p-3 rounded-xl bg-black/50 border border-white/15 space-y-0.5 sm:col-span-2">
+                <span className="text-[10px] text-zinc-300 uppercase tracking-wider font-semibold block">
                   Registered Address &amp; Jurisdiction
                 </span>
-                <span className="text-xs font-medium text-foreground/90 block leading-relaxed">
+                <span className="text-xs font-medium text-zinc-200 block leading-relaxed">
                   {verifiedData.address || `${verifiedData.district}, ${verifiedData.state} - ${verifiedData.pincode}`}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 sm:col-span-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-emerald-300">
+              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 sm:col-span-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-emerald-300">
                 <span className="flex items-center gap-1.5 font-medium">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                   <span>Verified at: {new Date(verifiedData.verified_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                 </span>
-                <span className="font-mono text-[10px] opacity-80">
+                <span className="font-mono text-[10px] opacity-90 text-zinc-300">
                   Ref: {verifiedData.reference_id || "OFFLINE-UIDAI-SEEDED"}
                 </span>
               </div>
@@ -388,21 +388,21 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
         </div>
       ) : (
         /* 2. UNVERIFIED SCAN / UPLOAD WIDGET */
-        <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-5">
+        <div className="p-6 sm:p-7 rounded-3xl border border-emerald-500/30 bg-[#07140e]/95 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)] space-y-5">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div className="space-y-0.5">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <QrCode className="h-5 w-5 text-emerald-400" />
                 <span>Offline Aadhaar Secure QR KYC</span>
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-medium text-zinc-300">
                 Official UIDAI digital signature verification. 100% offline, privacy-compliant, zero third-party APIs.
               </p>
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/15 shrink-0">
+            <div className="flex items-center p-1 rounded-xl bg-black/60 border border-white/20 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -412,7 +412,7 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "upload"
                     ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                    : "text-muted-foreground hover:text-white"
+                    : "text-zinc-300 hover:text-white"
                 }`}
               >
                 <Upload className="h-3.5 w-3.5" />
@@ -429,7 +429,7 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   activeTab === "camera"
                     ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                    : "text-muted-foreground hover:text-white"
+                    : "text-zinc-300 hover:text-white"
                 }`}
               >
                 <Camera className="h-3.5 w-3.5" />
@@ -442,10 +442,10 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
           {activeTab === "upload" && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/25 text-amber-200 border border-amber-500/50">
                   Mandatory Document Upload
                 </span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-[11px] font-medium text-zinc-200">
                   Official identity document required
                 </span>
               </div>
@@ -472,20 +472,20 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
                       handleFileChange(e.dataTransfer.files[0]);
                     }
                   }}
-                  className="p-8 border-2 border-dashed border-white/20 hover:border-emerald-500/50 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer text-center space-y-3 group"
+                  className="p-8 border-2 border-dashed border-emerald-500/35 hover:border-emerald-500/70 rounded-2xl bg-black/45 hover:bg-black/65 transition-all cursor-pointer text-center space-y-3 group"
                 >
-                  <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 mx-auto group-hover:scale-110 transition-transform">
+                  <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto group-hover:scale-110 transition-transform">
                     <Upload className="h-6 w-6" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-foreground">
+                    <p className="text-sm font-bold text-white">
                       Click to upload mandatory Aadhaar document
                     </p>
-                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                      Supports high-resolution camera photos, screenshots from the <strong>mAadhaar app</strong>, or cropped QR codes from an <strong>e-Aadhaar PDF</strong>.
+                    <p className="text-xs font-medium text-zinc-300 max-w-md mx-auto">
+                      Supports high-resolution camera photos, screenshots from the <strong className="text-white font-semibold">mAadhaar app</strong>, or cropped QR codes from an <strong className="text-white font-semibold">e-Aadhaar PDF</strong>.
                     </p>
                   </div>
-                  <span className="inline-block px-3 py-1 rounded-full text-[10px] font-semibold bg-white/5 border border-white/10 text-muted-foreground">
+                  <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 border border-white/20 text-zinc-200">
                     PNG, JPG, WEBP, or PDF up to 10MB (Mandatory)
                   </span>
                 </div>
@@ -615,11 +615,11 @@ export function AadhaarKycWidget({ onVerified, className = "" }: AadhaarKycWidge
           )}
 
           {/* Privacy & Compliance Footer */}
-          <div className="pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1 text-emerald-400 font-medium">
-              <Lock className="h-3 w-3" /> Zero Aadhaar Number Storage Guarantee
+          <div className="pt-2 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-zinc-300 font-medium">
+            <span className="flex items-center gap-1.5 text-emerald-300 font-semibold">
+              <Lock className="h-3.5 w-3.5 text-emerald-400" /> Zero Aadhaar Number Storage Guarantee
             </span>
-            <span>Cryptographic RSA Verification • UIDAI Certified</span>
+            <span className="text-zinc-300 font-mono">Cryptographic RSA Verification • UIDAI Certified</span>
           </div>
         </div>
       )}

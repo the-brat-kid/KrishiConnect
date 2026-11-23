@@ -28,6 +28,7 @@ import {
   RefreshCw,
   Clock,
   CloudSun,
+  Warehouse,
 } from "lucide-react";
 import { TooltipNavbar } from "@/components/ui/tooltip-navbar";
 import { ViewOnMap } from "@/components/ui/view-on-map";
@@ -370,6 +371,12 @@ export default function DashboardPage() {
                 label: "Logistics",
                 labelHasKeyword: ["L"],
                 href: "/transportation",
+              },
+              {
+                icon: <Warehouse className="h-full w-full" />,
+                label: "Cold Storage",
+                labelHasKeyword: ["C"],
+                href: "/cold-storage",
               },
               {
                 icon: <MapPin className="h-full w-full" />,

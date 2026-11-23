@@ -576,16 +576,17 @@ export function DynamicFarmWeatherBackground({
             />
           )}
 
-          {/* Deep Obsidian-Emerald Undertone for Night; Natural Warm Daylight for Summer/Day */}
+          {/* Deep Obsidian-Emerald Undertone for Night; Natural Warm Daylight for Summer/Day with readability scrim */}
           {isNightScene ? (
-            <div className="absolute inset-0 bg-[#040807]/45 dark:bg-[#030705]/55 mix-blend-multiply pointer-events-none" />
+            <div className="absolute inset-0 bg-[#040807]/50 dark:bg-[#030705]/65 mix-blend-multiply pointer-events-none" />
           ) : isSummerScene ? (
             <div className="absolute inset-0 pointer-events-none">
-              {/* Natural Warm Golden Daylight Glow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-amber-100/5 to-emerald-950/20 pointer-events-none" />
+              {/* Contrast scrim for text readability over bright sunny photos */}
+              <div className="absolute inset-0 bg-black/40 dark:bg-black/55 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-amber-100/5 to-emerald-950/30 pointer-events-none" />
             </div>
           ) : (
-            <div className="absolute inset-0 bg-[#040807]/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-black/40 dark:bg-black/50 pointer-events-none" />
           )}
 
           {/* Rolling 3D Mountain / Valley Mist Drifts */}

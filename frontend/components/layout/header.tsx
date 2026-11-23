@@ -20,6 +20,7 @@ import {
   MapPin,
   Sparkles,
   Compass,
+  Warehouse,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,6 +83,13 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
       labelHasKeyword: ["P"],
       hasBadge: false,
       href: "/crop-planner",
+    },
+    {
+      icon: <Warehouse className="h-full w-full" />,
+      label: t("nav.coldStorage"),
+      labelHasKeyword: ["C"],
+      hasBadge: false,
+      href: "/cold-storage",
     },
     {
       icon: <CloudSun className="h-full w-full" />,

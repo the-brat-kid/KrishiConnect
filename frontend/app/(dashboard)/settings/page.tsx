@@ -240,11 +240,11 @@ export default function SettingsPage() {
               <span>APMC Settlement &amp; Business Profile Engine</span>
             </div>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2.5">
-            <Settings className="h-8 w-8 text-primary drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
+          <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-md flex items-center gap-2.5">
+            <Settings className="h-8 w-8 text-emerald-400 drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
             <span>Business Profile &amp; Settings</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-zinc-200 drop-shadow-sm">
             Configure your farm trade credentials, real-time UPI routing for invoices, and APMC compliance parameters.
           </p>
         </div>
@@ -746,42 +746,42 @@ export default function SettingsPage() {
       {activeTab === "kyc" && (
         <div className="space-y-6">
           {/* Top Live KYC Status Banner */}
-          <div className="liquid-glass p-6 sm:p-7 rounded-3xl border border-emerald-500/35 bg-gradient-to-r from-emerald-950/40 via-black/80 to-emerald-950/30 backdrop-blur-2xl shadow-[0_0_35px_rgba(16,185,129,0.15)] flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="p-6 sm:p-7 rounded-3xl border border-emerald-500/40 bg-[#07140e]/92 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6),0_0_35px_rgba(16,185,129,0.2)] flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-[0_0_25px_rgba(16,185,129,0.5)] shrink-0 border border-emerald-300/40">
                 <ShieldCheck className="h-9 w-9 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight drop-shadow-sm">
                     {kycName || user?.full_name || "Harsh Srivastava"}
                   </h2>
                   <span className="badge-liquid-glass-emerald text-xs font-bold py-1 px-3 flex items-center gap-1.5 shadow-[0_0_12px_rgba(52,211,153,0.4)]">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
                     <span>UIDAI OFFLINE VERIFIED PRODUCER</span>
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground font-mono flex items-center gap-2 flex-wrap">
-                  <span>Mandi ID: APMC-OD-2026-9812</span>
-                  <span>•</span>
-                  <span className="text-emerald-400">Compliance Level: Tier 3 (Cryptographic KYC)</span>
-                  <span>•</span>
-                  <span>UIDAI Offline Verified</span>
+                <p className="text-xs font-medium text-zinc-300 font-mono flex items-center gap-2 flex-wrap">
+                  <span className="text-zinc-200 font-semibold">Mandi ID: APMC-OD-2026-9812</span>
+                  <span className="text-zinc-400">•</span>
+                  <span className="text-emerald-300 font-semibold">Compliance Level: Tier 3 (Cryptographic KYC)</span>
+                  <span className="text-zinc-400">•</span>
+                  <span className="text-zinc-200 font-semibold">UIDAI Offline Verified</span>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-              <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-right min-w-[130px]">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
+              <div className="p-3 rounded-2xl bg-black/60 border border-emerald-500/25 text-right min-w-[130px]">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-300 block">
                   Verification Engine
                 </span>
-                <span className="text-xs font-bold text-emerald-400 font-mono">
+                <span className="text-xs font-bold text-emerald-300 font-mono">
                   UIDAI PKCS1v15
                 </span>
               </div>
-              <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 text-right min-w-[110px]">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
+              <div className="p-3 rounded-2xl bg-black/60 border border-emerald-500/25 text-right min-w-[110px]">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-300 block">
                   Privacy Mode
                 </span>
                 <span className="text-xs font-bold text-emerald-300 font-mono">
@@ -808,9 +808,9 @@ export default function SettingsPage() {
               />
 
               {/* Mandi Compliance & APMC Yard Affiliation */}
-              <div className="liquid-glass p-5 rounded-3xl border border-white/20 bg-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.4),0_12px_40px_rgba(0,0,0,0.5)] space-y-3">
+              <div className="p-5 rounded-3xl border border-emerald-500/30 bg-[#07140e]/92 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)] space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground flex items-center gap-2">
+                  <span className="text-xs font-bold text-white flex items-center gap-2">
                     <Compass className="h-4 w-4 text-emerald-400" />
                     <span>Registered Agricultural Jurisdiction &amp; APMC Yard</span>
                   </span>
@@ -818,17 +818,17 @@ export default function SettingsPage() {
                     Verified APMC Corridor
                   </span>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 space-y-1">
+                <div className="p-3.5 rounded-2xl bg-black/50 border border-white/15 space-y-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-foreground">{selectedMandiObj.name}</span>
-                    <span className="text-emerald-400 font-mono font-bold">{selectedState}</span>
+                    <span className="font-bold text-white">{selectedMandiObj.name}</span>
+                    <span className="text-emerald-300 font-mono font-bold">{selectedState}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{selectedMandiObj.address}</p>
-                  <p className="text-[10px] text-muted-foreground/80 font-mono pt-1">
+                  <p className="text-xs font-medium text-zinc-200">{selectedMandiObj.address}</p>
+                  <p className="text-[10px] text-zinc-400 font-mono pt-1">
                     Coordinates: {selectedMandiObj.lat.toFixed(4)}°N, {selectedMandiObj.lon.toFixed(4)}°E • Mandi Code: APMC-{selectedMandiObj.id.toUpperCase()}
                   </p>
                 </div>
-                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 pt-1">
+                <div className="text-[11px] font-medium text-zinc-300 flex items-center gap-1.5 pt-1">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                   <span>Primary agricultural commodities are 0% GST exempt under Section 2(107) CGST Act.</span>
                 </div>
@@ -838,15 +838,15 @@ export default function SettingsPage() {
             {/* Right Column (4 cols): Official Mandi ID Card Pass & Security Seal */}
             <div className="lg:col-span-5 xl:col-span-4 space-y-6">
               {/* Stylized Kisan Mandi Compliance Pass */}
-              <div className="liquid-glass p-6 rounded-3xl border border-emerald-500/40 bg-gradient-to-b from-black/80 via-black/90 to-emerald-950/40 backdrop-blur-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] space-y-5">
+              <div className="p-6 rounded-3xl border border-emerald-500/50 bg-[#07140e]/95 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6),0_0_30px_rgba(16,185,129,0.25)] space-y-5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
                       <BadgeCheck className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-foreground">Kisan Mandi ID Pass</h3>
-                      <p className="text-[11px] text-muted-foreground">Verified Trade Credential</p>
+                      <h3 className="font-bold text-sm text-white">Kisan Mandi ID Pass</h3>
+                      <p className="text-[11px] font-medium text-zinc-300">Verified Trade Credential</p>
                     </div>
                   </div>
                   <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-2">
@@ -855,8 +855,8 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Stylized QR Code Badge */}
-                <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/[0.04] border border-white/10 space-y-3">
-                  <div className="p-3 rounded-2xl bg-white shadow-2xl border-4 border-emerald-500/40">
+                <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-black/50 border border-white/15 space-y-3">
+                  <div className="p-3 rounded-2xl bg-white shadow-2xl border-4 border-emerald-500/50">
                     {qrCodeDataUrl ? (
                       <img src={qrCodeDataUrl} alt="Mandi KYC Pass QR" className="w-36 h-36" />
                     ) : (
@@ -866,10 +866,10 @@ export default function SettingsPage() {
                     )}
                   </div>
                   <div className="text-center">
-                    <span className="font-mono text-xs font-bold text-emerald-400 block">
+                    <span className="font-mono text-xs font-bold text-emerald-300 block">
                       UIDAI SECURE QR VERIFIED
                     </span>
-                    <span className="text-[10px] text-muted-foreground block">
+                    <span className="text-[10px] font-medium text-zinc-300 block">
                       Official Encrypted Handshake
                     </span>
                   </div>
@@ -877,23 +877,23 @@ export default function SettingsPage() {
 
                 {/* Pass Fields */}
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/10">
-                    <span className="text-muted-foreground">Operator Name:</span>
-                    <span className="font-bold text-foreground">{kycName || user?.full_name || "Harsh Srivastava"}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/15">
+                    <span className="text-zinc-300 font-medium">Operator Name:</span>
+                    <span className="font-bold text-white">{kycName || user?.full_name || "Harsh Srivastava"}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/10">
-                    <span className="text-muted-foreground">Mandi Hub:</span>
-                    <span className="font-bold text-emerald-400 truncate max-w-[170px]">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/15">
+                    <span className="text-zinc-300 font-medium">Mandi Hub:</span>
+                    <span className="font-bold text-emerald-300 truncate max-w-[170px]">
                       {selectedMandiObj.name}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/10">
-                    <span className="text-muted-foreground">State:</span>
-                    <span className="font-bold text-foreground">{selectedState}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/15">
+                    <span className="text-zinc-300 font-medium">State:</span>
+                    <span className="font-bold text-white">{selectedState}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/10">
-                    <span className="text-muted-foreground">Auth Provider:</span>
-                    <span className="font-mono font-bold text-emerald-400">UIDAI PKCS1v15 (Offline)</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-white/15">
+                    <span className="text-zinc-300 font-medium">Auth Provider:</span>
+                    <span className="font-mono font-bold text-emerald-300">UIDAI PKCS1v15 (Offline)</span>
                   </div>
                 </div>
 
