@@ -300,7 +300,7 @@ export default function SoilHealthPage() {
           <TabsList className="bg-zinc-100 dark:bg-zinc-900 p-1">
             <TabsTrigger value="ai-scanner" className="text-xs font-semibold flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-              <span>AI Crop Advisor (Gemini)</span>
+              <span>AI Crop Advisor</span>
             </TabsTrigger>
             <TabsTrigger value="labs" className="text-xs font-semibold">
               Certified Labs ({labs.length})
@@ -347,7 +347,7 @@ export default function SoilHealthPage() {
           )}
         </div>
 
-        {/* TAB 0: AI CROP ADVISOR (GEMINI) */}
+        {/* TAB 0: AI CROP ADVISOR */}
         <TabsContent value="ai-scanner" className="pt-1">
           <SoilAiScanner onBookTest={() => handleOpenBooking()} />
         </TabsContent>

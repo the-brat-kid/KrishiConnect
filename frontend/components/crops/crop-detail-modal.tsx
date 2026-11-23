@@ -18,6 +18,7 @@ import {
   Layers,
   Sparkles,
   ExternalLink,
+  Lightbulb,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -153,7 +154,126 @@ const CROP_AGRO_DATABASE: Record<string, CropAgroProfile> = {
     advisory: "Record wholesale prices in 2026. Excellent post-harvest drying durability.",
     costs: { seeds: 18000, fertilizer: 6000, labor: 5500, irrigation: 3000, protection: 2500 },
   },
+  paddy: {
+    localName: "Dhana / Chaula (Paddy / Rice)",
+    season: "Kharif (Monsoon: June - Nov)",
+    durationDays: "120 - 135 Days",
+    waterNeed: "High",
+    costPerAcre: 24000,
+    expectedYieldQtl: 26,
+    marketRatePerQtl: 2320,
+    soilType: "Coastal alluvial and clayey delta loam (Cuttack, Balasore, Bargarh, Puri)",
+    profitOutlook: "Moderate / Stable",
+    advisory: "Principal staple crop with 100% assured PACS & APMC mandi procurement at government MSP.",
+    costs: { seeds: 2500, fertilizer: 7500, labor: 8000, irrigation: 3000, protection: 3000 },
+  },
+  rice: {
+    localName: "Dhana (Swarna / MTU-1001)",
+    season: "Kharif (Monsoon: June - Nov)",
+    durationDays: "125 - 140 Days",
+    waterNeed: "High",
+    costPerAcre: 24000,
+    expectedYieldQtl: 26,
+    marketRatePerQtl: 2320,
+    soilType: "Alluvial wetland soils across coastal Odisha",
+    profitOutlook: "Moderate / Stable",
+    advisory: "Assured MSP procurement and steady demand across all state civil supply depots.",
+    costs: { seeds: 2500, fertilizer: 7500, labor: 8000, irrigation: 3000, protection: 3000 },
+  },
+  groundnut: {
+    localName: "Chinabadam (Groundnut / Peanut)",
+    season: "Rabi (Winter: Nov - March)",
+    durationDays: "105 - 120 Days",
+    waterNeed: "Low",
+    costPerAcre: 26000,
+    expectedYieldQtl: 18,
+    marketRatePerQtl: 6750,
+    soilType: "Well-drained light sandy loam to coastal alluvial (Jajpur, Ganjam, Cuttack)",
+    profitOutlook: "Highly Profitable",
+    advisory: "High oil content and strong merchant export demand. Naturally fixes atmospheric nitrogen.",
+    costs: { seeds: 8000, fertilizer: 6000, labor: 6500, irrigation: 2500, protection: 3000 },
+  },
+  peanut: {
+    localName: "Chinabadam (Smruti / TAG-24)",
+    season: "Rabi (Winter: Nov - March)",
+    durationDays: "105 - 120 Days",
+    waterNeed: "Low",
+    costPerAcre: 26000,
+    expectedYieldQtl: 18,
+    marketRatePerQtl: 6750,
+    soilType: "Light sandy loam with high potassium reserve",
+    profitOutlook: "Highly Profitable",
+    advisory: "Strong local oil mill buying and high pod-filling efficiency.",
+    costs: { seeds: 8000, fertilizer: 6000, labor: 6500, irrigation: 2500, protection: 3000 },
+  },
+  mustard: {
+    localName: "Sorisha (Mustard / Rapeseed)",
+    season: "Rabi / Winter (Oct - Feb)",
+    durationDays: "85 - 100 Days",
+    waterNeed: "Low",
+    costPerAcre: 16000,
+    expectedYieldQtl: 12,
+    marketRatePerQtl: 5850,
+    soilType: "Sandy loam to medium loam with good drainage (Angul, Sambalpur, Mayurbhanj)",
+    profitOutlook: "High Margin",
+    advisory: "Short-duration low water crop, ideal immediately after paddy harvest.",
+    costs: { seeds: 2000, fertilizer: 5000, labor: 4500, irrigation: 2000, protection: 2500 },
+  },
+  wheat: {
+    localName: "Gahama (Wheat)",
+    season: "Rabi (Nov - March)",
+    durationDays: "110 - 120 Days",
+    waterNeed: "Medium",
+    costPerAcre: 21000,
+    expectedYieldQtl: 20,
+    marketRatePerQtl: 2450,
+    soilType: "Fertile alluvial loam with neutral pH",
+    profitOutlook: "Moderate / Stable",
+    advisory: "Steady grain demand backed by MSP procurement.",
+    costs: { seeds: 3500, fertilizer: 6500, labor: 5500, irrigation: 3000, protection: 2500 },
+  },
+  maize: {
+    localName: "Maka (Corn / Maize)",
+    season: "Kharif & Rabi (Year-Round)",
+    durationDays: "90 - 105 Days",
+    waterNeed: "Medium",
+    costPerAcre: 22000,
+    expectedYieldQtl: 32,
+    marketRatePerQtl: 2225,
+    soilType: "Deep well-drained loam (Nabarangpur, Koraput, Mayurbhanj)",
+    profitOutlook: "Highly Profitable",
+    advisory: "Rapidly expanding cash crop with massive industrial starch and poultry feed mill demand.",
+    costs: { seeds: 4000, fertilizer: 7000, labor: 5500, irrigation: 3000, protection: 2500 },
+  },
 };
+
+export interface SoilRecommendationData {
+  crop?: string;
+  suitability?: number;
+  season?: string;
+  reason?: string;
+  expected_yield_boost?: string;
+  best_fertilizer?: string;
+  fertilizer_schedule?: {
+    basal?: string;
+    top_dressing?: string;
+    micronutrients?: string;
+    organic?: string;
+  };
+  npk_ratio?: string;
+  application_tip?: string;
+}
+
+export interface SoilParametersData {
+  ph?: string;
+  ph_status?: string;
+  nitrogen?: string;
+  phosphorus?: string;
+  potassium?: string;
+  organic_carbon?: string;
+  zinc?: string;
+  salinity_ec?: string;
+}
 
 interface CropDetailModalProps {
   isOpen: boolean;
@@ -166,6 +286,9 @@ interface CropDetailModalProps {
   priceQuintal?: number | string;
   mandiInfo?: string;
   url?: string;
+  soilRecommendation?: SoilRecommendationData;
+  soilParameters?: SoilParametersData;
+  district?: string;
 }
 
 export function CropDetailModal({
@@ -179,8 +302,13 @@ export function CropDetailModal({
   priceQuintal,
   mandiInfo,
   url,
+  soilRecommendation,
+  soilParameters,
+  district = "Odisha",
 }: CropDetailModalProps) {
-  const [activeTab, setActiveTab] = useState<"history" | "profit">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "profit" | "soil">(
+    soilRecommendation ? "soil" : "history"
+  );
   const [calcAcres, setCalcAcres] = useState<number>(1);
   const { data: historyData } = useCropHistory();
 
@@ -326,6 +454,25 @@ export function CropDetailModal({
               <Sprout className="w-3.5 h-3.5" />
               <span>Future Growth & Profit Projection</span>
             </button>
+            {soilRecommendation && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("soil")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  activeTab === "soil"
+                    ? "bg-amber-600 text-white shadow-xs"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Soil & Fertilizer Advisory</span>
+                {soilRecommendation.suitability && (
+                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
+                    {soilRecommendation.suitability}%
+                  </span>
+                )}
+              </button>
+            )}
           </div>
         </DialogHeader>
 
@@ -529,6 +676,148 @@ export function CropDetailModal({
               </div>
             </div>
           )}
+
+          {/* TAB 3: SOIL & FERTILIZER ADVISORY */}
+          {activeTab === "soil" && soilRecommendation && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              {/* Match Header Banner */}
+              <div className="p-4 rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 via-emerald-950/20 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 text-xs font-bold">
+                      {soilRecommendation.season || agroProfile.season}
+                    </Badge>
+                    <Badge variant="outline" className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 text-xs font-bold">
+                      {soilRecommendation.suitability || 90}% Match
+                    </Badge>
+                  </div>
+                  <h4 className="font-extrabold text-base text-foreground">
+                    Soil Suitability & Agronomic Diagnostic
+                  </h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {soilRecommendation.reason || agroProfile.advisory}
+                  </p>
+                </div>
+                {soilRecommendation.expected_yield_boost && (
+                  <div className="text-left sm:text-right shrink-0 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25">
+                    <span className="text-[10px] font-semibold text-muted-foreground block">Yield Potential</span>
+                    <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                      {soilRecommendation.expected_yield_boost}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Extracted Soil Parameters Snapshot */}
+              {soilParameters && (
+                <div className="p-3.5 rounded-xl border border-border/70 bg-muted/20 space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                    Target Field Parameters ({district})
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="p-2 rounded-lg bg-card border border-border/50">
+                      <span className="text-[10px] text-muted-foreground block">Soil pH</span>
+                      <span className="font-bold text-foreground">{soilParameters.ph} ({soilParameters.ph_status})</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-card border border-border/50">
+                      <span className="text-[10px] text-muted-foreground block">Nitrogen (N)</span>
+                      <span className="font-bold text-foreground">{soilParameters.nitrogen}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-card border border-border/50">
+                      <span className="text-[10px] text-muted-foreground block">Phosphorus & Potash</span>
+                      <span className="font-bold text-foreground">P: {soilParameters.phosphorus} | K: {soilParameters.potassium}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-card border border-border/50">
+                      <span className="text-[10px] text-muted-foreground block">Zinc & Carbon</span>
+                      <span className="font-bold text-foreground">Zn: {soilParameters.zinc} | OC: {soilParameters.organic_carbon}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Optimal Fertilizer Recommendation Card */}
+              {soilRecommendation.best_fertilizer && (
+                <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-sm">
+                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Prescribed Fertilizer Dosage & Timing:</span>
+                  </div>
+                  <p className="text-xs text-foreground/90 font-medium leading-relaxed bg-card/60 p-3 rounded-lg border border-border/60">
+                    {soilRecommendation.best_fertilizer}
+                  </p>
+
+                  {/* Stage-wise Schedule Breakdown */}
+                  {soilRecommendation.fertilizer_schedule && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                      {soilRecommendation.fertilizer_schedule.basal && (
+                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+                            1. Basal Application (Sowing Time)
+                          </span>
+                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                            {soilRecommendation.fertilizer_schedule.basal}
+                          </span>
+                        </div>
+                      )}
+                      {soilRecommendation.fertilizer_schedule.top_dressing && (
+                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                            2. Top Dressing (Growth Stages)
+                          </span>
+                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                            {soilRecommendation.fertilizer_schedule.top_dressing}
+                          </span>
+                        </div>
+                      )}
+                      {soilRecommendation.fertilizer_schedule.micronutrients && (
+                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                          <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider block">
+                            3. Micronutrient Foliar Spray
+                          </span>
+                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                            {soilRecommendation.fertilizer_schedule.micronutrients}
+                          </span>
+                        </div>
+                      )}
+                      {soilRecommendation.fertilizer_schedule.organic && (
+                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                          <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider block">
+                            4. Organic & Bio-fertilizer
+                          </span>
+                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                            {soilRecommendation.fertilizer_schedule.organic}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {soilRecommendation.application_tip && (
+                    <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300 italic flex items-start gap-1.5">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                      <span><strong>Agronomic Tip:</strong> {soilRecommendation.application_tip}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons for Subsidy & Cold Storage */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <Button asChild variant="outline" className="h-10 text-xs font-bold border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 justify-start">
+                  <Link href={`/fertilizer?crop=${encodeURIComponent(cropName.split(" ")[0].toLowerCase())}`}>
+                    <IndianRupee className="w-3.5 h-3.5 mr-1 text-emerald-500" />
+                    <span>Calculate Fertilizer Cost & Subsidy</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-10 text-xs font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 justify-start">
+                  <Link href={`/cold-storage?crop=${encodeURIComponent(cropName.split(" ")[0].toLowerCase())}`}>
+                    <Layers className="w-3.5 h-3.5 mr-1 text-cyan-500" />
+                    <span>Find Cold Storage for {cropName.split(" ")[0]}</span>
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Modal Bottom Actions */}
@@ -537,6 +826,14 @@ export function CropDetailModal({
             <Button variant="ghost" size="sm" onClick={onClose} className="text-xs">
               Close
             </Button>
+            {soilRecommendation && (
+              <Button variant="outline" size="sm" asChild className="text-xs font-semibold border-amber-500/30 text-amber-600 dark:text-amber-400">
+                <Link href={`/fertilizer?crop=${encodeURIComponent(cropName.split(" ")[0].toLowerCase())}`}>
+                  <IndianRupee className="w-3.5 h-3.5 mr-1" />
+                  <span>Fertilizer Subsidy</span>
+                </Link>
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
