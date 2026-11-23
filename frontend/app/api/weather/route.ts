@@ -22,6 +22,10 @@ function decodeWmoWeather(code: number): { condition: string; icon: string; advi
   return { condition: "Partly Cloudy", icon: "cloud-sun", advisory: "Normal agrarian operations permitted." };
 }
 
+// In-memory weather cache to prevent continuous NASA / Open-Meteo external query stalls
+const WEATHER_SERVER_CACHE = new Map<string, { timestamp: number; data: any }>();
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15-minute high speed cache
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
@@ -36,6 +40,18 @@ export async function GET(request: NextRequest) {
 
   const lat = parseFloat(latStr);
   const lon = parseFloat(lonStr);
+
+  const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
+  const cached = WEATHER_SERVER_CACHE.get(cacheKey);
+  const nowMs = Date.now();
+  if (cached && (nowMs - cached.timestamp < CACHE_TTL_MS)) {
+    return NextResponse.json(cached.data, {
+      headers: {
+        "X-Cache": "HIT",
+        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=1800",
+      },
+    });
+  }
 
   const mandiInfo = {
     id: mandiId,
@@ -206,7 +222,7 @@ export async function GET(request: NextRequest) {
     const finalHumidity = Math.round(current.relative_humidity_2m ?? (nasaPowerData.humidity ?? 68));
     const finalWindSpeedKmh = Math.round(current.wind_speed_10m ?? ((nasaPowerData.windMps ?? 2.2) * 3.6));
 
-    return NextResponse.json({
+    const successPayload = {
       success: true,
       source: "NASA Earth Observation & POWER Agroclimatology API",
       mandi: mandiInfo,
@@ -258,6 +274,13 @@ export async function GET(request: NextRequest) {
       hourly: hourlyForecast,
       daily: dailyForecast,
       lastUpdated: new Date().toISOString(),
+    };
+    WEATHER_SERVER_CACHE.set(cacheKey, { timestamp: Date.now(), data: successPayload });
+    return NextResponse.json(successPayload, {
+      headers: {
+        "X-Cache": "MISS",
+        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=1800",
+      },
     });
   } catch (error) {
     console.error("Atmospheric forecast fallback used:", error);
@@ -266,7 +289,7 @@ export async function GET(request: NextRequest) {
     const fallbackHumidity = Math.round(nasaPowerData.humidity ?? 65);
     const fallbackWind = Math.round((nasaPowerData.windMps ?? 2.2) * 3.6);
 
-    return NextResponse.json({
+    const fallbackPayload = {
       success: true,
       source: "NASA Agroclimatology Earth Model (Cached Baseline)",
       mandi: mandiInfo,
@@ -333,6 +356,13 @@ export async function GET(request: NextRequest) {
         { date: "2026-11-26", day: "Thu", maxTemp: fallbackTemp + 4, minTemp: fallbackTemp - 4, rainProbability: 15, rainfallMm: 0.0, condition: "Clear Sky", icon: "sun" },
       ],
       lastUpdated: new Date().toISOString(),
+    };
+    WEATHER_SERVER_CACHE.set(cacheKey, { timestamp: Date.now(), data: fallbackPayload });
+    return NextResponse.json(fallbackPayload, {
+      headers: {
+        "X-Cache": "FALLBACK",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+      },
     });
   }
 }

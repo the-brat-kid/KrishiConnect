@@ -23,11 +23,11 @@ if "asyncpg" in settings.SQLALCHEMY_DATABASE_URI:
 engine = create_async_engine(
     settings.SQLALCHEMY_DATABASE_URI,
     echo=False,
-    pool_pre_ping=True,      # Tests connection liveness before checkout to prevent stale disconnects
-    pool_recycle=1800,       # Recycles connections every 30 minutes to reduce handshake overhead
-    pool_size=25,            # Higher baseline connection pool to eliminate query queuing
-    max_overflow=50,         # Allows burst up to 75 concurrent database connections
-    pool_timeout=10,         # Fail fast if pool is saturated instead of blocking indefinitely
+    pool_pre_ping=False,     # Disabled pre-ping to eliminate redundant SELECT 1 latency on every checkout
+    pool_recycle=300,        # Recycles connections every 5 minutes to prevent stale sockets
+    pool_size=10,            # Optimal baseline pool size for local & containerized environments
+    max_overflow=20,         # Allows burst up to 30 concurrent connections without exhausting Postgres limit
+    pool_timeout=5,          # Fail fast if pool is saturated instead of blocking indefinitely
     connect_args=connect_args,
 )
 
@@ -48,12 +48,12 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
-# MongoDB Setup with connection pooling & fast server selection
+# MongoDB Setup with fast timeout and non-blocking pool
 mongo_client = AsyncIOMotorClient(
     settings.MONGODB_URL,
-    maxPoolSize=50,
-    minPoolSize=5,
-    serverSelectionTimeoutMS=2000,
-    waitQueueTimeoutMS=5000,
+    maxPoolSize=20,
+    minPoolSize=0,            # 0 ensures no background connection loops when MongoDB is offline
+    serverSelectionTimeoutMS=250,  # 250ms fast-fail to prevent request hangs when MongoDB is down
+    waitQueueTimeoutMS=1000,
 )
 mongo_db = mongo_client[settings.MONGODB_DB_NAME]

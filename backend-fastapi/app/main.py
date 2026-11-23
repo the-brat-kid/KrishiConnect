@@ -51,12 +51,12 @@ async def lifespan(app: FastAPI):
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_document_uploaded_at TIMESTAMP",
         "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kyc_dedup_hash ON users (kyc_dedup_hash)",
     ]
-    for ddl in ddls:
-        try:
-            async with engine.begin() as conn:
+    async with engine.begin() as conn:
+        for ddl in ddls:
+            try:
                 await conn.execute(text(ddl))
-        except Exception:
-            pass
+            except Exception:
+                pass
     print("✅ Database tables verified/created successfully")
     yield
 

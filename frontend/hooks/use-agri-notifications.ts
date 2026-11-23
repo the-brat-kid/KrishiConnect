@@ -48,6 +48,10 @@ export interface AgriNotification {
 
 const STORAGE_KEY = "krishiconnect_read_agri_alerts_v1";
 
+// Module-level client cache with 10-minute TTL to prevent concurrent component fetch stampedes
+const CLIENT_WEATHER_CACHE = new Map<string, { timestamp: number; data: any }>();
+const CLIENT_CACHE_TTL = 10 * 60 * 1000;
+
 export function useAgriNotifications() {
   const { selectedState, selectedMandiObj, currentRegionDef } = useLanguage();
   const { data: cropRatesData } = useCropRates(selectedState);
@@ -80,14 +84,23 @@ export function useAgriNotifications() {
     }
   }, []);
 
-  // Fetch weather data for selected Mandi
+  // Fetch weather data for selected Mandi with memory caching
   useEffect(() => {
     let isCancelled = false;
+    const lat = selectedMandiObj?.lat || 20.2961;
+    const lon = selectedMandiObj?.lon || 85.8245;
+    const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
+    const cached = CLIENT_WEATHER_CACHE.get(cacheKey);
+
+    if (cached && (Date.now() - cached.timestamp < CLIENT_CACHE_TTL)) {
+      setWeatherData(cached.data);
+      setWeatherLoading(false);
+      return;
+    }
+
     const fetchWeather = async () => {
       setWeatherLoading(true);
       try {
-        const lat = selectedMandiObj?.lat || 20.2961;
-        const lon = selectedMandiObj?.lon || 85.8245;
         const name = selectedMandiObj?.name || "Bhubaneswar APMC Mandi";
         const state = selectedState || "Odisha";
         const district = selectedMandiObj?.district || "Khordha";
@@ -97,6 +110,7 @@ export function useAgriNotifications() {
         );
         if (res.ok) {
           const json = await res.json();
+          CLIENT_WEATHER_CACHE.set(cacheKey, { timestamp: Date.now(), data: json });
           if (!isCancelled) {
             setWeatherData(json);
           }
@@ -112,7 +126,7 @@ export function useAgriNotifications() {
     return () => {
       isCancelled = true;
     };
-  }, [selectedMandiObj, selectedState]);
+  }, [selectedMandiObj?.lat, selectedMandiObj?.lon, selectedState]);
 
   // Generate dynamic agricultural notifications
   const notifications: AgriNotification[] = useMemo(() => {

@@ -5,7 +5,7 @@ from app.core.database import mongo_db
 
 # Circuit breaker: if MongoDB is unreachable or down, don't stall requests
 _mongo_last_failed_time: float = 0.0
-_MONGO_BACKOFF_SECONDS: float = 60.0
+_MONGO_BACKOFF_SECONDS: float = 300.0  # 5 minute backoff to eliminate retries when MongoDB is offline
 
 async def _insert_audit_entry(action: str, user_id: str, business_profile_id: str, entity_type: str, entity_id: str, details: dict):
     global _mongo_last_failed_time
