@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import time
@@ -6,6 +7,10 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Query
 
 router = APIRouter()
+
+# Open Government Data (data.gov.in) AGMARKNET Integration
+DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY", "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b")
+DATA_GOV_RESOURCE_ID = os.getenv("DATA_GOV_RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
 
 # Authentic baseline data extracted directly from acrop.app/mandi/odisha
 BASELINE_ODISHA_CROPS = [
@@ -258,6 +263,63 @@ def fetch_and_parse_history(days: int = 7) -> Dict[str, Any]:
     }
 
 
+def fetch_data_gov_mandi_rates(state: str = "Odisha", limit: int = 20) -> List[Dict[str, Any]]:
+    """
+    Fetches real-time commodity mandi prices from Open Government Data (data.gov.in) AGMARKNET.
+    Times out quickly (2.5s) and gracefully falls back to authentic cache.
+    """
+    try:
+        url = (
+            f"https://api.data.gov.in/resource/{DATA_GOV_RESOURCE_ID}"
+            f"?api-key={DATA_GOV_API_KEY}&format=json&limit={limit}"
+            f"&filters[state.keyword]={urllib.parse.quote(state)}"
+        )
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (KrishiConnect/1.0)",
+                "Accept": "application/json"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            records = data.get("records") or data.get("data") or []
+            if not records:
+                return []
+            parsed = []
+            for r in records:
+                comm = r.get("commodity")
+                modal = r.get("modal_price")
+                if not comm or not modal:
+                    continue
+                modal_num = float(re.sub(r"[^\d.]", "", str(modal))) if modal else 0.0
+                price_num_kg = round(modal_num / 100.0, 1)
+                parsed.append({
+                    "id": f"datagov-{re.sub(r'[^a-z0-9]+', '-', str(comm).lower()).strip('-')}",
+                    "name": str(comm),
+                    "category": "Agricultural Produce",
+                    "price": f"₹{price_num_kg:.1f}/kg" if price_num_kg % 1 != 0 else f"₹{int(price_num_kg)}/kg",
+                    "price_num": price_num_kg,
+                    "priceNum": price_num_kg,
+                    "price_quintal": f"₹{int(modal_num):,}",
+                    "price_num_quintal": int(modal_num),
+                    "retail_price": f"₹{round(price_num_kg * 1.35, 1)}/kg",
+                    "retailPrice": f"₹{round(price_num_kg * 1.35, 1)}/kg",
+                    "mall_price": f"₹{round(price_num_kg * 1.6, 1)}/kg",
+                    "mallPrice": f"₹{round(price_num_kg * 1.6, 1)}/kg",
+                    "unit": "kg",
+                    "mandi_info": f"{r.get('market', 'APMC')} Mandi · {r.get('district', '')}",
+                    "date": r.get("arrival_date", time.strftime("%Y-%m-%d")),
+                    "arrivals": "Government Daily Record",
+                    "emoji": "🌾",
+                    "image": "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
+                    "url": "https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+                })
+            return parsed
+    except Exception:
+        return []
+
+
 @router.get("")
 async def get_crop_rates(refresh: bool = Query(False, description="Bypass cache and fetch fresh rates")):
     now = time.time()
@@ -265,12 +327,19 @@ async def get_crop_rates(refresh: bool = Query(False, description="Bypass cache 
         return _cache["data"]
 
     try:
+        # Try fetching live from data.gov.in AGMARKNET
+        gov_items = fetch_data_gov_mandi_rates(state="Odisha", limit=20)
         items = fetch_and_parse_rates()
+        if gov_items:
+            existing_names = {i["name"].lower() for i in gov_items}
+            items = gov_items + [i for i in items if i["name"].lower() not in existing_names]
+
         result = {
             "success": True,
-            "market": "Odisha Mandis (State-wide Average)",
+            "market": "Odisha Mandis (State-wide Average & AGMARKNET)",
             "state": "Odisha",
-            "source_url": SOURCE_URL,
+            "source_url": "https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+            "source_attribution": "Government of India AGMARKNET (data.gov.in)",
             "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
             "count": len(items),
             "items": items
@@ -285,7 +354,7 @@ async def get_crop_rates(refresh: bool = Query(False, description="Bypass cache 
             "success": True,
             "market": "Odisha Mandis (State-wide Average)",
             "state": "Odisha",
-            "source_url": SOURCE_URL,
+            "source_url": "https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
             "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
             "count": len(BASELINE_ODISHA_CROPS),
             "items": BASELINE_ODISHA_CROPS

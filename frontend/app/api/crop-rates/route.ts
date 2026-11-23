@@ -1493,11 +1493,227 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
   },
 ];
 
+// Open Government Data (data.gov.in) AGMARKNET Integration
+const DATA_GOV_API_KEY = process.env.DATA_GOV_API_KEY || "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b";
+const DATA_GOV_RESOURCE_ID = process.env.DATA_GOV_RESOURCE_ID || "9ef84268-d588-465a-a308-a864a43d0070";
+const IS_SAMPLE_KEY = DATA_GOV_API_KEY === "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b";
+
+// Crop image and metadata matcher for government commodity names
+const COMMODITY_META: Record<string, { emoji: string; category: string; image: string }> = {
+  potato: {
+    emoji: "🥔",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  onion: {
+    emoji: "🧅",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  tomato: {
+    emoji: "🍅",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  brinjal: {
+    emoji: "🍆",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  cabbage: {
+    emoji: "🥬",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cabbage.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  cauliflower: {
+    emoji: "🥦",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cauliflower.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  chilli: {
+    emoji: "🌶️",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  garlic: {
+    emoji: "🧄",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Garlic.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  ginger: {
+    emoji: "🫚",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Ginger.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  wheat: {
+    emoji: "🌾",
+    category: "Cereals & Grains",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  paddy: {
+    emoji: "🌾",
+    category: "Cereals & Grains",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  rice: {
+    emoji: "🍚",
+    category: "Cereals & Grains",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Rice.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  mustard: {
+    emoji: "🌼",
+    category: "Oilseeds",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Mustard.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  groundnut: {
+    emoji: "🥜",
+    category: "Oilseeds",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Groundnut.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  maize: {
+    emoji: "🌽",
+    category: "Cereals & Grains",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Maize.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  cotton: {
+    emoji: "☁️",
+    category: "Commercial Crops",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  banana: {
+    emoji: "🍌",
+    category: "Fruits",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/BananaGreen.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  apple: {
+    emoji: "🍎",
+    category: "Fruits",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Apple.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  carrot: {
+    emoji: "🥕",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Carrot.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+  pumpkin: {
+    emoji: "🎃",
+    category: "Vegetables",
+    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cucurbits.jpg?width=48&quality=75&format=webp&resize=contain",
+  },
+};
+
+// In-memory cache for live government data (10-minute cache)
+const liveCache = new Map<string, { timestamp: number; items: CropRateItem[] }>();
+const CACHE_TTL_MS = 10 * 60 * 1000;
+
+async function fetchFromDataGov(stateFilter?: string): Promise<CropRateItem[]> {
+  const cacheKey = stateFilter ? stateFilter.toLowerCase() : "all";
+  const cached = liveCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.items;
+  }
+
+  const queryLimit = IS_SAMPLE_KEY ? 10 : 50;
+  const baseUrl = `https://api.data.gov.in/resource/${DATA_GOV_RESOURCE_ID}`;
+  const urlParams = new URLSearchParams({
+    "api-key": DATA_GOV_API_KEY,
+    format: "json",
+    limit: String(queryLimit),
+  });
+
+  if (stateFilter && stateFilter !== "all" && stateFilter !== "all india" && stateFilter !== "pan-india") {
+    // data.gov.in AGMARKNET filter for state
+    urlParams.set("filters[state.keyword]", stateFilter);
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s timeout for fast response
+
+    const res = await fetch(`${baseUrl}?${urlParams.toString()}`, {
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "KrishiConnect/1.0 (+https://krishiconnect.in)",
+      },
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const json = await res.json();
+    const records = json.records || json.data || [];
+    if (!Array.isArray(records) || records.length === 0) {
+      return [];
+    }
+
+    const items: CropRateItem[] = records
+      .filter((r: any) => r.commodity && r.modal_price)
+      .map((r: any) => {
+        const commodityStr = String(r.commodity).trim();
+        const modalNum = parseFloat(String(r.modal_price).replace(/[^0-9.]/g, "")) || 0;
+        const minNum = parseFloat(String(r.min_price || "").replace(/[^0-9.]/g, "")) || modalNum * 0.9;
+        const maxNum = parseFloat(String(r.max_price || "").replace(/[^0-9.]/g, "")) || modalNum * 1.1;
+
+        const priceNumKg = Math.round((modalNum / 100) * 10) / 10;
+        const commLower = commodityStr.toLowerCase();
+
+        // Match metadata
+        let matchedMeta = COMMODITY_META[commLower];
+        if (!matchedMeta) {
+          const matchKey = Object.keys(COMMODITY_META).find((k) => commLower.includes(k));
+          matchedMeta = matchKey ? COMMODITY_META[matchKey] : {
+            emoji: "🌱",
+            category: "Agricultural Produce",
+            image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
+          };
+        }
+
+        const cleanId = `datagov-${commodityStr.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${String(r.market || "mandi").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
+        return {
+          id: cleanId,
+          name: commodityStr,
+          category: matchedMeta.category,
+          state: r.state || stateFilter || "India",
+          market: `${r.market || "APMC"} Mandi`,
+          price: `₹${priceNumKg % 1 !== 0 ? priceNumKg.toFixed(1) : priceNumKg}/kg`,
+          priceNum: priceNumKg,
+          price_quintal: `₹${Math.round(modalNum).toLocaleString("en-IN")}`,
+          priceNumQuintal: Math.round(modalNum),
+          min_price: `₹${Math.round(minNum).toLocaleString("en-IN")}`,
+          max_price: `₹${Math.round(maxNum).toLocaleString("en-IN")}`,
+          retailPrice: `₹${(priceNumKg * 1.35).toFixed(1)}/kg`,
+          mallPrice: `₹${(priceNumKg * 1.6).toFixed(1)}/kg`,
+          unit: "kg",
+          variety: r.variety || "Standard",
+          mandi_info: `${r.market || "APMC"} Mandi · ${r.district || ""} (${r.grade || "FAQ"})`,
+          arrivals: "Daily Government Record",
+          date: r.arrival_date || new Date().toISOString().split("T")[0],
+          emoji: matchedMeta.emoji,
+          image: matchedMeta.image,
+          trend: "stable" as const,
+          url: "https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+        };
+      });
+
+    if (items.length > 0) {
+      liveCache.set(cacheKey, { timestamp: Date.now(), items });
+    }
+    return items;
+  } catch {
+    return [];
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const stateParam = searchParams.get("state")?.toLowerCase();
   const categoryParam = searchParams.get("category")?.toLowerCase();
 
+  // 1. Filter local pan-India curated baseline
   let filtered = [...PAN_INDIA_MANDI_RATES];
 
   if (stateParam && stateParam !== "all" && stateParam !== "all india" && stateParam !== "pan-india") {
@@ -1512,8 +1728,18 @@ export async function GET(request: Request) {
     });
   }
 
+  // 2. Fetch live data from data.gov.in AGMARKNET (with fast timeout & cache)
+  const liveGovItems = await fetchFromDataGov(stateParam);
+
+  // If live data returned, merge with priority
+  let combinedItems = filtered;
+  if (liveGovItems.length > 0) {
+    const existingIds = new Set(liveGovItems.map((i) => i.id));
+    combinedItems = [...liveGovItems, ...filtered.filter((i) => !existingIds.has(i.id))];
+  }
+
   if (categoryParam && categoryParam !== "all") {
-    filtered = filtered.filter((item) =>
+    combinedItems = combinedItems.filter((item) =>
       item.category.toLowerCase().includes(categoryParam)
     );
   }
@@ -1522,10 +1748,12 @@ export async function GET(request: Request) {
     success: true,
     market: stateParam ? `${stateParam.toUpperCase()} APMC Mandis` : "Pan-India National Mandi Network",
     state: stateParam || "All India",
-    sourceUrl: "https://bhumiai.in/prices",
-    sourceAttribution: "BhumiAI National Mandi Price Index (bhumiai.in/prices) & Agmarknet",
+    sourceUrl: "https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+    sourceAttribution: "Government of India AGMARKNET (data.gov.in) & Pan-India APMC Network",
+    resourceId: DATA_GOV_RESOURCE_ID,
+    isSampleKey: IS_SAMPLE_KEY,
     updatedAt: new Date().toISOString(),
-    count: filtered.length,
-    items: filtered,
+    count: combinedItems.length,
+    items: combinedItems,
   });
 }

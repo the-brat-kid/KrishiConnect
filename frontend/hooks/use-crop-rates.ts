@@ -31,6 +31,8 @@ export interface CropRatesResponse {
   state: string;
   sourceUrl: string;
   sourceAttribution?: string;
+  resourceId?: string;
+  isSampleKey?: boolean;
   updatedAt: string;
   count: number;
   items: CropRateItem[];

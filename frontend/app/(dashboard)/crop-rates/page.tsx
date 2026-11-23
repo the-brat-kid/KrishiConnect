@@ -162,13 +162,25 @@ export default function DailyCropRatesPage() {
             </div>
 
             <a
+              href="https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
+              title="Government of India Open Data AGMARKNET (Resource 9ef84268)"
+            >
+              <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
+              <span>data.gov.in (AGMARKNET)</span>
+              <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+            </a>
+
+            <a
               href="https://bhumiai.in/prices"
               target="_blank"
               rel="noopener noreferrer"
               className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
             >
-              <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-              <span>BhumiAI Live Feed</span>
+              <Globe2 className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
+              <span>National Feed</span>
               <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
             </a>
           </div>
