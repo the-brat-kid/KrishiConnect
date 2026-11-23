@@ -346,7 +346,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
       marker.bindPopup(`
         <div style="color: #0f172a; font-family: sans-serif; padding: 6px 8px; max-width: 240px;">
           <div style="font-weight: 800; font-size: 13px; color: #047857; display: flex; align-items: center; gap: 4px;">
-            📍 ${currentPlaceName}
+            ${currentPlaceName}
           </div>
           <div style="font-size: 11px; color: #334155; margin-top: 3px; line-height: 1.3;">
             ${currentAddress}
@@ -455,7 +455,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
             }`}
             title="View Indian Subcontinent"
           >
-            <span>🇮🇳 All India</span>
+            <span>All India</span>
           </button>
         </div>
 
@@ -506,7 +506,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>🌧️💨 Rain &amp; Wind Flow</span>
+          <span>Rain &amp; Wind</span>
         </button>
 
         {/* 2. Live Wind Stream */}
@@ -519,7 +519,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>💨 Wind Stream</span>
+          <span>Wind Stream</span>
         </button>
 
         {/* 3. Live Doppler Rain Radar */}
@@ -532,7 +532,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>📡 Doppler Radar</span>
+          <span>Doppler Radar</span>
         </button>
 
         {/* 4. Live Animated Cloud Movement */}
@@ -545,7 +545,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>☁️ Cloud Flow</span>
+          <span>Cloud Flow</span>
         </button>
 
         {/* 5. NASA Terra Satellite HD */}
@@ -558,7 +558,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>🛰️ NASA Satellite HD</span>
+          <span>NASA Satellite</span>
         </button>
 
         {/* 6. Air Quality & AQI */}
@@ -571,7 +571,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>🌫️ Air Quality &amp; AQI</span>
+          <span>Air Quality</span>
         </button>
 
         {/* 7. Mandi Transport Corridors */}
@@ -584,7 +584,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               : "bg-black/80 text-muted-foreground hover:text-white border-white/15"
           }`}
         >
-          <span>🗺️ Mandi Corridors</span>
+          <span>Mandi Corridors</span>
         </button>
       </div>
 

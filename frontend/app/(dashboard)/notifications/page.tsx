@@ -426,17 +426,17 @@ function NotificationCard({
             <div className="flex items-center gap-2 flex-wrap">
               {isHold && (
                 <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold text-[11px] px-2 py-0.5 uppercase tracking-wide">
-                  🛑 Do NOT Sell / Hold Stock
+                  Hold Stock • Low Rate
                 </Badge>
               )}
               {isSell && (
                 <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold text-[11px] px-2 py-0.5 uppercase tracking-wide">
-                  🔥 Sell Now / High Rate
+                  Sell Now • High Price
                 </Badge>
               )}
               {isWeather && (
                 <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40 font-bold text-[11px] px-2 py-0.5 uppercase tracking-wide">
-                  🌦️ Daily Weather Advisory
+                  Weather Advisory
                 </Badge>
               )}
 
@@ -476,7 +476,7 @@ function NotificationCard({
             {/* Hindi Advisory text */}
             {alert.hindiMessage && (
               <p className="text-xs text-muted-foreground bg-white/[0.02] p-2.5 rounded-lg border border-white/5 mt-2 italic">
-                💡 <span className="font-medium text-foreground/90">{alert.hindiMessage}</span>
+                <span className="font-medium text-foreground/90">{alert.hindiMessage}</span>
               </p>
             )}
 

@@ -402,18 +402,18 @@ export function CropDetailModal({
                 </Badge>
                 <span className="text-xs text-muted-foreground font-medium">{agroProfile.localName}</span>
               </div>
-              <DialogTitle className="text-2xl font-black text-foreground tracking-tight">
+              <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
                 {cropName}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                National APMCs • {mandiInfo || "Verified Modal Pricing"} & 7-Day Agronomic Model
+                {mandiInfo || "APMC Mandi"} • Market Analytics
               </DialogDescription>
             </div>
 
             {/* Price Pill */}
             <div className="text-left sm:text-right p-2.5 rounded-lg border border-border/80 bg-card">
               <span className="text-[10px] font-bold uppercase text-muted-foreground block">
-                {priceQuintal ? "Wholesale (Quintal & Kg)" : "Wholesale Rate"}
+                Wholesale Rate
               </span>
               <div className="text-xl sm:text-2xl font-black text-primary">
                 {priceQuintal
@@ -423,52 +423,52 @@ export function CropDetailModal({
                   : (typeof displayWholesale === "number" ? `₹${displayWholesale}/${unit}` : displayWholesale)}
               </div>
               <span className="text-[11px] text-muted-foreground block mt-0.5">
-                Per-Kg: <strong className="text-foreground">{typeof displayWholesale === "number" ? `₹${displayWholesale}` : displayWholesale}/{unit}</strong> • Retail: {displayRetail}
+                ₹{typeof displayWholesale === "number" ? displayWholesale : displayWholesale.replace("₹", "")}/{unit} • Retail: {displayRetail}
               </span>
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-2 pt-3 overflow-x-auto no-scrollbar scrollbar-none">
+          {/* Tab Navigation - Grid layout, zero horizontal scroll */}
+          <div className={`grid ${soilRecommendation ? "grid-cols-3" : "grid-cols-2"} gap-1.5 pt-3 w-full`}>
             <button
               type="button"
               onClick={() => setActiveTab("history")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
+              className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-semibold transition-all text-center ${
                 activeTab === "history"
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>7-Day Price History</span>
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span>Price History</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("profit")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
+              className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-semibold transition-all text-center ${
                 activeTab === "profit"
                   ? "bg-emerald-600 text-white shadow-xs"
                   : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <Sprout className="w-3.5 h-3.5" />
-              <span>Future Growth & Profit Projection</span>
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+              <span>Profit & ROI</span>
             </button>
             {soilRecommendation && (
               <button
                 type="button"
                 onClick={() => setActiveTab("soil")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all shrink-0 ${
+                className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-semibold transition-all text-center ${
                   activeTab === "soil"
                     ? "bg-amber-600 text-white shadow-xs"
                     : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Soil & Fertilizer Advisory</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span>Soil Advisory</span>
                 {soilRecommendation.suitability && (
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {soilRecommendation.suitability}%
+                  <span className="text-[10px] font-bold opacity-85 hidden sm:inline">
+                    ({soilRecommendation.suitability}%)
                   </span>
                 )}
               </button>
@@ -691,16 +691,16 @@ export function CropDetailModal({
                       {soilRecommendation.suitability || 90}% Match
                     </Badge>
                   </div>
-                  <h4 className="font-extrabold text-base text-foreground">
-                    Soil Suitability & Agronomic Diagnostic
+                  <h4 className="font-bold text-sm text-foreground">
+                    Soil Suitability
                   </h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {soilRecommendation.reason || agroProfile.advisory}
                   </p>
                 </div>
                 {soilRecommendation.expected_yield_boost && (
-                  <div className="text-left sm:text-right shrink-0 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25">
-                    <span className="text-[10px] font-semibold text-muted-foreground block">Yield Potential</span>
+                  <div className="text-left sm:text-right shrink-0 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25">
+                    <span className="text-[10px] text-muted-foreground block">Yield Potential</span>
                     <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
                       {soilRecommendation.expected_yield_boost}
                     </span>
@@ -710,9 +710,9 @@ export function CropDetailModal({
 
               {/* Extracted Soil Parameters Snapshot */}
               {soilParameters && (
-                <div className="p-3.5 rounded-xl border border-border/70 bg-muted/20 space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
-                    Target Field Parameters ({district})
+                <div className="p-3 rounded-xl border border-border/70 bg-muted/20 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                    Field Parameters ({district})
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                     <div className="p-2 rounded-lg bg-card border border-border/50">
@@ -737,54 +737,54 @@ export function CropDetailModal({
 
               {/* Optimal Fertilizer Recommendation Card */}
               {soilRecommendation.best_fertilizer && (
-                <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 space-y-3">
-                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-sm">
-                    <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Prescribed Fertilizer Dosage & Timing:</span>
+                <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 space-y-2.5">
+                  <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>Fertilizer Schedule</span>
                   </div>
-                  <p className="text-xs text-foreground/90 font-medium leading-relaxed bg-card/60 p-3 rounded-lg border border-border/60">
+                  <p className="text-xs text-foreground/90 font-medium leading-relaxed bg-card/60 p-2.5 rounded-lg border border-border/60">
                     {soilRecommendation.best_fertilizer}
                   </p>
 
                   {/* Stage-wise Schedule Breakdown */}
                   {soilRecommendation.fertilizer_schedule && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-0.5">
                       {soilRecommendation.fertilizer_schedule.basal && (
-                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                        <div className="p-2 rounded-lg bg-card border border-border/60">
                           <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
-                            1. Basal Application (Sowing Time)
+                            1. Basal Application
                           </span>
-                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                          <span className="text-foreground/90 text-[11px] mt-0.5 block leading-relaxed">
                             {soilRecommendation.fertilizer_schedule.basal}
                           </span>
                         </div>
                       )}
                       {soilRecommendation.fertilizer_schedule.top_dressing && (
-                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                        <div className="p-2 rounded-lg bg-card border border-border/60">
                           <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
-                            2. Top Dressing (Growth Stages)
+                            2. Top Dressing
                           </span>
-                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                          <span className="text-foreground/90 text-[11px] mt-0.5 block leading-relaxed">
                             {soilRecommendation.fertilizer_schedule.top_dressing}
                           </span>
                         </div>
                       )}
                       {soilRecommendation.fertilizer_schedule.micronutrients && (
-                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                        <div className="p-2 rounded-lg bg-card border border-border/60">
                           <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider block">
-                            3. Micronutrient Foliar Spray
+                            3. Micronutrient Spray
                           </span>
-                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                          <span className="text-foreground/90 text-[11px] mt-0.5 block leading-relaxed">
                             {soilRecommendation.fertilizer_schedule.micronutrients}
                           </span>
                         </div>
                       )}
                       {soilRecommendation.fertilizer_schedule.organic && (
-                        <div className="p-2.5 rounded-lg bg-card border border-border/60">
+                        <div className="p-2 rounded-lg bg-card border border-border/60">
                           <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider block">
-                            4. Organic & Bio-fertilizer
+                            4. Organic / Bio-fertilizer
                           </span>
-                          <span className="text-foreground/90 text-[11.5px] mt-0.5 block leading-relaxed">
+                          <span className="text-foreground/90 text-[11px] mt-0.5 block leading-relaxed">
                             {soilRecommendation.fertilizer_schedule.organic}
                           </span>
                         </div>
@@ -793,26 +793,26 @@ export function CropDetailModal({
                   )}
 
                   {soilRecommendation.application_tip && (
-                    <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300 italic flex items-start gap-1.5">
-                      <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                      <span><strong>Agronomic Tip:</strong> {soilRecommendation.application_tip}</span>
+                    <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300 italic flex items-start gap-1.5">
+                      <Lightbulb className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
+                      <span><strong>Tip:</strong> {soilRecommendation.application_tip}</span>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Action Buttons for Subsidy & Cold Storage */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <Button asChild variant="outline" className="h-10 text-xs font-bold border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 justify-start">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                <Button asChild variant="outline" className="h-9 text-xs font-semibold border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 justify-start">
                   <Link href={`/fertilizer?crop=${encodeURIComponent(cropName.split(" ")[0].toLowerCase())}`}>
                     <IndianRupee className="w-3.5 h-3.5 mr-1 text-emerald-500" />
-                    <span>Calculate Fertilizer Cost & Subsidy</span>
+                    <span>Fertilizer Calculator</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-10 text-xs font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 justify-start">
+                <Button asChild variant="outline" className="h-9 text-xs font-semibold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 justify-start">
                   <Link href={`/cold-storage?crop=${encodeURIComponent(cropName.split(" ")[0].toLowerCase())}`}>
                     <Layers className="w-3.5 h-3.5 mr-1 text-cyan-500" />
-                    <span>Find Cold Storage for {cropName.split(" ")[0]}</span>
+                    <span>Cold Storage</span>
                   </Link>
                 </Button>
               </div>

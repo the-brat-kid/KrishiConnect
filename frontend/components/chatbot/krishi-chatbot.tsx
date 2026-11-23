@@ -32,48 +32,48 @@ interface LanguageData {
 
 const LOCALIZED_DATA: Record<string, LanguageData> = {
   hi: {
-    popupGreeting: "KrishiBot 👋",
-    popupSubtext: "मुझसे कुछ भी पूछें!",
+    popupGreeting: "KrishiBot",
+    popupSubtext: "कृषि सहायता",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
-    placeholder: "कुछ भी पूछें...",
-    initialMessage: "नमस्ते! 👋 मैं आपकी क्या मदद कर सकता हूँ?",
+    placeholder: "सवाल पूछें...",
+    initialMessage: "नमस्ते! मैं आपकी क्या मदद कर सकता हूँ?",
     chips: [
-      { label: "🌾 Mandi", query: "आज के ताज़ा मंडी भाव क्या हैं?" },
-      { label: "🧾 Invoices", query: "KrishiConnect में GST invoice कैसे बनाएं?" },
-      { label: "🚜 Transport", query: "फसल ट्रांसपोर्ट के लिए ट्रक कैसे बुक करें?" },
-      { label: "🌦️ Weather", query: "आज का मौसम और बारिश का पूर्वानुमान क्या है?" },
-      { label: "🧪 Soil", query: "मिट्टी परीक्षण और खाद की सलाह बताएं" },
+      { label: "Mandi Rates", query: "आज के ताज़ा मंडी भाव क्या हैं?" },
+      { label: "Invoices", query: "KrishiConnect में GST invoice कैसे बनाएं?" },
+      { label: "Transport", query: "फसल ट्रांसपोर्ट के लिए ट्रक कैसे बुक करें?" },
+      { label: "Weather", query: "आज का मौसम और बारिश का पूर्वानुमान क्या है?" },
+      { label: "Soil Health", query: "मिट्टी परीक्षण और खाद की सलाह बताएं" },
     ],
   },
   en: {
-    popupGreeting: "KrishiBot 👋",
-    popupSubtext: "Ask me anything!",
+    popupGreeting: "KrishiBot",
+    popupSubtext: "Farm Intelligence",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "Ask anything...",
-    initialMessage: "Hello! 👋 How can I help you today?",
+    initialMessage: "Hello! How can I help you today?",
     chips: [
-      { label: "🌾 Mandi", query: "Show today's latest APMC mandi rates and crop prices" },
-      { label: "🧾 Invoices", query: "How to create a GST invoice in KrishiConnect?" },
-      { label: "🚜 Transport", query: "How do I calculate freight and book transport?" },
-      { label: "🌦️ Weather", query: "What is the weather radar and rainfall forecast?" },
-      { label: "🧪 Soil", query: "How can I analyze soil health and fertilizer dosage?" },
+      { label: "Mandi Rates", query: "Show today's latest APMC mandi rates and crop prices" },
+      { label: "Invoices", query: "How to create a GST invoice in KrishiConnect?" },
+      { label: "Transport", query: "How do I calculate freight and book transport?" },
+      { label: "Weather", query: "What is the weather radar and rainfall forecast?" },
+      { label: "Soil Health", query: "How can I analyze soil health and fertilizer dosage?" },
     ],
   },
   or: {
-    popupGreeting: "KrishiBot 👋",
-    popupSubtext: "ମୋତେ ଯାହା ବି ପଚାରନ୍ତୁ!",
+    popupGreeting: "KrishiBot",
+    popupSubtext: "କୃଷି ସହାୟତା",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "ଯାହା ବି ପଚାରନ୍ତୁ...",
-    initialMessage: "ନମସ୍କାର! 👋 ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?",
+    initialMessage: "ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?",
     chips: [
-      { label: "🌾 Mandi", query: "ଆଜିର ଲାଇଭ୍ ମଣ୍ଡି ଦର କେତେ?" },
-      { label: "🧾 Invoices", query: "KrishiConnect ରେ GST ଇନଭଏସ୍ କିପରି ତିଆରି କରିବି?" },
-      { label: "🚜 Transport", query: "ଫସଲ ପାଇଁ ଟ୍ରକ୍ କିପରି ବୁକ୍ କରିବି?" },
-      { label: "🌦️ Weather", query: "ଆଜିର ପାଣିପାଗ ପୂର୍ବାନୁମାନ କ'ଣ?" },
-      { label: "🧪 Soil", query: "ମାଟି ପରୀକ୍ଷା ଓ ଉପଯୁକ୍ତ ସାର ସୁପାରିଶ କ'ଣ?" },
+      { label: "Mandi Rates", query: "ଆଜିର ଲାଇଭ୍ ମଣ୍ଡି ଦର କେତେ?" },
+      { label: "Invoices", query: "KrishiConnect ରେ GST ଇନଭଏସ୍ କିପରି ତିଆରି କରିବି?" },
+      { label: "Transport", query: "ଫସଲ ପାଇଁ ଟ୍ରକ୍ କିପରି ବୁକ୍ କରିବି?" },
+      { label: "Weather", query: "ଆଜିର ପାଣିପାଗ ପୂର୍ବାନୁମାନ କ'ଣ?" },
+      { label: "Soil Health", query: "ମାଟି ପରୀକ୍ଷା ଓ ଉପଯୁକ୍ତ ସାର ସୁପାରିଶ କ'ଣ?" },
     ],
   },
   mr: {
@@ -669,7 +669,7 @@ export function KrishiChatbot() {
             </form>
             <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-400 px-1">
               <span>KrishiBot</span>
-              <span className="text-emerald-400/80 font-medium">Gemini AI</span>
+              <span className="text-emerald-400/80 font-medium">Krishi Vision AI</span>
             </div>
           </div>
         </div>

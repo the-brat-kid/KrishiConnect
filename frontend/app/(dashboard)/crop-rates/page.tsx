@@ -297,7 +297,9 @@ export default function DailyCropRatesPage() {
                         }}
                       />
                     ) : (
-                      <span className="text-2xl">{staple.emoji || "🌱"}</span>
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                        {staple.name.substring(0, 2).toUpperCase()}
+                      </div>
                     )}
                     <div className="min-w-0">
                       <p className="font-medium text-xs truncate group-hover:text-primary transition-colors">
@@ -458,8 +460,8 @@ export default function DailyCropRatesPage() {
                         }}
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-lg">
-                        {item.emoji || item.name.substring(0, 2).toUpperCase()}
+                      <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-xs font-bold text-muted-foreground">
+                        {item.name.substring(0, 2).toUpperCase()}
                       </div>
                     )}
                   </TableCell>
@@ -552,8 +554,8 @@ export default function DailyCropRatesPage() {
                         }}
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xl">
-                        {item.emoji || "🌱"}
+                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                        {item.name.substring(0, 2).toUpperCase()}
                       </div>
                     )}
                     <div>

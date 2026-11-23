@@ -742,7 +742,6 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                             <span>Calculate Cost & Subsidy</span>
                             <ArrowRight className="w-3 h-3" />
                           </button>
-                          <span className="text-[10px] text-muted-foreground">Click for 3D modal ↗</span>
                         </div>
                       </div>
                     )}
@@ -751,7 +750,6 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                   {rec.expected_yield_boost && (
                     <div className="mt-3 pt-2 border-t border-border/50 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
                       <span>Expected Yield: {rec.expected_yield_boost}</span>
-                      <span className="text-[10px] text-muted-foreground font-normal">Click to view ROI</span>
                     </div>
                   )}
                 </div>

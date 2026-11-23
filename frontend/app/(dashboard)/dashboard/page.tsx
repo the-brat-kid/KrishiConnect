@@ -166,14 +166,6 @@ function CropIcon({
           </span>
         </div>
       )}
-
-      {/* 3D Micro-Emoji Corner Badge */}
-      <div
-        className="absolute -bottom-1 -right-1 z-20 w-6 h-6 rounded-full bg-[#0b100d]/90 backdrop-blur-md border border-white/25 shadow-[0_2px_8px_rgba(0,0,0,0.6)] flex items-center justify-center text-xs select-none group-hover:scale-110 transition-transform"
-        title={alt}
-      >
-        <span>{emoji}</span>
-      </div>
     </div>
   );
 }
@@ -646,9 +638,6 @@ export default function DashboardPage() {
                         alt="Tomato"
                         className="w-full h-full object-cover rounded-lg"
                       />
-                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-black/85 border border-white/20 flex items-center justify-center text-[10px] shadow-sm select-none">
-                        🍅
-                      </span>
                     </div>
                     <div className="space-y-0.5 min-w-0">
                       <span className="text-[10px] font-semibold text-emerald-400">Top Gainer</span>
@@ -671,9 +660,6 @@ export default function DashboardPage() {
                         alt="Onion"
                         className="w-full h-full object-cover rounded-lg"
                       />
-                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-black/85 border border-white/20 flex items-center justify-center text-[10px] shadow-sm select-none">
-                        🧅
-                      </span>
                     </div>
                     <div className="space-y-0.5 min-w-0">
                       <span className="text-[10px] font-semibold text-rose-400">Top Loser</span>
@@ -762,8 +748,8 @@ export default function DashboardPage() {
                 className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 via-teal-950/20 to-transparent border border-emerald-500/30 flex items-center justify-center text-lg shadow-sm shrink-0 select-none">
-                    {c.emoji}
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 via-teal-950/20 to-transparent border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm shrink-0 select-none">
+                    <Truck className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-foreground truncate">{c.route}</p>
@@ -804,8 +790,8 @@ export default function DashboardPage() {
                 className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-yellow-950/20 to-transparent border border-amber-500/30 flex items-center justify-center text-lg shadow-sm shrink-0 select-none">
-                    {p.emoji}
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 via-yellow-950/20 to-transparent border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm shrink-0 select-none">
+                    <Store className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-foreground truncate">{p.entity}</p>

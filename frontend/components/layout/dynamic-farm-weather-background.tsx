@@ -8,6 +8,7 @@ import {
   ChevronUp,
   RefreshCw,
   Compass,
+  Palette,
 } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 
@@ -758,7 +759,7 @@ export function DynamicFarmWeatherBackground({
                           : "bg-white/[0.04] border-white/10 hover:bg-white/[0.08] text-white/80"
                       }`}
                     >
-                      <span className="text-base leading-none">{sc.emoji}</span>
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${isActive ? "bg-emerald-400" : "bg-white/40"}`} />
                       <span className="text-xs font-medium truncate">{sc.title.replace(" Theme", "")}</span>
                     </button>
                   );
@@ -807,9 +808,9 @@ export function DynamicFarmWeatherBackground({
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 transition-all font-semibold text-white cursor-pointer shadow-xs group"
               title="Theme"
             >
-              <span className="text-base leading-none drop-shadow-xs">{activeScene.emoji}</span>
+              <Palette className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span className="font-sans text-xs font-semibold tracking-tight text-white group-hover:text-emerald-300 transition-colors">
-                {activeScene.title}
+                {activeScene.title.replace(" Theme", "")}
               </span>
               <ChevronUp
                 className={`w-3.5 h-3.5 text-emerald-400 transition-transform duration-200 ${
