@@ -29,6 +29,7 @@ import {
   Clock,
   CloudSun,
   Warehouse,
+  Tractor,
 } from "lucide-react";
 import { TooltipNavbar } from "@/components/ui/tooltip-navbar";
 import { ViewOnMap } from "@/components/ui/view-on-map";
@@ -369,6 +370,12 @@ export default function DashboardPage() {
                 label: "Cold Storage",
                 labelHasKeyword: ["C"],
                 href: "/cold-storage",
+              },
+              {
+                icon: <Tractor className="h-full w-full" />,
+                label: "Equipment",
+                labelHasKeyword: ["E"],
+                href: "/equipment",
               },
               {
                 icon: <MapPin className="h-full w-full" />,

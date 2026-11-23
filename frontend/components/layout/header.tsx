@@ -21,6 +21,7 @@ import {
   Sparkles,
   Compass,
   Warehouse,
+  Tractor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -90,6 +91,13 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
       labelHasKeyword: ["C"],
       hasBadge: false,
       href: "/cold-storage",
+    },
+    {
+      icon: <Tractor className="h-full w-full" />,
+      label: t("nav.equipment") || "Farm Equipment",
+      labelHasKeyword: ["E"],
+      hasBadge: false,
+      href: "/equipment",
     },
     {
       icon: <CloudSun className="h-full w-full" />,

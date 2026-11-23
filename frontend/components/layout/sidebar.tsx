@@ -24,6 +24,7 @@ import {
   FlaskConical,
   Sparkles,
   Bell,
+  Tractor,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -47,6 +48,7 @@ const getMenuGroups = (t: (key: string) => string) => [
     routes: [
       { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
       { href: "/soil-health", label: t("nav.soilHealth"), icon: FlaskConical, badge: t("common.new") },
+      { href: "/equipment", label: t("nav.equipment") || "Farm Equipment", icon: Tractor, badge: t("common.new") },
       { href: "/fertilizer", label: t("nav.fertilizer"), icon: Sparkles, badge: t("common.new") },
       { href: "/cold-storage", label: t("nav.coldStorage"), icon: Warehouse, badge: t("common.new") },
       { href: "/crop-planner", label: t("nav.cropPlanner"), icon: Sprout, badge: t("common.new") },
