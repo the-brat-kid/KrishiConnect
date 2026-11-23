@@ -30,6 +30,8 @@ import {
   CloudSun,
   Warehouse,
   Tractor,
+  ThermometerSnowflake,
+  ShieldCheck,
 } from "lucide-react";
 import { TooltipNavbar } from "@/components/ui/tooltip-navbar";
 import { ViewOnMap } from "@/components/ui/view-on-map";
@@ -297,6 +299,56 @@ export default function DashboardPage() {
     value: p.volume,
     color: p.color,
   }));
+
+  // 5. Featured Farm Equipment Fleet (KhetiSetu Network)
+  const featuredEquipment = [
+    {
+      name: "Mahindra 575 DI XP Plus",
+      category: "47 HP Tractor",
+      location: "Bhubaneswar Hub",
+      rate: "₹850/hr • ₹1,350/acre",
+      status: "Available",
+    },
+    {
+      name: "Preet 987 Self-Propelled Harvester",
+      category: "101 HP Combine",
+      location: "Cuttack Sadar Hub",
+      rate: "₹2,600/hr • ₹2,800/acre",
+      status: "Available",
+    },
+    {
+      name: "AgriBot 10L Precision Spray Drone",
+      category: "DGCA Certified UAV",
+      location: "Khordha Rural Fleet",
+      rate: "₹450/acre",
+      status: "Available",
+    },
+  ];
+
+  // 6. Featured Cold Storage Agro Vaults
+  const featuredColdStorage = [
+    {
+      name: "Taj Agro Mega Cold Storage",
+      location: "Agra, Uttar Pradesh",
+      temp: "2.8°C",
+      capacity: "8,400 Qtl Available",
+      rate: "₹2.2/qtl/day",
+    },
+    {
+      name: "Sahyadri Agro Cold Vault",
+      location: "Nashik, Maharashtra",
+      temp: "1.5°C",
+      capacity: "5,200 Qtl Available",
+      rate: "₹2.8/qtl/day",
+    },
+    {
+      name: "Banaskantha Agro Chain",
+      location: "Deesa, Gujarat",
+      temp: "3.2°C",
+      capacity: "11,200 Qtl Available",
+      rate: "₹2.1/qtl/day",
+    },
+  ];
 
   const lastUpdatedText = cropRatesData?.updatedAt
     ? new Date(cropRatesData.updatedAt).toLocaleTimeString("en-IN", {
@@ -800,6 +852,107 @@ export default function DashboardPage() {
                     {p.volume} {p.unit}
                   </p>
                   <span className="text-[10px] text-primary font-semibold bg-primary/10 px-2 py-0.5 rounded-full border border-primary/25">{p.type}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 5. Farm Equipment Fleet & Cold Storage Vaults */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
+        {/* Farm Equipment Fleet */}
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
+          <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Tractor className="w-4 h-4 text-primary" />
+                  <span>Farm Equipment Fleet</span>
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                  KhetiSetu verified machinery network
+                </CardDescription>
+              </div>
+              <Link
+                href="/equipment"
+                className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
+              >
+                <span>Rent Fleet →</span>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="p-5 space-y-3">
+            {featuredEquipment.map((eq) => (
+              <div
+                key={eq.name}
+                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 via-teal-950/20 to-transparent border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm shrink-0 select-none">
+                    <Tractor className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{eq.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {eq.category} • {eq.location}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 pl-2">
+                  <p className="text-xs font-mono font-bold text-emerald-400">{eq.rate}</p>
+                  <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/25">
+                    {eq.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Cold Storage & Preservation Vaults */}
+        <Card className="rounded-2xl border border-white/12 dark:border-white/[0.09] bg-gradient-to-b from-white/[0.08] via-white/[0.03] to-white/[0.01] dark:from-white/[0.06] dark:via-black/25 dark:to-black/40 backdrop-blur-2xl shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.35)] overflow-hidden min-w-0">
+          <CardHeader className="pb-3 border-b border-white/10 dark:border-white/[0.07]">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Warehouse className="w-4 h-4 text-primary" />
+                  <span>Cold Storage & Preservation</span>
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                  Live chamber telemetry & vacancies
+                </CardDescription>
+              </div>
+              <Link
+                href="/cold-storage"
+                className="btn-liquid-glass inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium text-foreground hover:text-white"
+              >
+                <span>Book Vault →</span>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="p-5 space-y-3">
+            {featuredColdStorage.map((cs) => (
+              <div
+                key={cs.name}
+                className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all backdrop-blur-md"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 via-cyan-950/20 to-transparent border border-blue-500/30 flex items-center justify-center text-cyan-400 shadow-sm shrink-0 select-none">
+                    <ThermometerSnowflake className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{cs.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {cs.location} • <span className="font-mono text-cyan-300 font-semibold">{cs.temp}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 pl-2">
+                  <p className="text-xs font-mono font-bold text-foreground">{cs.rate}</p>
+                  <span className="text-[10px] text-cyan-400 font-semibold bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/25">
+                    {cs.capacity}
+                  </span>
                 </div>
               </div>
             ))}
