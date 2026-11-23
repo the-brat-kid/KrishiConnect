@@ -23,7 +23,6 @@ import {
   Copyright,
   FlaskConical,
   Sparkles,
-  Bell,
   Tractor,
 } from "lucide-react";
 
@@ -36,7 +35,6 @@ const getMenuGroups = (t: (key: string) => string) => [
   {
     title: t("nav.mandiIntelligence"),
     routes: [
-      { href: "/notifications", label: t("nav.notifications"), icon: Bell, badge: "Alerts" },
       { href: "/crop-rates", label: t("nav.dailyCropRates"), icon: TrendingUp, badge: t("common.live") },
       { href: "/rate-trends", label: t("nav.rateTrends"), icon: LineChart },
       { href: "/transportation", label: t("nav.transportation"), icon: Truck },

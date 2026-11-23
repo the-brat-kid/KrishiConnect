@@ -11,21 +11,21 @@ import {
   ArrowRight,
   Sparkles,
   AlertTriangle,
+  Warehouse,
+  CheckCircle2,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAgriNotifications, AgriAlertCategory } from "@/hooks/use-agri-notifications";
 import { Badge } from "@/components/ui/badge";
 
 export function NotificationBell() {
-  const { notifications, stats, markAsRead, markAllAsRead } = useAgriNotifications();
+  const { notifications, stats, markAsRead, markAllAsRead, clearAllRead } = useAgriNotifications();
   const [filter, setFilter] = useState<AgriAlertCategory | "all">("all");
 
   const filtered = notifications.filter((n) => {
@@ -57,7 +57,7 @@ export function NotificationBell() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[360px] sm:w-[420px] p-0 rounded-2xl bg-black/90 backdrop-blur-2xl border border-white/15 shadow-2xl z-50 text-foreground overflow-hidden"
+        className="w-[360px] sm:w-[440px] p-0 rounded-2xl bg-[#09090b]/95 dark:bg-[#09090b]/95 backdrop-blur-2xl border border-white/15 shadow-2xl z-50 text-foreground overflow-hidden"
       >
         {/* Header Bar */}
         <div className="flex items-center justify-between p-3.5 border-b border-white/10 bg-white/[0.03]">
@@ -67,24 +67,38 @@ export function NotificationBell() {
             </span>
             <div>
               <h4 className="text-sm font-bold text-foreground leading-tight">
-                Agri Alerts & Advisories
+                Agri Alerts & Notifications
               </h4>
               <p className="text-[11px] text-muted-foreground">
-                मौसम अलर्ट, बिक्री व कोल्ड स्टोरेज सलाह
+                Live weather warnings & crop trade alerts
               </p>
             </div>
           </div>
-          {stats.unread > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={markAllAsRead}
-              className="text-[11px] h-7 px-2 text-primary hover:text-primary/90 hover:bg-white/[0.05]"
-            >
-              <CheckCheck className="w-3.5 h-3.5 mr-1" />
-              Mark all read
-            </Button>
-          )}
+
+          <div className="flex items-center gap-1">
+            {stats.unread > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-[11px] h-7 px-2 text-primary hover:text-primary/90 hover:bg-white/[0.05]"
+              >
+                <CheckCheck className="w-3.5 h-3.5 mr-1" />
+                Mark read
+              </Button>
+            )}
+            {notifications.some((n) => n.read) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllRead}
+                className="text-[11px] h-7 px-1.5 text-muted-foreground hover:text-destructive hover:bg-white/[0.05]"
+                title="Clear read alerts"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filter Chips */}
@@ -134,18 +148,18 @@ export function NotificationBell() {
             }`}
           >
             <Snowflake className="w-3 h-3 text-rose-400" />
-            Hold / Don&apos;t Sell ({stats.holdCount})
+            Hold ({stats.holdCount})
           </button>
         </div>
 
         {/* Scrollable Alerts List */}
-        <div className="max-h-[380px] overflow-y-auto divide-y divide-white/10">
+        <div className="max-h-[440px] overflow-y-auto divide-y divide-white/10 overscroll-contain">
           {filtered.length === 0 ? (
             <div className="p-8 text-center text-xs text-muted-foreground">
               No notifications in this category
             </div>
           ) : (
-            filtered.slice(0, 6).map((n) => {
+            filtered.map((n) => {
               const isHold = n.category === "crop-hold";
               const isSell = n.category === "crop-sell";
               const isWeather = n.category === "weather";
@@ -202,6 +216,35 @@ export function NotificationBell() {
                       {n.message}
                     </p>
 
+                    {/* Meteorological Quick Specs */}
+                    {n.weatherDetails && (
+                      <div className="flex items-center gap-2 pt-1 text-[10px] text-muted-foreground">
+                        <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 font-mono">
+                          {n.weatherDetails.temp}°C
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 font-mono">
+                          Rain: {n.weatherDetails.rainProb}%
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10">
+                          Spray: {n.weatherDetails.sprayWindowStatus}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Crop Profit Opportunity Specs */}
+                    {n.currentRate && (
+                      <div className="flex items-center gap-2 pt-1 text-[10px]">
+                        <span className="text-emerald-400 font-semibold font-mono">
+                          {n.currentRate}
+                        </span>
+                        {n.potentialProfit && (
+                          <span className="text-muted-foreground">
+                            ({n.potentialProfit})
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     {/* Quick Action Link */}
                     {n.actionHref && (
                       <div className="pt-1">
@@ -231,18 +274,15 @@ export function NotificationBell() {
           )}
         </div>
 
-        {/* Footer Link to Dedicated Page */}
-        <div className="p-2.5 bg-black/60 border-t border-white/10 text-center">
-          <Link href="/notifications" className="block w-full">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-xs font-semibold h-8 border-white/10 hover:bg-white/[0.08] text-foreground flex items-center justify-center gap-1.5"
-            >
-              <span>View All Alerts & Notification Page (सभी सूचनाएं)</span>
-              <ArrowRight className="w-3.5 h-3.5 text-primary" />
-            </Button>
-          </Link>
+        {/* Minimalist Live Status Footer */}
+        <div className="p-2.5 bg-black/60 border-t border-white/10 flex items-center justify-between text-[11px] text-muted-foreground px-4">
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live APMC & Weather alerts active</span>
+          </div>
+          <span className="font-mono text-[10px] text-zinc-400">
+            {stats.unread} unread
+          </span>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
