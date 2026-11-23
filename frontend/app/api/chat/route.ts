@@ -113,19 +113,19 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     q.includes("kheti")
   ) {
     if (lang === "en") {
-      return `🌱 **Recommended Crops to Grow (Seasonal Guide):**\n\n- **❄️ Winter (Rabi - Nov to Apr):** Wheat, Mustard, Chickpeas (Chana), Potatoes, Peas, Cabbage, and Cauliflower.\n- **🌧️ Monsoon (Kharif - Jun to Oct):** Rice (Paddy), Maize, Cotton, Soybean, Pigeon Pea (Tur), and Groundnut.\n- **☀️ Summer (Zaid - Mar to Jun):** Watermelon, Cucumber, Bitter Gourd, Moong Dal, and Green Fodder.\n\n💡 *Tip:* For exact soil and district suitability, explore the **Soil Health** and **Crop Planner** tabs in the sidebar!`;
+      return `**Recommended Crops to Grow (Seasonal Guide):**\n\n- **Winter (Rabi - Nov to Apr):** Wheat, Mustard, Chickpeas (Chana), Potatoes, Peas, Cabbage, and Cauliflower.\n- **Monsoon (Kharif - Jun to Oct):** Rice (Paddy), Maize, Cotton, Soybean, Pigeon Pea (Tur), and Groundnut.\n- **Summer (Zaid - Mar to Jun):** Watermelon, Cucumber, Bitter Gourd, Moong Dal, and Green Fodder.\n\n*Tip:* For exact soil and district suitability, explore the **Soil Health** and **Crop Planner** tabs in the sidebar!`;
     }
-    return `🌱 **मौसम के अनुसार क्या उगाएं (Crop Advisory):**\n\n- **❄️ रबी (सर्दियों का मौसम):** गेहूँ, सरसों, चना, आलू, मटर, गोभी और गाजर।\n- **🌧️ खरीफ (मानसून का मौसम):** धान (चावल), मक्का, सोयाबीन, अरहर, कपास और मूंगफली।\n- **☀️ जायद (गर्मी का मौसम):** तरबूज, खरबूजा, खीरा, ककड़ी, उड़द और मूंग।\n\n💡 *सुझाव:* अपनी मिट्टी की जांच और सटीक फसल के लिए साइडबार में **Soil Health** और **Crop Planner** टैब देखें!`;
+    return `**मौसम के अनुसार क्या उगाएं (Crop Advisory):**\n\n- **रबी (सर्दियों का मौसम):** गेहूँ, सरसों, चना, आलू, मटर, गोभी और गाजर।\n- **खरीफ (मानसून का मौसम):** धान (चावल), मक्का, सोयाबीन, अरहर, कपास और मूंगफली।\n- **जायद (गर्मी का मौसम):** तरबूज, खरबूजा, खीरा, ककड़ी, उड़द और मूंग।\n\n*सुझाव:* अपनी मिट्टी की जांच और सटीक फसल के लिए साइडबार में **Soil Health** और **Crop Planner** टैब देखें!`;
   }
 
   if (lang === "en") {
     if (q.includes("mandi") || q.includes("rate") || q.includes("price")) {
-      return `🌾 **Mandi Rates on KrishiConnect:**\n\n- Visit the **"Crop Rates"** tab in the sidebar to view live APMC mandi prices across India.\n- **Sample Live Rates:**\n  - Paddy: ₹2,183 - ₹2,320 / quintal\n  - Wheat: ₹2,450 - ₹2,600 / quintal\n  - Maize: ₹2,050 - ₹2,200 / quintal\n  - Potato: ₹1,400 - ₹1,750 / quintal\n  - Onion: ₹2,200 - ₹2,800 / quintal`;
+      return `**Mandi Rates on KrishiConnect:**\n\n- Visit the **"Crop Rates"** tab in the sidebar to view live APMC mandi prices across India.\n- **Sample Live Rates:**\n  - Paddy: ₹2,183 - ₹2,320 / quintal\n  - Wheat: ₹2,450 - ₹2,600 / quintal\n  - Maize: ₹2,050 - ₹2,200 / quintal\n  - Potato: ₹1,400 - ₹1,750 / quintal\n  - Onion: ₹2,200 - ₹2,800 / quintal`;
     }
     if (q.includes("invoice") || q.includes("bill") || q.includes("gst")) {
-      return `🧾 **GST Invoicing:**\n\n1. Go to **"Invoices"** in the sidebar.\n2. Click **"Create New Invoice"**.\n3. Add products, rates, and customer details (auto-calculates GST & HSN).\n4. Download PDF with dynamic UPI QR code.`;
+      return `**GST Invoicing:**\n\n1. Go to **"Invoices"** in the sidebar.\n2. Click **"Create New Invoice"**.\n3. Add products, rates, and customer details (auto-calculates GST & HSN).\n4. Download PDF with dynamic UPI QR code.`;
     }
-    return `Hello! 👋 I'm **KrishiBot**.\n\nAsk me anything — farming, mandi rates, invoices, transport, or any general question!`;
+    return `Hello! I'm **KrishiBot**.\n\nAsk me anything — farming, mandi rates, invoices, transport, or any general question!`;
   }
 
   if (
@@ -135,7 +135,7 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     q.includes("bhav") ||
     q.includes("kimat")
   ) {
-    return `🌾 **Mandi Rates (मंडी भाव):**\n\n- Dashboard के **"Crop Rates"** टैब पर लाइव भाव देखें।\n- **ताज़ा भाव:**\n  - धान: ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ: ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का: ₹2,050 - ₹2,200 / क्विंटल\n  - आलू: ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज: ₹2,200 - ₹2,800 / क्विंटल`;
+    return `**Mandi Rates (मंडी भाव):**\n\n- Dashboard के **"Crop Rates"** टैब पर लाइव भाव देखें।\n- **ताज़ा भाव:**\n  - धान: ₹2,183 - ₹2,320 / क्विंटल\n  - गेहूँ: ₹2,450 - ₹2,600 / क्विंटल\n  - मक्का: ₹2,050 - ₹2,200 / क्विंटल\n  - आलू: ₹1,400 - ₹1,750 / क्विंटल\n  - प्याज: ₹2,200 - ₹2,800 / क्विंटल`;
   }
 
   if (
@@ -144,10 +144,10 @@ function getSmartFallbackResponse(query: string, lang: string = "hi"): string {
     q.includes("gst") ||
     q.includes("challan")
   ) {
-    return `🧾 **GST Invoice:**\n\n1. **Invoices** टैब पर जाएं।\n2. **Create New Invoice** दबाएं।\n3. ग्राहक और फसल विवरण भरें।\n4. PDF डाउनलोड करें या UPI QR भेजें।`;
+    return `**GST Invoice:**\n\n1. **Invoices** टैब पर जाएं।\n2. **Create New Invoice** दबाएं।\n3. ग्राहक और फसल विवरण भरें।\n4. PDF डाउनलोड करें या UPI QR भेजें।`;
   }
 
-  return `नमस्ते! 👋 मैं **KrishiBot** हूँ।\n\nखेती, मंडी भाव, बिलिंग, या कोई भी सामान्य सवाल पूछें!`;
+  return `नमस्ते! मैं **KrishiBot** हूँ।\n\nखेती, मंडी भाव, बिलिंग, या कोई भी सामान्य सवाल पूछें!`;
 }
 
 export async function POST(req: NextRequest) {
@@ -164,13 +164,13 @@ export async function POST(req: NextRequest) {
     const latestUserMessage = messages[messages.length - 1]?.content || "";
     const apiKey = getGeminiApiKey();
 
-    const systemInstructionText = `You are "KrishiBot", a brilliant, versatile, and helpful AI assistant (powered by Google Gemini) built into the KrishiConnect platform.
+    const systemInstructionText = `You are "KrishiBot", an expert agricultural, mandi, and farm assistance desk built into the KrishiConnect platform.
 
 CORE CAPABILITIES & INSTRUCTIONS:
-1. ANSWER ANY QUESTION LIKE A POWERFUL AI:
-   - Answer EVERY question the user asks with high quality, intelligence, and clarity — just like ChatGPT or Google Gemini.
-   - You have universal knowledge across ALL subjects: General Knowledge, Science, Mathematics, Coding, Technology, Business, Finance, History, Geography, Cooking, Health tips, Everyday life, Stories, Jokes, Philosophy, etc.
-   - NEVER refuse a question or say "I am only an agriculture bot". Always be eager, helpful, and thorough on any topic.
+1. ANSWER ANY QUESTION DIRECTLY & ACCURATELY:
+   - Answer questions with high quality, verified facts, and clarity.
+   - You have practical knowledge across agriculture, crops, mandi operations, weather, trade, finance, and everyday life.
+   - Be helpful, accurate, and direct on all queries.
 
 2. DOMAIN EXPERTISE IN KRISHICONNECT & AGRICULTURE:
    - When asked about agriculture, farming, crops (e.g. what to grow, seasonal guides, sowing methods), soil health, fertilizer dosage, weather, mandi rates, or KrishiConnect platform features (Invoices, Cold Storage, Transport, Crop Rates), provide elite, accurate, practical advice.
@@ -192,7 +192,7 @@ CORE CAPABILITIES & INSTRUCTIONS:
 
 4. MINIMALIST, DIRECT & CLEAN FORMATTING:
    - Be concise, direct, and structured. Avoid unnecessary filler or overly long greetings.
-   - Use clean markdown with bullet points, bold key highlights, and friendly emojis.`;
+   - Use clean markdown with bullet points, bold key highlights, and concise formatting.`;
 
     if (apiKey) {
       // Primary verified ultra-fast models with zero timeouts

@@ -170,7 +170,7 @@ export default function HomePage() {
 
           {/* Clean Subcopy */}
           <p className="text-sm sm:text-base text-muted-foreground font-normal leading-relaxed max-w-xl">
-            Pan-India agricultural commerce simplified: verified daily APMC mandi modal prices via BhumiAI & Agmarknet, nationwide freight routing, and instant digital GST billing for farmers and traders across 28 states.
+            Pan-India agricultural commerce simplified: verified daily APMC mandi modal prices via Government of India Agmarknet, nationwide freight routing, and instant digital GST billing for farmers and traders across 28 states.
           </p>
 
           {/* Phone-Compatible Focused Action Area */}

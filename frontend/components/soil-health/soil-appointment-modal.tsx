@@ -150,7 +150,7 @@ export function SoilAppointmentModal({
       await api.post("/soil-health/appointments", payload);
 
       toast({
-        title: "Soil Test Appointment Confirmed! 🎉",
+        title: "Soil Test Appointment Confirmed",
         description: `Booking scheduled for ${formData.farmer_name} at ${selectedLab?.name || "Testing Hub"}. Krishi Mitra will coordinate for sample pickup.`,
       });
 

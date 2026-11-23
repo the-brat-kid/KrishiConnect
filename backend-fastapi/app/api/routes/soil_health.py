@@ -298,7 +298,7 @@ async def analyze_soil_report(
     district: Optional[str] = Form("Khordha")
 ):
     """
-    Multimodal KrishiConnect Vision AI analysis of uploaded Soil Health Card photo or lab report.
+    Diagnostic analysis of uploaded Soil Health Card photo or lab report.
     """
     contents = await file.read()
     if not contents:
@@ -312,7 +312,7 @@ async def analyze_soil_report(
 @router.post("/analyze-manual")
 async def analyze_manual_soil(req: SoilManualAnalysisRequest):
     """
-    KrishiConnect Soil AI crop and fertilizer advisory based on manually entered soil parameters.
+    KrishiConnect agronomic crop and fertilizer advisory based on manually entered soil parameters.
     """
     result = await analyze_soil_values(req.model_dump(), district=req.district or "Odisha")
     return result

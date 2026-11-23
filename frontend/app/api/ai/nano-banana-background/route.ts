@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
               success: true,
               generated: true,
-              model: "Nano Banana AI",
+              model: "Nano Banana Engine",
               imageUrl: `data:${mimeType};base64,${part.inlineData.data}`,
               prompt: userPrompt,
             });
@@ -134,8 +134,8 @@ Analyze the prompt and respond ONLY with a clean JSON object (no markdown code b
         parsed = JSON.parse(cleanJson);
       } catch (e) {
         parsed = {
-          title: "Nano Banana Agro-Vision",
-          subtitle: "AI Calibrated Farm Atmosphere",
+          title: "Agro-Vision Dynamic Atmosphere",
+          subtitle: "Calibrated Farm Atmosphere",
           theme: "golden",
           rainEnabled: false,
         };

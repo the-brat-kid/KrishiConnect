@@ -208,7 +208,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
         description: `Soil report analyzed for ${district}. Crop recommendations ready.`,
       });
     } catch (err: any) {
-      console.warn("AI Scan fallback applied:", err);
+      console.warn("Soil report fallback applied:", err);
       setAnalysisResult(getExpertAgronomicFallback(district));
       toast({
         title: "Agronomic Diagnostic Ready",
@@ -232,7 +232,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
         description: `Crop advisory generated for ${district}. Click any crop to view full details.`,
       });
     } catch (err: any) {
-      console.warn("Manual AI error fallback applied:", err);
+      console.warn("Manual diagnostic fallback applied:", err);
       setAnalysisResult(getExpertAgronomicFallback(district));
       toast({
         title: "Analysis Ready",
@@ -270,14 +270,14 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-2.5 border border-emerald-500/30 shadow-inner">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-              <span>Powered by KrishiConnect Vision AI</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Official Soil Health Diagnostic Protocol</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-              AI Soil Report Scanner & Crop Advisor
+              Soil Health Card Diagnostic & Crop Advisor
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl">
-              Upload a photo or PDF of your Soil Health Card or laboratory test report. KrishiConnect Multimodal Vision AI extracts diagnostic NPK and pH parameters to predict highest-yielding, profitable crop choices.
+              Upload a photo or PDF of your Soil Health Card or official test report. KrishiConnect extracts diagnostic NPK and pH parameters according to Department of Agriculture &amp; Farmers Welfare standards to recommend optimal crops.
             </p>
           </div>
 
@@ -386,7 +386,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                       </div>
                       <div>
                         <span className="text-sm font-bold text-white block">
-                          Soil Vision AI Diagnostic in Progress
+                          Soil Report Diagnostic in Progress
                         </span>
                         <span className="text-xs text-zinc-400 block mt-0.5">
                           Extracting diagnostic pH, NPK, and micronutrient concentrations...
@@ -424,12 +424,12 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                     {isAnalyzing ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Scanning with Soil AI...</span>
+                        <span>Analyzing Soil Card...</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        <span>Analyze with Soil AI</span>
+                        <span>Run Lab Diagnostic</span>
                       </>
                     )}
                   </Button>
@@ -559,12 +559,12 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Analyzing with Soil AI...</span>
+                    <span>Calculating Agronomic Recommendations...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Analyze with Soil AI</span>
+                    <span>Generate Agronomic Advisory</span>
                   </>
                 )}
               </Button>
@@ -837,7 +837,7 @@ export function SoilAiScanner({ onBookTest }: { onBookTest?: () => void }) {
           isOpen={!!selectedCropModal}
           onClose={() => setSelectedCropModal(null)}
           cropName={selectedCropModal.crop}
-          category="Soil AI Recommended"
+          category="Agronomic Advisory"
           soilRecommendation={selectedCropModal}
           soilParameters={analysisResult?.detected_parameters}
           district={district}

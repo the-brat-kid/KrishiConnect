@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sparkles, AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Sparkles, AlertCircle, CheckCircle2, ShieldCheck, Sprout, Layers, FlaskConical, Package } from "lucide-react";
 
 export function SoilSamplingGuide() {
   const steps = [
@@ -9,25 +9,25 @@ export function SoilSamplingGuide() {
       step: "01",
       title: "Identify Representative Spots",
       description: "Traverse the plot in a zig-zag pattern selecting 8 to 10 distinct sampling points. Avoid field boundaries, irrigation channels, compost piles, and tree canopies.",
-      icon: "🌾",
+      icon: Sprout,
     },
     {
       step: "02",
       title: "Excavate 15 cm V-Shaped Trench",
       description: "Clear superficial organic debris and weed cover. Using a clean spade or auger, dig a V-shaped trench to a depth of 15 cm (plow layer depth).",
-      icon: "⛏️",
+      icon: Layers,
     },
     {
       step: "03",
       title: "Extract Uniform 1-Inch Core Slice",
       description: "From the exposed trench wall, shave a uniform 1-inch (2.5 cm) thick vertical slice from top to bottom and collect in a clean plastic container.",
-      icon: "🧪",
+      icon: FlaskConical,
     },
     {
       step: "04",
       title: "Composite, Quarter & Pack 500g",
       description: "Thoroughly mix all field cores, remove stones and roots. Divide by quartering to isolate a 500g composite sample. Air-dry in shade and seal in a labeled bag.",
-      icon: "📦",
+      icon: Package,
     },
   ];
 
@@ -56,7 +56,9 @@ export function SoilSamplingGuide() {
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-2xl">{st.icon}</span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                  <st.icon className="w-4 h-4" />
+                </div>
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   Step {st.step}
                 </span>

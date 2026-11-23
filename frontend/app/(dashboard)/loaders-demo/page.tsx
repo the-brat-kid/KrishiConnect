@@ -299,7 +299,7 @@ export default function LoadersDemoPage() {
                 />
                 <Progress
                   indeterminate
-                  label="AI Crop Doctor Analysis"
+                  label="Agronomic Diagnostic Analysis"
                   variant="accent"
                   size="lg"
                 />

@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Mobile Bottom Navigation Dock */}
         <MobileBottomBar onOpenMenu={() => setSidebarOpen(true)} />
 
-        {/* Floating AI Robot Chatbot */}
+        {/* Floating Support Desk Chatbot */}
         <KrishiChatbot />
       </div>
     </div>

@@ -48,7 +48,7 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 
-// Baseline Mandi staples with authentic high-definition crop imagery & 3D emojis
+// Baseline Mandi staples with authentic high-definition crop imagery
 const BASE_STAPLES = [
   {
     id: "potato",
@@ -58,7 +58,6 @@ const BASE_STAPLES = [
     fallbackRetail: "₹26",
     change: "+₹1",
     status: "up",
-    emoji: "🥔",
     image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-amber-500/20 via-amber-900/10 to-transparent",
   },
@@ -70,7 +69,6 @@ const BASE_STAPLES = [
     fallbackRetail: "₹42",
     change: "-₹2",
     status: "down",
-    emoji: "🧅",
     image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-purple-500/20 via-pink-950/10 to-transparent",
   },
@@ -82,7 +80,6 @@ const BASE_STAPLES = [
     fallbackRetail: "₹30",
     change: "+₹3",
     status: "up",
-    emoji: "🍅",
     image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-rose-500/25 via-red-950/10 to-transparent",
   },
@@ -94,7 +91,6 @@ const BASE_STAPLES = [
     fallbackRetail: "₹75",
     change: "-₹3",
     status: "down",
-    emoji: "🌶️",
     image: "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-emerald-500/25 via-teal-950/10 to-transparent",
   },
@@ -106,7 +102,6 @@ const BASE_STAPLES = [
     fallbackRetail: "₹32",
     change: "+₹2",
     status: "up",
-    emoji: "🍆",
     image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-violet-500/20 via-indigo-950/10 to-transparent",
   },
@@ -118,22 +113,20 @@ const BASE_STAPLES = [
     fallbackRetail: "₹110",
     change: "0",
     status: "stable",
-    emoji: "🫚",
     image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
     accentGrad: "from-yellow-600/20 via-amber-950/10 to-transparent",
   },
 ];
 
-// High-definition Liquid Glass Crop Avatar with 3D Micro-Emoji Badge
+// High-definition Liquid Glass Crop Avatar
 function CropIcon({
   image,
   alt,
-  emoji,
   accentGrad = "from-emerald-500/20 to-transparent",
 }: {
   image: string;
   alt: string;
-  emoji: string;
+  emoji?: string;
   accentGrad?: string;
 }) {
   const [hasError, setHasError] = useState(false);
@@ -160,11 +153,9 @@ function CropIcon({
           className="relative z-10 w-full h-full object-cover rounded-xl shadow-md transition-transform duration-300 group-hover:scale-110"
         />
       ) : (
-        /* 3D Emoji Avatar Fallback */
+        /* Minimalist Icon Fallback */
         <div className="relative z-10 w-full h-full flex items-center justify-center rounded-xl bg-black/40 backdrop-blur-md">
-          <span className="text-3xl select-none leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.7)] group-hover:scale-115 transition-transform duration-200">
-            {emoji}
-          </span>
+          <Sprout className="w-7 h-7 text-emerald-400" />
         </div>
       )}
     </div>
@@ -286,19 +277,19 @@ export default function DashboardPage() {
 
   // 3. Freight Corridors (Vertical List + Transport Distance Bar Chart)
   const freightCorridors = [
-    { route: "Cuttack Mandi Hub", dist: 28, cost: 1900, truck: "Pickup 1.5T", time: "45 mins", emoji: "🛻" },
-    { route: "Puri Coastal Market", dist: 60, cost: 3100, truck: "Tata 407 3.5T", time: "1.5 hrs", emoji: "🚚" },
-    { route: "Berhampur Trading Yard", dist: 175, cost: 7800, truck: "6-Tyre 9T", time: "3.5 hrs", emoji: "🚛" },
-    { route: "Sambalpur Grain Corridor", dist: 280, cost: 12500, truck: "6-Tyre 9T", time: "6 hrs", emoji: "🚛" },
-    { route: "Bargarh Paddy Market", dist: 330, cost: 14800, truck: "10-Tyre 16T", time: "7 hrs", emoji: "🚛" },
+    { route: "Cuttack Mandi Hub", dist: 28, cost: 1900, truck: "Pickup 1.5T", time: "45 mins" },
+    { route: "Puri Coastal Market", dist: 60, cost: 3100, truck: "Tata 407 3.5T", time: "1.5 hrs" },
+    { route: "Berhampur Trading Yard", dist: 175, cost: 7800, truck: "6-Tyre 9T", time: "3.5 hrs" },
+    { route: "Sambalpur Grain Corridor", dist: 280, cost: 12500, truck: "6-Tyre 9T", time: "6 hrs" },
+    { route: "Bargarh Paddy Market", dist: 330, cost: 14800, truck: "10-Tyre 16T", time: "7 hrs" },
   ];
 
   // 4. Procurement Share (Vertical List + Donut Pie Chart)
   const procurementRequirements = [
-    { entity: "Utkal Agro Commodities", crop: "Paddy (Swarna / Sona Masoori)", volume: 100, unit: "MT", type: "Rice Mill", color: "#16a34a", emoji: "🌾" },
-    { entity: "Kalinga Fresh Mandi", crop: "Tomato & Onion Lots", volume: 45, unit: "MT", type: "Wholesaler", color: "#d97706", emoji: "🍅" },
-    { entity: "Eastern Spices Export", crop: "Kandhamal Turmeric (Haldi)", volume: 25, unit: "MT", type: "Exporter", color: "#2563eb", emoji: "🟡" },
-    { entity: "Odisha Seed Producers", crop: "Certified Mustard (Rai)", volume: 15, unit: "MT", type: "FPO Agency", color: "#9333ea", emoji: "🌼" },
+    { entity: "Utkal Agro Commodities", crop: "Paddy (Swarna / Sona Masoori)", volume: 100, unit: "MT", type: "Rice Mill", color: "#16a34a" },
+    { entity: "Kalinga Fresh Mandi", crop: "Tomato & Onion Lots", volume: 45, unit: "MT", type: "Wholesaler", color: "#d97706" },
+    { entity: "Eastern Spices Export", crop: "Kandhamal Turmeric (Haldi)", volume: 25, unit: "MT", type: "Exporter", color: "#2563eb" },
+    { entity: "Odisha Seed Producers", crop: "Certified Mustard (Rai)", volume: 15, unit: "MT", type: "FPO Agency", color: "#9333ea" },
   ];
 
   const procurementPieData = procurementRequirements.map((p) => ({
@@ -479,7 +470,6 @@ export default function DashboardPage() {
                         <CropIcon
                           image={crop.image}
                           alt={crop.name}
-                          emoji={crop.emoji}
                           accentGrad={crop.accentGrad}
                         />
 

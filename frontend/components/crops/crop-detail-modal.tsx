@@ -560,7 +560,7 @@ export function CropDetailModal({
               <div className="p-3 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
-                  Prices are synchronized across verified National APMC mandis via BhumiAI & Agmarknet. Modal values represent wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
+                  Prices are synchronized across verified National APMC mandis via Agmarknet & data.gov.in (Government of India). Modal values represent wholesale auction rates per quintal (1 quintal = 100 kg) and per kg.
                 </p>
               </div>
             </div>
@@ -671,7 +671,7 @@ export function CropDetailModal({
               <div className="p-3 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-xs flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                 <p className="text-foreground leading-relaxed">
-                  <strong>Aage Grow Karne Ka Verdict:</strong> {agroProfile.advisory} Returns on investment are projected at <strong>{profitMetrics.roi}% ROI</strong> for {agroProfile.season}.
+                  <strong>Agronomic Advisory:</strong> {agroProfile.advisory} Returns on investment are projected at <strong>{profitMetrics.roi}% ROI</strong> for {agroProfile.season}.
                 </p>
               </div>
             </div>

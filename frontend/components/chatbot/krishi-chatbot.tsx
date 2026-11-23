@@ -77,123 +77,123 @@ const LOCALIZED_DATA: Record<string, LanguageData> = {
     ],
   },
   mr: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "मला काहीही विचारा!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "काहीही विचारा...",
-    initialMessage: "नमस्कार! 👋 मी तुम्हाला कशी मदत करू शकतो?",
+    initialMessage: "नमस्कार! मी तुम्हाला कशी मदत करू शकतो?",
     chips: [
-      { label: "🌾 Mandi", query: "आजचे थेट APMC बाजारभाव काय आहेत?" },
-      { label: "🧾 Invoices", query: "नवीन GST बिल कसे तयार करावे?" },
-      { label: "🚜 Transport", query: "मालाच्या वाहतुकीसाठी ट्रक कसा बुक करावा?" },
-      { label: "🌦️ Weather", query: "आजचे हवामान व पावसाचा अंदाज काय आहे?" },
-      { label: "🧪 Soil", query: "माती परीक्षण व योग्य खत नियोजनाबद्दल सांगा" },
+      { label: "Mandi", query: "आजचे थेट APMC बाजारभाव काय आहेत?" },
+      { label: "Invoices", query: "नवीन GST बिल कसे तयार करावे?" },
+      { label: "Transport", query: "मालाच्या वाहतुकीसाठी ट्रक कसा बुक करावा?" },
+      { label: "Weather", query: "आजचे हवामान व पावसाचा अंदाज काय आहे?" },
+      { label: "Soil", query: "माती परीक्षण व योग्य खत नियोजनाबद्दल सांगा" },
     ],
   },
   pa: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "ਮੈਨੂੰ ਕੁਝ ਵੀ ਪੁੱਛੋ!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "ਕੁਝ ਵੀ ਪੁੱਛੋ...",
-    initialMessage: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! 👋 ਮੈਂ ਤੁਹਾਡੀ ਕੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?",
+    initialMessage: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡੀ ਕੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?",
     chips: [
-      { label: "🌾 Mandi", query: "ਅੱਜ ਦੇ ਤਾਜ਼ਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹਨ?" },
-      { label: "🧾 Invoices", query: "GST ਬਿੱਲ ਕਿਵੇਂ ਬਣਾਈਏ?" },
-      { label: "🚜 Transport", query: "ਫ਼ਸਲ ਢੋਣ ਲਈ ਟਰੱਕ ਕਿਵੇਂ ਬੁੱਕ ਕਰੀਏ?" },
-      { label: "🌦️ Weather", query: "ਅੱਜ ਦੇ ਮੌਸਮ ਦਾ ਕੀ ਅਨੁਮਾਨ ਹੈ?" },
-      { label: "🧪 Soil", query: "ਮਿੱਟੀ ਦੀ ਜਾਂਚ ਅਤੇ ਸਹੀ ਖਾਦ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ" },
+      { label: "Mandi", query: "ਅੱਜ ਦੇ ਤਾਜ਼ਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹਨ?" },
+      { label: "Invoices", query: "GST ਬਿੱਲ ਕਿਵੇਂ ਬਣਾਈਏ?" },
+      { label: "Transport", query: "ਫ਼ਸਲ ਢੋਣ ਲਈ ਟਰੱਕ ਕਿਵੇਂ ਬੁੱਕ ਕਰੀਏ?" },
+      { label: "Weather", query: "ਅੱਜ ਦੇ ਮੌਸਮ ਦਾ ਕੀ ਅਨੁਮਾਨ ਹੈ?" },
+      { label: "Soil", query: "ਮਿੱਟੀ ਦੀ ਜਾਂਚ ਅਤੇ ਸਹੀ ਖਾਦ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ" },
     ],
   },
   gu: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "મને કંઈપણ પૂછો!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "કંઈપણ પૂછો...",
-    initialMessage: "નમસ્તે! 👋 હું તમને કેવી રીતે મદદ કરી શકું?",
+    initialMessage: "નમસ્તે! હું તમને કેવી રીતે મદદ કરી શકું?",
     chips: [
-      { label: "🌾 Mandi", query: "આજના માર્કેટ યાર્ડ ભાવ જણાવો" },
-      { label: "🧾 Invoices", query: "નવું GST બિલ કેવી રીતે બનાવવું?" },
-      { label: "🚜 Transport", query: "ટ્રાન્સપોર્ટ માટે ટ્રક કેવી રીતે બુક કરવો?" },
-      { label: "🌦️ Weather", query: "આજની હવામાન આગાહી શું છે?" },
-      { label: "🧪 Soil", query: "જમીન ચકાસણી અને ખાતરનું યોગ્ય પ્રમાણ જણાવો" },
+      { label: "Mandi", query: "આજના માર્કેટ યાર્ડ ભાવ જણાવો" },
+      { label: "Invoices", query: "નવું GST બિલ કેવી રીતે બનાવવું?" },
+      { label: "Transport", query: "ટ્રાન્સપોર્ટ માટે ટ્રક કેવી રીતે બુક કરવો?" },
+      { label: "Weather", query: "આજની હવામાન આગાહી શું છે?" },
+      { label: "Soil", query: "જમીન ચકાસણી અને ખાતરનું યોગ્ય પ્રમાણ જણાવો" },
     ],
   },
   bn: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "আমাকে যেকোনো প্রশ্ন করুন!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "যেকোনো প্রশ্ন করুন...",
-    initialMessage: "নমস্কার! 👋 আমি আপনাকে কীভাবে সাহায্য করতে পারি?",
+    initialMessage: "নমস্কার! আমি আপনাকে কীভাবে সাহায্য করতে পারি?",
     chips: [
-      { label: "🌾 Mandi", query: "আজকের লাইভ মণ্ডির দর কত?" },
-      { label: "🧾 Invoices", query: "নতুন GST চালান কীভাবে তৈরি করবেন?" },
-      { label: "🚜 Transport", query: "ফসল পরিবহনের ট্রাক কীভাবে বুক করবেন?" },
-      { label: "🌦️ Weather", query: "আজকের আবহাওয়ার পূর্বাভাস কী?" },
-      { label: "🧪 Soil", query: "মাটি পরীক্ষা এবং সারের ডোজ সম্পর্কে বলুন" },
+      { label: "Mandi", query: "আজকের লাইভ মণ্ডির দর কত?" },
+      { label: "Invoices", query: "নতুন GST চালান কীভাবে তৈরি করবেন?" },
+      { label: "Transport", query: "ফসল পরিবহনের ট্রাক কীভাবে বুক করবেন?" },
+      { label: "Weather", query: "আজকের আবহাওয়ার পূর্বাভাস কী?" },
+      { label: "Soil", query: "মাটি পরীক্ষা এবং সারের ডোজ সম্পর্কে বলুন" },
     ],
   },
   ta: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "என்னிடம் எதையும் கேளுங்கள்!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "எதையும் கேட்கவும்...",
-    initialMessage: "வணக்கம்! 👋 நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?",
+    initialMessage: "வணக்கம்! நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?",
     chips: [
-      { label: "🌾 Mandi", query: "இன்றைய சந்தை விலைகள் என்ன?" },
-      { label: "🧾 Invoices", query: "புதிய GST பில் தயாரிப்பது எப்படி?" },
-      { label: "🚜 Transport", query: "போக்குவரத்து லாரி முன்பதிவு செய்வது எப்படி?" },
-      { label: "🌦️ Weather", query: "இன்றைய வானிலை முன்னறிவிப்பு என்ன?" },
-      { label: "🧪 Soil", query: "மண் பரிசோதனை மற்றும் உர அளவு என்ன?" },
+      { label: "Mandi", query: "இன்றைய சந்தை விலைகள் என்ன?" },
+      { label: "Invoices", query: "புதிய GST பில் தயாரிப்பது எப்படி?" },
+      { label: "Transport", query: "போக்குவரத்து லாரி முன்பதிவு செய்வது எப்படி?" },
+      { label: "Weather", query: "இன்றைய வானிலை முன்னறிவிப்பு என்ன?" },
+      { label: "Soil", query: "மண் பரிசோதனை மற்றும் உர அளவு என்ன?" },
     ],
   },
   te: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "నన్ను ఏదైనా అడగండి!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "ఏదైనా అడగండి...",
-    initialMessage: "నమస్కారం! 👋 నేను మీకు ఎలా సహాయపడగలను?",
+    initialMessage: "నమస్కారం! నేను మీకు ఎలా సహాయపడగలను?",
     chips: [
-      { label: "🌾 Mandi", query: "ఈరోజు మార్కెట్ ధరలు ఏమిటి?" },
-      { label: "🧾 Invoices", query: "కొత్త GST బిల్లు ఎలా తయారు చేయాలి?" },
-      { label: "🚜 Transport", query: "ట్రక్ రవాణా ఎలా బుక్ చేసుకోవాలి?" },
-      { label: "🌦️ Weather", query: "ఈరోజు వాతావరణ సమాచారం ఏమిటి?" },
-      { label: "🧪 Soil", query: "నేల పరీక్ష మరియు ఎరువుల సిఫార్సులు ఏమిటి?" },
+      { label: "Mandi", query: "ఈరోజు మార్కెట్ ధరలు ఏమిటి?" },
+      { label: "Invoices", query: "కొత్త GST బిల్లు ఎలా తయారు చేయాలి?" },
+      { label: "Transport", query: "ట్రక్ రవాణా ఎలా బుక్ చేసుకోవాలి?" },
+      { label: "Weather", query: "ఈరోజు వాతావరణ సమాచారం ఏమిటి?" },
+      { label: "Soil", query: "నేల పరీక్ష మరియు ఎరువుల సిఫార్సులు ఏమిటి?" },
     ],
   },
   kn: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "ನನ್ನನ್ನು ಏನಾದರೂ ಕೇಳಿ!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "ಏನಾದರೂ ಕೇಳಿ...",
-    initialMessage: "ನಮಸ್ಕಾರ! 👋 ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
+    initialMessage: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
     chips: [
-      { label: "🌾 Mandi", query: "ಇಂದಿನ ಮಾರುಕಟ್ಟೆ ದರಗಳು ತಿಳಿಸಿ" },
-      { label: "🧾 Invoices", query: "ಹೊಸ GST ಬಿಲ್ ಹೇಗೆ ರಚಿಸುವುದು?" },
-      { label: "🚜 Transport", query: "ಸಾರಿಗೆ ಟ್ರಕ್ ಹೇಗೆ ಬುಕ್ ಮಾಡುವುದು?" },
-      { label: "🌦️ Weather", query: "ಇಂದಿನ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಏನು?" },
-      { label: "🧪 Soil", query: "ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮತ್ತು ರಸಗೊಬ್ಬರ ಮಾಹಿತಿ ತಿಳಿಸಿ" },
+      { label: "Mandi", query: "ಇಂದಿನ ಮಾರುಕಟ್ಟೆ ದರಗಳು ತಿಳಿಸಿ" },
+      { label: "Invoices", query: "ಹೊಸ GST ಬಿಲ್ ಹೇಗೆ ರಚಿಸುವುದು?" },
+      { label: "Transport", query: "ಸಾರಿಗೆ ಟ್ರಕ್ ಹೇಗೆ ಬುಕ್ ಮಾಡುವುದು?" },
+      { label: "Weather", query: "ಇಂದಿನ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಏನು?" },
+      { label: "Soil", query: "ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮತ್ತು ರಸಗೊಬ್ಬರ ಮಾಹಿತಿ ತಿಳಿಸಿ" },
     ],
   },
   ml: {
-    popupGreeting: "KrishiBot 👋",
+    popupGreeting: "KrishiBot",
     popupSubtext: "എന്നോട് എന്തും ചോദിക്കാം!",
     botTitle: "KrishiBot",
     onlineStatus: "Online",
     placeholder: "എന്തും ചോദിക്കുക...",
-    initialMessage: "നമസ്കാരം! 👋 എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?",
+    initialMessage: "നമസ്കാരം! എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?",
     chips: [
-      { label: "🌾 Mandi", query: "ഇന്നത്തെ വിപണി നിരക്കുകൾ എന്തൊക്കെയാണ്?" },
-      { label: "🧾 Invoices", query: "GST ബിൽ എങ്ങനെ ഉണ്ടാക്കാം?" },
-      { label: "🚜 Transport", query: "ട്രക്ക് എങ്ങനെ ബുക്ക് ചെയ്യാം?" },
-      { label: "🌦️ Weather", query: "ഇന്നത്തെ കാലാവസ്ഥ എന്താണ്?" },
-      { label: "🧪 Soil", query: "മണ്ണ് പരിശോധനയും വളം ശുപാർശകളും എന്തൊക്കെയാണ്?" },
+      { label: "Mandi", query: "ഇന്നത്തെ വിപണി നിരക്കുകൾ എന്തൊക്കെയാണ്?" },
+      { label: "Invoices", query: "GST ബിൽ എങ്ങനെ ഉണ്ടാക്കാം?" },
+      { label: "Transport", query: "ട്രക്ക് എങ്ങനെ ബുക്ക് ചെയ്യാം?" },
+      { label: "Weather", query: "ഇന്നത്തെ കാലാവസ്ഥ എന്താണ്?" },
+      { label: "Soil", query: "മണ്ണ് പരിശോധനയും വളം ശുപാർശകളും എന്തൊക്കെയാണ്?" },
     ],
   },
 };
@@ -432,7 +432,7 @@ export function KrishiChatbot() {
 
   return (
     <aside
-      aria-label="KrishiBot AI Chat Assistant"
+      aria-label="Krishi Support Desk"
       className="fixed bottom-28 md:bottom-24 right-4 md:right-6 z-50 flex flex-col items-end select-none pointer-events-auto"
     >
       {/* 1. Greeting Speech Bubble Popup on Dashboard Open (Liquid Glass) */}
@@ -669,7 +669,7 @@ export function KrishiChatbot() {
             </form>
             <div className="mt-1 flex items-center justify-between text-[10px] text-zinc-400 px-1">
               <span>KrishiBot</span>
-              <span className="text-emerald-400/80 font-medium">Krishi Vision AI</span>
+              <span className="text-emerald-400/80 font-medium">Mandi &amp; Farm Desk</span>
             </div>
           </div>
         </div>
@@ -681,7 +681,7 @@ export function KrishiChatbot() {
           setIsOpen((prev) => !prev);
           setShowGreetingPopup(false);
         }}
-        aria-label="Toggle KrishiBot AI Assistant"
+        aria-label="Toggle Krishi Support Desk"
         className="group relative flex items-center justify-center w-14 h-14 rounded-2xl btn-liquid-glass-primary text-white cursor-pointer select-none"
       >
         {/* Pulsing ring aura */}

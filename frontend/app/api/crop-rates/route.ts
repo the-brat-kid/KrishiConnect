@@ -26,7 +26,7 @@ export interface CropRateItem {
 }
 
 // Comprehensive Pan-India Live APMC Mandi Rates Dataset
-// Aligned with BhumiAI National Agricultural Price Index (https://bhumiai.in/prices) & Agmarknet
+// Sourced from Government of India AGMARKNET (https://agmarknet.gov.in) & Pan-India APMC Network
 const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
   // --- MAHARASHTRA ---
   {
@@ -51,7 +51,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/onion/maharashtra",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "tomato-nashik",
@@ -75,7 +75,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/tomato/maharashtra",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cotton-nagpur",
@@ -99,7 +99,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "☁️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cotton/maharashtra",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "banana-jalgaon",
@@ -123,7 +123,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍌",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/BananaGreen.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/banana/maharashtra",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- PUNJAB & HARYANA ---
@@ -149,7 +149,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Wheat.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/wheat/punjab",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "basmati-amritsar",
@@ -173,7 +173,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍚",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/punjab",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "potato-jalandhar",
@@ -197,7 +197,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥔",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/potato/punjab",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cotton-bathinda",
@@ -221,7 +221,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "☁️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cotton/punjab",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "wheat-sonipat",
@@ -245,7 +245,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Wheat.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/wheat/haryana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "bajra-hisar",
@@ -269,7 +269,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Bajra.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/bajra/haryana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "basmati-karnal",
@@ -293,7 +293,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍚",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/haryana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "mustard-sirsa",
@@ -317,7 +317,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌼",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Mustard.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/mustard/haryana",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- GUJARAT ---
@@ -343,7 +343,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌿",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Spices.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/jeera/gujarat",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "groundnut-rajkot",
@@ -367,7 +367,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥜",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Groundnut.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/groundnut/gujarat",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cotton-kadi",
@@ -391,7 +391,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "☁️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cotton/gujarat",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "potato-deesa",
@@ -415,7 +415,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥔",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/potato/gujarat",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- ANDHRA PRADESH & TELANGANA ---
@@ -441,7 +441,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌶️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/chilli/andhra-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "paddy-vijayawada",
@@ -465,7 +465,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/andhra-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "tomato-madanapalle",
@@ -489,7 +489,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/tomato/andhra-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "onion-kurnool",
@@ -513,7 +513,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/onion/andhra-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "turmeric-nizamabad",
@@ -537,7 +537,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "💛",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Spices.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/turmeric/telangana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cotton-warangal",
@@ -561,7 +561,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "☁️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cotton/telangana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "paddy-nalgonda",
@@ -585,7 +585,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/telangana",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "chilli-khammam",
@@ -609,7 +609,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌶️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/chilli/telangana",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- UTTAR PRADESH & MADHYA PRADESH ---
@@ -635,7 +635,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥔",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/potato/uttar-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "wheat-kanpur",
@@ -659,7 +659,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Wheat.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/wheat/uttar-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "rice-varanasi",
@@ -683,7 +683,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍚",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/uttar-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "onion-agra",
@@ -707,7 +707,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/onion/uttar-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "mustard-aligarh",
@@ -731,7 +731,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌼",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Mustard.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/mustard/uttar-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "soybean-indore",
@@ -755,7 +755,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌱",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Soyabean.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/soybean/madhya-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "garlic-mandsaur",
@@ -779,7 +779,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧄",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Garlic.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/garlic/madhya-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "wheat-sehore",
@@ -803,7 +803,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Wheat.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/wheat/madhya-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "chana-ujjain",
@@ -827,7 +827,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧆",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Spices.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/chana/madhya-pradesh",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- KARNATAKA & TAMIL NADU ---
@@ -853,7 +853,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/tomato/karnataka",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "onion-hubballi",
@@ -877,7 +877,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/onion/karnataka",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "chilli-byadgi",
@@ -901,7 +901,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌶️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/chilli/karnataka",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "maize-davangere",
@@ -925,7 +925,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌽",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Maize.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/maize/karnataka",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cardamom-kochi",
@@ -949,7 +949,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🫛",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Spices.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cardamom/kerala",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "black-pepper-kochi",
@@ -973,7 +973,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🫒",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Spices.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/pepper/kerala",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "coconut-kozhikode",
@@ -997,7 +997,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥥",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Coconut.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/coconut/kerala",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "rubber-kottayam",
@@ -1021,7 +1021,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌲",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cotton.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/rubber/kerala",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- WEST BENGAL & EASTERN INDIA ---
@@ -1047,7 +1047,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍚",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Rice.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/rice/west-bengal",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "ginger-siliguri",
@@ -1071,7 +1071,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🫚",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Ginger.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/ginger/west-bengal",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "potato-hooghly",
@@ -1095,7 +1095,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥔",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/potato/west-bengal",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "jute-nadia",
@@ -1119,7 +1119,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Wheat.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/jute/west-bengal",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- ODISHA ---
@@ -1145,7 +1145,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍆",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/brinjal/odisha",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "paddy-cuttack",
@@ -1169,7 +1169,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/paddy/odisha",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "green-chilli-sambalpur",
@@ -1193,7 +1193,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌶️",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/green-chilli/odisha",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- HIMACHAL PRADESH & J&K ---
@@ -1219,7 +1219,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍎",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Apple.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/apple/himachal-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "tomato-solan",
@@ -1243,7 +1243,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/tomato/himachal-pradesh",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "peas-shimla",
@@ -1267,7 +1267,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🫛",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/peas/himachal-pradesh",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- RAJASTHAN ---
@@ -1293,7 +1293,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌱",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Mustard.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/mustard/rajasthan",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "cumin-nagaur",
@@ -1317,7 +1317,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌿",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cumin.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/cumin/rajasthan",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "bajra-alwar",
@@ -1341,7 +1341,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌾",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Bajra.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/bajra/rajasthan",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- BIHAR ---
@@ -1367,7 +1367,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🌽",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Maize.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/maize/bihar",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "makhana-darbhanga",
@@ -1391,7 +1391,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥣",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Makhana.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/makhana/bihar",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "potato-patna",
@@ -1415,7 +1415,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥔",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/potato/bihar",
+    url: "https://agmarknet.gov.in",
   },
 
   // --- TAMIL NADU ---
@@ -1441,7 +1441,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🍅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/tomato/tamil-nadu",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "shallots-dindigul",
@@ -1465,7 +1465,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🧅",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/small-onion/tamil-nadu",
+    url: "https://agmarknet.gov.in",
   },
   {
     id: "coconut-pollachi",
@@ -1489,7 +1489,7 @@ const PAN_INDIA_MANDI_RATES: CropRateItem[] = [
     date: "2026-11-17",
     emoji: "🥥",
     image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Coconut.jpg?width=48&quality=75&format=webp&resize=contain",
-    url: "https://bhumiai.in/prices/coconut/tamil-nadu",
+    url: "https://agmarknet.gov.in",
   },
 ];
 

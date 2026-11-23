@@ -174,13 +174,13 @@ export default function DailyCropRatesPage() {
             </a>
 
             <a
-              href="https://bhumiai.in/prices"
+              href="https://agmarknet.gov.in"
               target="_blank"
               rel="noopener noreferrer"
               className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
             >
               <Globe2 className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-              <span>National Feed</span>
+              <span>Agmarknet Portal</span>
               <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
             </a>
           </div>
@@ -257,7 +257,7 @@ export default function DailyCropRatesPage() {
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">BhumiAI Feed Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">AGMARKNET Feed Status</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
@@ -408,7 +408,7 @@ export default function DailyCropRatesPage() {
           <div className="flex flex-col items-center justify-center gap-3">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm font-medium text-muted-foreground">
-              Fetching live Pan-India APMC mandi rates from BhumiAI & Agmarknet...
+              Fetching live Pan-India APMC mandi rates from data.gov.in & Agmarknet...
             </p>
           </div>
         </Card>

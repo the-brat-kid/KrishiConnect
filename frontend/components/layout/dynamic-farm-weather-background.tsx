@@ -41,7 +41,6 @@ interface RainParticle {
 export interface NanoScene {
   id: string;
   title: string;
-  emoji: string;
   localImg?: string;
   fallbackUrl: string;
   fireflyColor: "amber" | "emerald" | "cyan";
@@ -55,7 +54,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   summer: {
     id: "summer",
     title: "Summer Theme",
-    emoji: "☀️",
     localImg: "/farm-sunny-day.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
@@ -66,7 +64,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   night: {
     id: "night",
     title: "Night Theme",
-    emoji: "🌙",
     localImg: "/starfall-night.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "cyan",
@@ -76,7 +73,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   garden: {
     id: "garden",
     title: "Garden Theme",
-    emoji: "🌿",
     fallbackUrl: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "emerald",
     hasRain: false,
@@ -85,7 +81,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   monsoon: {
     id: "monsoon",
     title: "Monsoon Theme",
-    emoji: "🌧️",
     localImg: "/farm-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "emerald",
@@ -95,7 +90,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   blossom: {
     id: "blossom",
     title: "Blossom Theme",
-    emoji: "🌸",
     fallbackUrl: "https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
     hasRain: false,
@@ -104,7 +98,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   alpine: {
     id: "alpine",
     title: "Mountain Theme",
-    emoji: "🌄",
     localImg: "/lodge-luxury-background.jpg",
     fallbackUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "amber",
@@ -114,7 +107,6 @@ export const NANO_BANANA_SCENES: Record<string, NanoScene> = {
   storm: {
     id: "storm",
     title: "Storm Theme",
-    emoji: "⚡",
     fallbackUrl: "https://images.unsplash.com/photo-1511289081-d06dda19034d?q=80&w=2560&auto=format&fit=crop",
     fireflyColor: "cyan",
     hasRain: true,

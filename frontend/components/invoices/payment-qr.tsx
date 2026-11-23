@@ -288,7 +288,7 @@ export function PaymentQR({
             className="btn-liquid-glass w-full py-2 px-3 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{simulating ? "Verifying..." : "⚡ 1-Tap Test Verify"}</span>
+            <span>{simulating ? "Verifying..." : "1-Tap Test Verify"}</span>
           </button>
         </div>
 
