@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     # deployment that forgets to set this. Set SECRET_KEY in your .env /
     # environment -- the app will fail to start if it's missing.
     SECRET_KEY: str = "krishiconnect_jwt_super_secret_key_change_in_production_123456"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days (persists across sessions & restarts)
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 90  # 90 days
 
     # DB Config
     DATABASE_URL: Optional[str] = None

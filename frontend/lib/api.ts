@@ -33,7 +33,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/refresh') &&
+      !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/register')
+    ) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refresh_token');
@@ -44,13 +50,30 @@ api.interceptors.response.use(
         });
         
         const { access_token } = response.data;
+        if (!access_token) throw new Error('No access token returned');
+
         localStorage.setItem('access_token', access_token);
         api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+
+        // Crucial fix: Update headers on originalRequest so retry carries the new valid token
+        if (originalRequest.headers) {
+          if (typeof originalRequest.headers.set === 'function') {
+            originalRequest.headers.set('Authorization', `Bearer ${access_token}`);
+          } else {
+            originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+          }
+        }
         return api(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        if (typeof window !== 'undefined') {
+        localStorage.removeItem('kc_user');
+        localStorage.removeItem('kc_profile');
+        if (
+          typeof window !== 'undefined' &&
+          !window.location.pathname.startsWith('/login') &&
+          !window.location.pathname.startsWith('/register')
+        ) {
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);
