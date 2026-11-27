@@ -15,8 +15,7 @@ before going live on a real domain, even if they currently work:
   ```bash
   python3 -c "import secrets; print(secrets.token_hex(32))"
   ```
-- **Database passwords** (`krishiconnect_secret` for Postgres/Mongo) — fine for
-  local dev, change them for a real server.
+- **Database passwords** (`your_db_password` for Postgres/Mongo) — ensure strong random passwords in production.
 
 ## 2. Required environment variables
 
