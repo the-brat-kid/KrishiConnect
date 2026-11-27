@@ -18,6 +18,7 @@ import { EquipmentItem, EquipmentCategory, PricingUnit, EquipmentBookingPayload 
 import { EQUIPMENT_CATALOG } from "@/lib/equipment-data";
 import { EquipmentCard } from "@/components/equipment/equipment-card";
 import { EquipmentBookingModal } from "@/components/equipment/booking-modal";
+import { EquipmentDetailModal } from "@/components/equipment/equipment-detail-modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,7 @@ export default function EquipmentRentalPage() {
   const [selectedDistrict, setSelectedDistrict] = useState<string>("all");
   const [rateFilter, setRateFilter] = useState<string>("all");
   const [activeModalItem, setActiveModalItem] = useState<EquipmentItem | null>(null);
+  const [selectedDetailItem, setSelectedDetailItem] = useState<EquipmentItem | null>(null);
   const [bookingSuccessAlert, setBookingSuccessAlert] = useState<string | null>(null);
 
   // Extract unique districts
@@ -232,13 +234,22 @@ export default function EquipmentRentalPage() {
             <EquipmentCard
               key={item.id}
               item={item}
+              onViewDetails={(equipment) => setSelectedDetailItem(equipment)}
               onBook={(equipment) => setActiveModalItem(equipment)}
             />
           ))}
         </div>
       )}
 
-      {/* 4. Equipment Booking Modal */}
+      {/* 4. Equipment Comprehensive Detail Modal (Specs, Cost Estimator, Implements) */}
+      <EquipmentDetailModal
+        equipment={selectedDetailItem}
+        isOpen={!!selectedDetailItem}
+        onClose={() => setSelectedDetailItem(null)}
+        onBookSuccess={handleBookingSuccess}
+      />
+
+      {/* 5. Equipment Quick Booking Modal */}
       <EquipmentBookingModal
         equipment={activeModalItem}
         isOpen={!!activeModalItem}
