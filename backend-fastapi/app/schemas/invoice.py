@@ -1,6 +1,7 @@
 from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from datetime import date, datetime
+from app.schemas.customer import CustomerResponse
 
 class InvoiceItemBase(BaseModel):
     product_id: Optional[str] = None
@@ -52,6 +53,7 @@ class InvoiceResponse(InvoiceBase):
     payment_method: Optional[str] = None
     created_at: datetime
     items: List[InvoiceItemResponse] = []
+    customer: Optional[CustomerResponse] = None
     
     class Config:
         from_attributes = True

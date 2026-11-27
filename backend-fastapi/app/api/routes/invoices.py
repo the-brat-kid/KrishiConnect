@@ -34,7 +34,12 @@ async def list_invoices(
     db: AsyncSession = Depends(get_db)
 ):
     skip = (page - 1) * limit
-    q = select(Invoice).where(Invoice.business_profile_id == profile.id).options(selectinload(Invoice.items)).order_by(desc(Invoice.created_at))
+    q = (
+        select(Invoice)
+        .where(Invoice.business_profile_id == profile.id)
+        .options(selectinload(Invoice.items), selectinload(Invoice.customer))
+        .order_by(desc(Invoice.created_at))
+    )
     if status:
         q = q.where(Invoice.status == status)
     if customer_id:
@@ -99,7 +104,7 @@ async def create_invoice(
         db.add(db_item)
     
     await db.commit()
-    await db.refresh(invoice, ["items"])
+    await db.refresh(invoice, ["items", "customer"])
     await log_audit("create_invoice", current_user.id, profile.id, "invoice", invoice.id, {})
     return invoice
 
@@ -162,7 +167,11 @@ async def get_invoice(
     profile: BusinessProfile = Depends(get_current_business_profile),
     db: AsyncSession = Depends(get_db)
 ):
-    res = await db.execute(select(Invoice).where(Invoice.id == id, Invoice.business_profile_id == profile.id).options(selectinload(Invoice.items)))
+    res = await db.execute(
+        select(Invoice)
+        .where(Invoice.id == id, Invoice.business_profile_id == profile.id)
+        .options(selectinload(Invoice.items), selectinload(Invoice.customer))
+    )
     invoice = res.scalars().first()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
@@ -181,7 +190,7 @@ async def update_invoice(
     for key, val in update_data.items():
         setattr(invoice, key, val)
     await db.commit()
-    await db.refresh(invoice, ["items"])
+    await db.refresh(invoice, ["items", "customer"])
     await log_audit("update_invoice", current_user.id, profile.id, "invoice", invoice.id, update_data)
     return invoice
 

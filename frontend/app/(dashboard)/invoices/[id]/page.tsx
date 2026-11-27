@@ -127,7 +127,7 @@ export default function InvoiceDetailPage() {
     );
   }
 
-  const customer = customers?.find((c) => c.id === invoice.customer_id);
+  const customer = customers?.find((c) => c.id === invoice.customer_id) || invoice.customer;
   const status = invoice.status || "unpaid";
 
   const handleCopyPaymentLink = () => {

@@ -76,6 +76,7 @@ export interface Invoice {
   id: string;
   invoice_number: string;
   customer_id: string;
+  customer?: Customer;
   date: string;
   due_date: string;
   status: 'paid' | 'unpaid' | 'partial' | 'overdue';
