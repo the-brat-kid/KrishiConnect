@@ -5,6 +5,7 @@ from xml.sax.saxutils import escape as xml_escape
 from reportlab.graphics.shapes import Drawing, Rect, Path
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -429,19 +430,22 @@ class PDFInvoiceService:
             return RED_BG, RED_BORDER, "#F87171"
         return AMBER_BG, AMBER_BORDER, "#FBBF24"
 
-    def _pill_width(self, text: str, font_size: float, pad_h: int) -> float:
-        return max(30.0, len(text) * (font_size * 0.56) + (pad_h * 2) + 4.0)
+    def _pill_width(self, text: str, font_size: float, pad_h: int, bold: bool = False) -> float:
+        font_name = "Helvetica-Bold" if bold else "Helvetica"
+        exact_w = stringWidth(str(text), font_name, font_size)
+        return max(34.0, exact_w + (pad_h * 2) + 8.0)
 
     def _make_pill(self, text: str, bg_color, border_color, text_hex: str, font_size: float = 7.5, pad_h: int = 7, pad_v: int = 2, bold: bool = False):
+        font_name = "Helvetica-Bold" if bold else "Helvetica"
         style = ParagraphStyle(
             "DynamicPill",
             fontSize=font_size,
-            fontName="Helvetica-Bold" if bold else "Helvetica",
+            fontName=font_name,
             textColor=colors.HexColor(text_hex),
             alignment=TA_CENTER,
             leading=font_size + 2.5,
         )
-        pill_w = self._pill_width(text, font_size, pad_h)
+        pill_w = self._pill_width(text, font_size, pad_h, bold=bold)
         t = Table([[Paragraph(xml_escape(text), style)]], colWidths=[pill_w])
         t.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, -1), bg_color),
@@ -456,7 +460,7 @@ class PDFInvoiceService:
         return t
 
     def _make_gstin_line(self, gstin_val: str):
-        pill_w = self._pill_width(gstin_val, 7.5, 6)
+        pill_w = self._pill_width(gstin_val, 7.5, 6, bold=False)
         pill = self._make_pill(gstin_val, PILL_BG, BORDER_DARK, "#E2E8F0", font_size=7.5, pad_h=6, pad_v=1.5)
         row = Table([[Paragraph("GSTIN:", self.styles["MutedText"]), pill]], colWidths=[34, pill_w], hAlign="LEFT")
         row.setStyle(TableStyle([
@@ -502,8 +506,9 @@ class PDFInvoiceService:
 
         # Header Brand + Status Pill + Meta Card
         status_pill = self._make_pill(status_str, st_bg, st_border, st_hex, font_size=7.5, pad_h=8, pad_v=2, bold=True)
-        pill_w = self._pill_width(status_str, 7.5, 8)
-        name_w = min(215.0, max(75.0, len(b_name) * 9.0 + 10.0))
+        pill_w = self._pill_width(status_str, 7.5, 8, bold=True)
+        max_name_w = max(90.0, 265.0 - pill_w - 4.0)
+        name_w = min(max_name_w, max(75.0, stringWidth(b_name, "Helvetica-Bold", 15) + 12.0))
         title_row = Table(
             [[Paragraph(f"<b>{xml_escape(b_name)}</b>", self.styles["BrandName"]), status_pill]],
             colWidths=[name_w, pill_w],
