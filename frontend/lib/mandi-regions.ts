@@ -99,7 +99,68 @@ export function findMandiById(id: string): MandiLocation | undefined {
   return undefined;
 }
 
+export function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+export function findNearestMandi(lat: number, lon: number): { mandi: MandiLocation; distanceKm: number } {
+  let bestMandi: MandiLocation = REGIONAL_MANDIS["Odisha"][0];
+  let bestDist = Number.POSITIVE_INFINITY;
+
+  for (const list of Object.values(REGIONAL_MANDIS)) {
+    for (const mandi of list) {
+      const dist = haversineKm(lat, lon, mandi.lat, mandi.lon);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestMandi = mandi;
+      }
+    }
+  }
+  return { mandi: bestMandi, distanceKm: Math.round(bestDist) };
+}
+
+export function normalizeIndianState(rawState?: string): string | null {
+  if (!rawState || typeof rawState !== "string") return null;
+  const s = rawState.trim().toLowerCase();
+  const aliasMap: Record<string, string> = {
+    orissa: "Odisha",
+    odisha: "Odisha",
+    delhi: "Delhi NCR",
+    "nct of delhi": "Delhi NCR",
+    "new delhi": "Delhi NCR",
+    "delhi ncr": "Delhi NCR",
+    maharashtra: "Maharashtra",
+    punjab: "Punjab",
+    haryana: "Haryana",
+    gujarat: "Gujarat",
+    "uttar pradesh": "Uttar Pradesh",
+    "madhya pradesh": "Madhya Pradesh",
+    karnataka: "Karnataka",
+    "andhra pradesh": "Andhra Pradesh",
+    telangana: "Telangana",
+    "west bengal": "West Bengal",
+    rajasthan: "Rajasthan",
+    bihar: "Bihar",
+    "himachal pradesh": "Himachal Pradesh",
+    "tamil nadu": "Tamil Nadu",
+    kerala: "Kerala",
+  };
+  if (aliasMap[s]) return aliasMap[s];
+  for (const [k, v] of Object.entries(aliasMap)) {
+    if (s.includes(k)) return v;
+  }
+  return rawState.trim();
+}
+
 export function stateToRegionId(state: string): string {
+  const norm = normalizeIndianState(state) || state;
   const map: Record<string, string> = {
     Odisha: "odisha",
     Haryana: "haryana",
@@ -112,10 +173,14 @@ export function stateToRegionId(state: string): string {
     "Uttar Pradesh": "uttar_pradesh",
     Karnataka: "karnataka",
     "Andhra Pradesh": "andhra_pradesh",
+    Telangana: "telangana",
     "West Bengal": "west_bengal",
+    Bihar: "bihar",
     "Himachal Pradesh": "himachal_pradesh",
+    "Tamil Nadu": "tamil_nadu",
+    Kerala: "kerala",
   };
-  return map[state] || "odisha";
+  return map[norm] || "all_india";
 }
 
 export function regionIdToState(regId: string): string {
@@ -130,8 +195,12 @@ export function regionIdToState(regId: string): string {
     uttar_pradesh: "Uttar Pradesh",
     karnataka: "Karnataka",
     andhra_pradesh: "Andhra Pradesh",
+    telangana: "Telangana",
     west_bengal: "West Bengal",
+    bihar: "Bihar",
     himachal_pradesh: "Himachal Pradesh",
+    tamil_nadu: "Tamil Nadu",
+    kerala: "Kerala",
   };
   return map[regId] || "Odisha";
 }

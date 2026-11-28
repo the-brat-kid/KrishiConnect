@@ -32,6 +32,8 @@ import {
   ArrowRight,
   Plus,
   MapPin,
+  LocateFixed,
+  Loader2,
   BarChart2,
   Sprout,
   RefreshCw,
@@ -182,8 +184,53 @@ export default function DashboardPage() {
     selectedPlaceId,
     selectedMandiObj,
     setRegionAndPlace,
+    userLocation,
+    isUsingLiveGps,
+    locationStatus,
+    requestLocationAccess,
   } = useLanguage();
   const displayName = user?.name || user?.full_name || businessProfile?.business_name || "Kisan";
+
+  const [localWeather, setLocalWeather] = useState<{
+    temp?: number;
+    condition?: string;
+    rainProb?: number;
+    windSpeed?: string;
+    humidity?: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadLocalWeather() {
+      if (!selectedMandiObj) return;
+      try {
+        const params = new URLSearchParams({
+          lat: selectedMandiObj.lat.toString(),
+          lon: selectedMandiObj.lon.toString(),
+          name: selectedMandiObj.name,
+          state: selectedMandiObj.state,
+          district: selectedMandiObj.district || "",
+          mandi: selectedMandiObj.id,
+        });
+        const res = await fetch(`/api/weather?${params.toString()}`);
+        if (!res.ok || cancelled) return;
+        const json = await res.json();
+        if (!cancelled && json?.current) {
+          setLocalWeather({
+            temp: json.current.temp,
+            condition: json.current.condition,
+            rainProb: json.rainIntelligence?.todayMaxProbability ?? json.current.rainProbability,
+            windSpeed: json.current.windSpeed,
+            humidity: json.current.humidity,
+          });
+        }
+      } catch {}
+    }
+    loadLocalWeather();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedMandiObj.lat, selectedMandiObj.lon, selectedMandiObj.id]);
 
   // Live Mandi Query Hook (automatically reflects active State/Region)
   const {
@@ -625,11 +672,33 @@ export default function DashboardPage() {
       {/* 1. Header Bar: Real-Time Date, Live Clock & User Greeting */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              Live • {selectedMandiObj ? selectedMandiObj.name : currentRegionDef.primaryHubs[0]}
+              {isUsingLiveGps && userLocation
+                ? `Live GPS • ${userLocation.locality}, ${userLocation.state}`
+                : `Live • ${selectedMandiObj ? selectedMandiObj.name : currentRegionDef.primaryHubs[0]}`}
             </span>
+            <button
+              type="button"
+              onClick={() => requestLocationAccess(true)}
+              disabled={locationStatus === "requesting"}
+              className="btn-liquid-glass inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-300 border border-emerald-500/30 hover:text-white cursor-pointer"
+              title="Use your live GPS location across map, weather, and nearby mandis"
+            >
+              {locationStatus === "requesting" ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <LocateFixed className="h-3 w-3" />
+              )}
+              <span>
+                {locationStatus === "requesting"
+                  ? "Locating..."
+                  : isUsingLiveGps
+                  ? "Refresh GPS"
+                  : "Allow Location"}
+              </span>
+            </button>
           </div>
 
           {/* Large Date with Live Updating Time Pill */}
@@ -901,8 +970,19 @@ export default function DashboardPage() {
                   <span>Live Wind &amp; Rain Radar</span>
                 </div>
               </div>
-              <CardDescription className="text-xs text-muted-foreground mt-1">
-                Satellite precipitation & wind radar
+              <CardDescription className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                <span>
+                  {isUsingLiveGps && userLocation
+                    ? `${userLocation.locality}, ${userLocation.state}`
+                    : `${selectedMandiObj.name}, ${selectedState}`}
+                </span>
+                {localWeather?.temp !== undefined && (
+                  <span className="text-emerald-400 font-medium">
+                    • {localWeather.temp}°C {localWeather.condition ? `• ${localWeather.condition}` : ""}
+                    {localWeather.rainProb !== undefined ? ` • Rain ${localWeather.rainProb}%` : ""}
+                    {localWeather.windSpeed ? ` • Wind ${localWeather.windSpeed}` : ""}
+                  </span>
+                )}
               </CardDescription>
             </div>
             <Link
@@ -916,7 +996,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <ViewOnMap
-            key={`${selectedMandiObj.id}-${selectedState}`}
+            key={`${selectedMandiObj.id}-${selectedMandiObj.lat.toFixed(3)}-${selectedMandiObj.lon.toFixed(3)}`}
             locationName={selectedMandiObj.name}
             address={selectedMandiObj.address}
             lat={selectedMandiObj.lat}

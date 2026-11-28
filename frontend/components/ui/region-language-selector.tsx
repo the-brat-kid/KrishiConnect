@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, MapPin, Globe } from "lucide-react";
+import { Check, ChevronDown, MapPin, Globe, LocateFixed, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ALL_LANGUAGES: LanguageCode[] = [
@@ -52,6 +52,10 @@ export function RegionLanguageSelector({
     selectedState,
     selectedMandiObj,
     setRegionAndPlace,
+    userLocation,
+    isUsingLiveGps,
+    locationStatus,
+    requestLocationAccess,
   } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -152,9 +156,14 @@ export function RegionLanguageSelector({
 
             <div className="relative z-10 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
-              <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-white transition-colors truncate max-w-[130px]">
-                {selectedState || currentRegionDef.name}
+              <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-white transition-colors truncate max-w-[145px]">
+                {isUsingLiveGps && userLocation
+                  ? `${userLocation.locality.split(",")[0]}, ${userLocation.state}`
+                  : selectedState || currentRegionDef.name}
               </span>
+              {isUsingLiveGps && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              )}
               <ChevronDown className="h-3.5 w-3.5 opacity-70 ml-0.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </div>
           </Button>
@@ -164,12 +173,46 @@ export function RegionLanguageSelector({
         <DropdownMenuContent
           align="end"
           className={cn(
-            "w-60 p-2 rounded-2xl max-h-[26rem] overflow-y-auto",
+            "w-64 p-2 rounded-2xl max-h-[28rem] overflow-y-auto",
             "bg-[#07140e]/90 dark:bg-[#040c07]/95 backdrop-blur-3xl backdrop-saturate-[200%]",
             "border border-white/20 dark:border-white/15",
             "shadow-[inset_0_1px_2px_rgba(255,255,255,0.35),0_20px_50px_rgba(0,0,0,0.7)]"
           )}
         >
+          {/* Use Live GPS Action */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              requestLocationAccess(true);
+              setIsOpen(false);
+            }}
+            className={cn(
+              "w-full mb-2 flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-left text-xs font-bold transition-all cursor-pointer border",
+              isUsingLiveGps
+                ? "bg-emerald-500/20 border-emerald-400/50 text-emerald-300"
+                : "bg-white/[0.06] hover:bg-emerald-500/15 border-white/15 text-white"
+            )}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              {locationStatus === "requesting" ? (
+                <Loader2 className="h-4 w-4 text-emerald-400 animate-spin shrink-0" />
+              ) : (
+                <LocateFixed className="h-4 w-4 text-emerald-400 shrink-0" />
+              )}
+              <div className="min-w-0">
+                <span className="block truncate">
+                  {locationStatus === "requesting" ? "Detecting Location..." : "Use My Live Location"}
+                </span>
+                {userLocation && (
+                  <span className="block text-[10px] font-normal text-muted-foreground truncate">
+                    {userLocation.locality}, {userLocation.state}
+                  </span>
+                )}
+              </div>
+            </div>
+            {isUsingLiveGps && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+          </button>
           {/* State List - ONLY CLEAN STATE NAMES with Liquid Glass Hover Effect */}
           <div className="space-y-1">
             {Object.values(REGIONS).map((reg) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useLanguage } from "@/lib/language-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,7 +129,19 @@ const POPULAR_ORIGINS = [
 ];
 
 export default function TransportationPage() {
+  const { userLocation, selectedMandiObj, isUsingLiveGps } = useLanguage();
   const [fromCity, setFromCity] = useState("Delhi NCR");
+  const [hasCustomizedOrigin, setHasCustomizedOrigin] = useState(false);
+
+  useEffect(() => {
+    if (!hasCustomizedOrigin && (isUsingLiveGps ? userLocation : selectedMandiObj)) {
+      const originLabel =
+        isUsingLiveGps && userLocation
+          ? `${userLocation.locality}, ${userLocation.state}`
+          : `${selectedMandiObj.district}, ${selectedMandiObj.state}`;
+      setFromCity(originLabel);
+    }
+  }, [hasCustomizedOrigin, isUsingLiveGps, userLocation, selectedMandiObj]);
   const [selectedCorridorId, setSelectedCorridorId] = useState("delhi-agra");
   const [customDestination, setCustomDestination] = useState("");
   const [customDistance, setCustomDistance] = useState<number | "">("");
@@ -278,7 +291,10 @@ export default function TransportationPage() {
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                   <Input
                     value={fromCity}
-                    onChange={(e) => setFromCity(e.target.value)}
+                    onChange={(e) => {
+                      setHasCustomizedOrigin(true);
+                      setFromCity(e.target.value);
+                    }}
                     placeholder="Enter pickup mandi or city (e.g. Nashik, Delhi, Bhubaneswar)..."
                     className="pl-9 bg-card font-medium"
                   />
@@ -288,7 +304,10 @@ export default function TransportationPage() {
                   {POPULAR_ORIGINS.slice(0, 8).map((city) => (
                     <button
                       key={city}
-                      onClick={() => setFromCity(city)}
+                      onClick={() => {
+                        setHasCustomizedOrigin(true);
+                        setFromCity(city);
+                      }}
                       className={`text-[11px] px-2 py-0.5 rounded border transition-colors ${
                         fromCity === city ? "bg-primary/10 border-primary text-primary font-medium" : "bg-muted/50 text-muted-foreground hover:bg-muted"
                       }`}

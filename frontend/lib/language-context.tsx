@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef, useCallback, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./auth-context";
 import {
@@ -9,6 +9,8 @@ import {
   stateToRegionId,
   regionIdToState,
   detectRegionFromAddress,
+  findNearestMandi,
+  normalizeIndianState,
   getMandisForState,
 } from "./mandi-regions";
 
@@ -934,6 +936,26 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
 };
 
+export type GeolocationStatus =
+  | "idle"
+  | "requesting"
+  | "granted"
+  | "denied"
+  | "unavailable"
+  | "error";
+
+export interface UserGpsLocation {
+  lat: number;
+  lon: number;
+  locality: string;
+  district: string;
+  state: string;
+  address: string;
+  nearestMandi: MandiLocation;
+  distanceKm: number;
+  updatedAt: number;
+}
+
 interface LanguageContextType {
   region: RegionId;
   setRegion: (region: RegionId) => void;
@@ -941,6 +963,11 @@ interface LanguageContextType {
   selectedPlaceId: string;
   selectedMandiObj: MandiLocation;
   setRegionAndPlace: (state: string, placeIdOrName?: string) => void;
+  userLocation: UserGpsLocation | null;
+  isUsingLiveGps: boolean;
+  locationStatus: GeolocationStatus;
+  locationError: string | null;
+  requestLocationAccess: (force?: boolean) => Promise<void>;
   language: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
   availableLanguages: LanguageCode[];
@@ -954,6 +981,8 @@ const STORAGE_KEY_REGION = "krishi_user_region";
 const STORAGE_KEY_LANG = "krishi_user_lang";
 const STORAGE_KEY_STATE = "krishi_user_state";
 const STORAGE_KEY_PLACE = "krishi_user_place";
+const STORAGE_KEY_GPS = "krishi_user_gps_v1";
+const STORAGE_KEY_GPS_DISMISSED = "krishi_user_gps_dismissed";
 
 // In-memory registry of original DOM text to allow clean reversal
 const originalTextMap = new WeakMap<Node, string>();
@@ -1351,7 +1380,122 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<LanguageCode>("en");
   const [selectedState, setSelectedState] = useState<string>("Odisha");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>("bhubaneswar");
+  const [userLocation, setUserLocation] = useState<UserGpsLocation | null>(null);
+  const [isUsingLiveGps, setIsUsingLiveGps] = useState<boolean>(false);
+  const [locationStatus, setLocationStatus] = useState<GeolocationStatus>("idle");
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const gpsAutoAttemptedRef = useRef(false);
   const pathname = usePathname();
+
+  const applyGpsLocation = useCallback((loc: UserGpsLocation) => {
+    setUserLocation(loc);
+    setIsUsingLiveGps(true);
+    setLocationStatus("granted");
+    setLocationError(null);
+
+    const normalizedState = normalizeIndianState(loc.state) || loc.nearestMandi.state || "Odisha";
+    const regId = stateToRegionId(normalizedState) as RegionId;
+    setSelectedState(normalizedState);
+    setSelectedPlaceId(loc.nearestMandi.id);
+    if (REGIONS[regId]) {
+      setRegionState(regId);
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY_GPS, JSON.stringify(loc));
+      localStorage.setItem(STORAGE_KEY_STATE, normalizedState);
+      localStorage.setItem(STORAGE_KEY_PLACE, loc.nearestMandi.id);
+      if (REGIONS[regId]) {
+        localStorage.setItem(STORAGE_KEY_REGION, regId);
+      }
+      localStorage.removeItem(STORAGE_KEY_GPS_DISMISSED);
+    } catch {}
+  }, []);
+
+  const requestLocationAccess = useCallback(async (force = false) => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      setLocationStatus("unavailable");
+      setLocationError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    if (force) {
+      try {
+        localStorage.removeItem(STORAGE_KEY_GPS_DISMISSED);
+      } catch {}
+    }
+
+    setLocationStatus("requesting");
+    setLocationError(null);
+
+    await new Promise<void>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const fallbackNearest = findNearestMandi(lat, lon);
+
+          let resolvedLoc: UserGpsLocation = {
+            lat,
+            lon,
+            locality: fallbackNearest.mandi.district,
+            district: fallbackNearest.mandi.district,
+            state: fallbackNearest.mandi.state,
+            address: `Near ${fallbackNearest.mandi.name}, ${fallbackNearest.mandi.state}`,
+            nearestMandi: fallbackNearest.mandi,
+            distanceKm: fallbackNearest.distanceKm,
+            updatedAt: Date.now(),
+          };
+
+          try {
+            const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+            if (res.ok) {
+              const geo = await res.json();
+              if (geo?.success) {
+                resolvedLoc = {
+                  lat,
+                  lon,
+                  locality: geo.locality || geo.city || fallbackNearest.mandi.district,
+                  district: geo.district || fallbackNearest.mandi.district,
+                  state: normalizeIndianState(geo.state) || fallbackNearest.mandi.state,
+                  address: geo.address || resolvedLoc.address,
+                  nearestMandi: geo.nearestMandi || fallbackNearest.mandi,
+                  distanceKm: typeof geo.distanceKm === "number" ? geo.distanceKm : fallbackNearest.distanceKm,
+                  updatedAt: Date.now(),
+                };
+              }
+            }
+          } catch (geoErr) {
+            console.warn("Reverse geocode fallback active:", geoErr);
+          }
+
+          applyGpsLocation(resolvedLoc);
+          resolve();
+        },
+        (err) => {
+          if (err.code === err.PERMISSION_DENIED) {
+            setLocationStatus("denied");
+            setLocationError("Location permission denied. Enable browser location to view local map & data.");
+            try {
+              localStorage.setItem(STORAGE_KEY_GPS_DISMISSED, "1");
+            } catch {}
+          } else if (err.code === err.POSITION_UNAVAILABLE) {
+            setLocationStatus("unavailable");
+            setLocationError("GPS signal unavailable. Using selected region.");
+          } else {
+            setLocationStatus("error");
+            setLocationError(err.message || "Could not fetch your current location.");
+          }
+          resolve();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: force ? 0 : 300000,
+        }
+      );
+    });
+  }, [applyGpsLocation]);
 
   // Load from localStorage on mount & initialize Native DOM translation
   useEffect(() => {
@@ -1360,11 +1504,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const savedLang = localStorage.getItem(STORAGE_KEY_LANG) as LanguageCode | null;
       const savedState = localStorage.getItem(STORAGE_KEY_STATE);
       const savedPlace = localStorage.getItem(STORAGE_KEY_PLACE);
+      const savedGpsRaw = localStorage.getItem(STORAGE_KEY_GPS);
 
       let initialRegion: RegionId = "odisha";
       let initialLang: LanguageCode = "en";
 
-      if (savedState && REGIONAL_MANDIS[savedState]) {
+      if (savedGpsRaw) {
+        try {
+          const parsedGps = JSON.parse(savedGpsRaw) as UserGpsLocation;
+          if (parsedGps && Number.isFinite(parsedGps.lat) && Number.isFinite(parsedGps.lon)) {
+            setUserLocation(parsedGps);
+            setIsUsingLiveGps(true);
+            setLocationStatus("granted");
+            setSelectedState(parsedGps.state);
+            setSelectedPlaceId(parsedGps.nearestMandi?.id || "bhubaneswar");
+            const gpsReg = stateToRegionId(parsedGps.state) as RegionId;
+            if (REGIONS[gpsReg]) initialRegion = gpsReg;
+          }
+        } catch {}
+      }
+
+      if (!savedGpsRaw && savedState && REGIONAL_MANDIS[savedState]) {
         setSelectedState(savedState);
         initialRegion = stateToRegionId(savedState) as RegionId;
         if (savedPlace) {
@@ -1397,9 +1557,54 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Sync with user's profile address when available
+  // Automatically ask browser location permission when inside dashboard/map routes
   useEffect(() => {
-    if (businessProfile?.address) {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+    if (gpsAutoAttemptedRef.current) return;
+    const isAuthOrLanding =
+      !pathname || pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/register");
+    if (isAuthOrLanding) return;
+
+    gpsAutoAttemptedRef.current = true;
+
+    const runAutoLocation = async () => {
+      let dismissed = false;
+      let cachedUpdatedAt = 0;
+      try {
+        dismissed = localStorage.getItem(STORAGE_KEY_GPS_DISMISSED) === "1";
+        const raw = localStorage.getItem(STORAGE_KEY_GPS);
+        if (raw) cachedUpdatedAt = JSON.parse(raw)?.updatedAt || 0;
+      } catch {}
+
+      const isCacheStale = Date.now() - cachedUpdatedAt > 15 * 60 * 1000;
+
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const perm = await navigator.permissions.query({ name: "geolocation" as PermissionName });
+          if (perm.state === "granted") {
+            if (isCacheStale) {
+              requestLocationAccess(false);
+            }
+          } else if (perm.state === "prompt" && !dismissed) {
+            requestLocationAccess(false);
+          } else if (perm.state === "denied") {
+            setLocationStatus("denied");
+          }
+          return;
+        } catch {}
+      }
+
+      if (!dismissed && isCacheStale) {
+        requestLocationAccess(false);
+      }
+    };
+
+    runAutoLocation();
+  }, [pathname, requestLocationAccess]);
+
+  // Sync with user's profile address when available (only when neither live GPS nor manual state exists)
+  useEffect(() => {
+    if (businessProfile?.address && !isUsingLiveGps) {
       const detected = detectRegionFromAddress(businessProfile.address);
       if (detected) {
         const savedState = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY_STATE) : null;
@@ -1416,7 +1621,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-  }, [businessProfile?.address]);
+  }, [businessProfile?.address, isUsingLiveGps]);
 
   // Re-apply native translation on route change in SPA
   useEffect(() => {
@@ -1454,6 +1659,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setRegion = (newRegion: RegionId) => {
     if (!REGIONS[newRegion]) return;
+    setIsUsingLiveGps(false);
     setRegionState(newRegion);
     try {
       localStorage.setItem(STORAGE_KEY_REGION, newRegion);
@@ -1493,12 +1699,26 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const selectedMandiObj: MandiLocation = useMemo(() => {
+    if (isUsingLiveGps && userLocation) {
+      return {
+        id: userLocation.nearestMandi.id,
+        name: userLocation.locality
+          ? `${userLocation.locality}`
+          : userLocation.nearestMandi.name,
+        state: userLocation.state,
+        district: userLocation.district || userLocation.nearestMandi.district,
+        lat: userLocation.lat,
+        lon: userLocation.lon,
+        address: userLocation.address,
+      };
+    }
     const list = REGIONAL_MANDIS[selectedState] || REGIONAL_MANDIS["Odisha"];
     return list.find((p) => p.id === selectedPlaceId) || list[0];
-  }, [selectedState, selectedPlaceId]);
+  }, [isUsingLiveGps, userLocation, selectedState, selectedPlaceId]);
 
   const setRegionAndPlace = (stateName: string, placeIdOrName?: string) => {
     const validState = REGIONAL_MANDIS[stateName] ? stateName : "Odisha";
+    setIsUsingLiveGps(false);
     setSelectedState(validState);
     const list = REGIONAL_MANDIS[validState];
 
@@ -1511,13 +1731,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
     setSelectedPlaceId(targetPlace.id);
 
-    // Sync region ID for translations & language
+    // Sync region ID for translations & language without clearing state selection
     const regId = stateToRegionId(validState) as RegionId;
-    setRegion(regId);
+    if (REGIONS[regId]) {
+      setRegionState(regId);
+      const regionDef = REGIONS[regId];
+      if (regionDef && !regionDef.supportedLangs.includes(language)) {
+        setLanguage(regionDef.defaultLang);
+      }
+    }
 
     try {
       localStorage.setItem(STORAGE_KEY_STATE, validState);
       localStorage.setItem(STORAGE_KEY_PLACE, targetPlace.id);
+      if (REGIONS[regId]) localStorage.setItem(STORAGE_KEY_REGION, regId);
     } catch (e) {}
   };
 
@@ -1547,6 +1774,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         selectedPlaceId,
         selectedMandiObj,
         setRegionAndPlace,
+        userLocation,
+        isUsingLiveGps,
+        locationStatus,
+        locationError,
+        requestLocationAccess,
         language,
         setLanguage,
         availableLanguages,

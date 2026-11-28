@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   RefreshCw,
   MapPin,
+  LocateFixed,
+  Loader2,
   Umbrella,
   CloudLightning,
   AlertTriangle,
@@ -139,6 +141,11 @@ export default function FarmWeatherPage() {
     selectedPlaceId,
     selectedMandiObj,
     setRegionAndPlace,
+    userLocation,
+    isUsingLiveGps,
+    locationStatus,
+    locationError,
+    requestLocationAccess,
   } = useLanguage();
 
   const [selectedMandi, setSelectedMandi] = useState<MandiOption>(() => ({
@@ -242,7 +249,30 @@ export default function FarmWeatherPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => requestLocationAccess(true)}
+            disabled={locationStatus === "requesting"}
+            className={`btn-liquid-glass flex items-center gap-2 border-white/15 text-xs font-semibold ${
+              isUsingLiveGps ? "border-emerald-500/50 text-emerald-300 bg-emerald-500/15" : ""
+            }`}
+          >
+            {locationStatus === "requesting" ? (
+              <Loader2 className="h-3.5 w-3.5 text-emerald-400 animate-spin" />
+            ) : (
+              <LocateFixed className="h-3.5 w-3.5 text-emerald-400" />
+            )}
+            <span>
+              {locationStatus === "requesting"
+                ? "Locating..."
+                : isUsingLiveGps && userLocation
+                ? `GPS: ${userLocation.locality.split(",")[0]}`
+                : "Use My Location"}
+            </span>
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -251,10 +281,30 @@ export default function FarmWeatherPage() {
             className="btn-liquid-glass flex items-center gap-2 border-white/15 text-xs font-semibold"
           >
             <RefreshCw className={`h-4 w-4 text-emerald-400 ${isRefreshing ? "animate-spin" : ""}`} />
-            <span>{isRefreshing ? "Syncing NASA API..." : "Refresh Forecast"}</span>
+            <span>{isRefreshing ? "Syncing..." : "Refresh Forecast"}</span>
           </Button>
         </div>
       </div>
+
+      {(locationStatus === "denied" || (locationStatus === "idle" && !isUsingLiveGps)) && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-xl text-xs">
+          <div className="flex items-center gap-2 text-foreground">
+            <MapPin className="h-4 w-4 text-emerald-400 shrink-0" />
+            <span>
+              {locationError ||
+                "Enable browser location access to open the map and weather telemetry for your exact area."}
+            </span>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => requestLocationAccess(true)}
+            className="btn-liquid-glass-primary h-8 px-3.5 text-xs font-bold shrink-0"
+          >
+            <LocateFixed className="h-3.5 w-3.5 mr-1.5" />
+            Allow Location
+          </Button>
+        </div>
+      )}
 
       {/* 1. TOP HERO SATELLITE WEATHER MAP (FULL WIDTH) WITH STATE & PLACE SELECTOR */}
       <div className="w-full">
@@ -297,11 +347,19 @@ export default function FarmWeatherPage() {
                     <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
                       {selectedMandi.name}
                     </h2>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono">
+                    <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-1.5 font-mono">
                       <MapPin className="h-3 w-3 text-emerald-400 shrink-0" />
                       <span>{selectedMandi.district}, {selectedMandi.state}</span>
                       <span>•</span>
                       <span>{selectedMandi.lat.toFixed(4)}°N, {selectedMandi.lon.toFixed(4)}°E</span>
+                      {isUsingLiveGps && userLocation?.nearestMandi && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-400">
+                            Nearest Mandi: {userLocation.nearestMandi.name} ({userLocation.distanceKm} km)
+                          </span>
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>

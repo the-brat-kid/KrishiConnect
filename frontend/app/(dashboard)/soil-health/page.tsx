@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { LiquidConfirmModal } from "@/components/ui/liquid-confirm-modal";
 import { useToast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/lib/language-context";
 import api from "@/lib/api";
 import {
   FlaskConical,
@@ -28,6 +29,7 @@ import {
   Clock,
   Sparkles,
   MapPin,
+  LocateFixed,
   CheckCircle2,
   AlertCircle,
   Truck,
@@ -174,6 +176,7 @@ const FALLBACK_LABS: SoilHealthLab[] = [
 
 export default function SoilHealthPage() {
   const { toast } = useToast();
+  const { userLocation, isUsingLiveGps, locationStatus, requestLocationAccess, selectedState } = useLanguage();
   const [labs, setLabs] = useState<SoilHealthLab[]>(FALLBACK_LABS);
   const [appointments, setAppointments] = useState<SoilHealthAppointment[]>([]);
   const [isLoadingLabs, setIsLoadingLabs] = useState(false);
@@ -249,16 +252,25 @@ export default function SoilHealthPage() {
     }
   };
 
-  // Filtered labs
-  const filteredLabs = labs.filter((lab) => {
-    const matchesSearch =
-      lab.name.toLowerCase().includes(search.toLowerCase()) ||
-      lab.location.toLowerCase().includes(search.toLowerCase()) ||
-      lab.district.toLowerCase().includes(search.toLowerCase());
-    const matchesDistrict =
-      selectedDistrict === "all" || lab.district.toLowerCase() === selectedDistrict.toLowerCase();
-    return matchesSearch && matchesDistrict;
-  });
+  // Filtered labs (prioritizing user's current state/district first)
+  const filteredLabs = labs
+    .filter((lab) => {
+      const matchesSearch =
+        lab.name.toLowerCase().includes(search.toLowerCase()) ||
+        lab.location.toLowerCase().includes(search.toLowerCase()) ||
+        lab.district.toLowerCase().includes(search.toLowerCase());
+      const matchesDistrict =
+        selectedDistrict === "all" || lab.district.toLowerCase() === selectedDistrict.toLowerCase();
+      return matchesSearch && matchesDistrict;
+    })
+    .sort((a, b) => {
+      const targetState = (userLocation?.state || selectedState || "").toLowerCase();
+      const targetDist = (userLocation?.district || "").toLowerCase();
+      const score = (lab: SoilHealthLab) =>
+        (targetDist && lab.district.toLowerCase().includes(targetDist) ? 2 : 0) +
+        (targetState && lab.state.toLowerCase() === targetState ? 1 : 0);
+      return score(b) - score(a);
+    });
 
   return (
     <div className="space-y-6 pb-12">
@@ -274,6 +286,16 @@ export default function SoilHealthPage() {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => requestLocationAccess(true)}
+            disabled={locationStatus === "requesting"}
+            className="h-10 px-3 text-xs font-semibold flex items-center gap-1.5"
+          >
+            <LocateFixed className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{isUsingLiveGps && userLocation ? userLocation.locality.split(",")[0] : "Near Me"}</span>
+          </Button>
           <Button
             onClick={() => handleOpenBooking()}
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-10 px-4 shadow-sm flex items-center gap-2"

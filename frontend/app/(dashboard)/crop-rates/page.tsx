@@ -24,6 +24,8 @@ import {
   IndianRupee,
   Clock,
   MapPin,
+  LocateFixed,
+  Loader2,
   CheckCircle2,
 } from "lucide-react";
 
@@ -48,17 +50,26 @@ const INDIAN_STATES = [
 ];
 
 export default function DailyCropRatesPage() {
-  const { currentRegionDef, setRegion } = useLanguage();
-  const [selectedState, setSelectedState] = useState<string>(
-    currentRegionDef?.name || "All India"
-  );
+  const {
+    currentRegionDef,
+    setRegion,
+    selectedState: ctxState,
+    userLocation,
+    isUsingLiveGps,
+    locationStatus,
+    requestLocationAccess,
+  } = useLanguage();
+  const preferredState =
+    userLocation?.state || ctxState || currentRegionDef?.name || "All India";
+  const [selectedState, setSelectedState] = useState<string>(preferredState);
 
-  // Sync state whenever region changes globally in header or login
+  // Sync state whenever GPS location or global region changes
   useEffect(() => {
-    if (currentRegionDef?.name && currentRegionDef.name !== selectedState) {
-      setSelectedState(currentRegionDef.name);
+    const nextState = userLocation?.state || ctxState || currentRegionDef?.name;
+    if (nextState && nextState !== selectedState) {
+      setSelectedState(nextState);
     }
-  }, [currentRegionDef?.name]);
+  }, [userLocation?.state, ctxState, currentRegionDef?.name]);
 
   // Reset category filter when state changes so items are never hidden accidentally
   useEffect(() => {
@@ -293,6 +304,26 @@ export default function DailyCropRatesPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => requestLocationAccess(true)}
+              disabled={locationStatus === "requesting"}
+              className="h-10 rounded-xl border border-white/20 bg-white/[0.08] dark:bg-black/40 px-3 text-xs font-bold text-foreground hover:border-emerald-500/50 flex items-center gap-1.5"
+            >
+              {locationStatus === "requesting" ? (
+                <Loader2 className="h-3.5 w-3.5 text-emerald-400 animate-spin" />
+              ) : (
+                <LocateFixed className="h-3.5 w-3.5 text-emerald-400" />
+              )}
+              <span>
+                {isUsingLiveGps && userLocation
+                  ? userLocation.locality.split(",")[0]
+                  : "Near Me"}
+              </span>
+            </Button>
+
             {/* State Filter Dropdown with Liquid Glass */}
             <select
               value={selectedState}

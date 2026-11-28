@@ -10,15 +10,11 @@ import {
   Maximize2,
   Minimize2,
   MapPin,
-  Sparkles,
-  Layers,
+  LocateFixed,
+  Loader2,
   Compass,
   Activity,
-  ChevronDown,
   Thermometer,
-  Droplets,
-  CloudLightning,
-  RefreshCw,
 } from "lucide-react";
 import {
   MandiLocation,
@@ -26,6 +22,7 @@ import {
   STATE_NAMES,
   getMandisForState,
 } from "@/lib/mandi-regions";
+import { useLanguage } from "@/lib/language-context";
 
 export type { MandiLocation };
 export { REGIONAL_MANDIS, STATE_NAMES };
@@ -58,14 +55,22 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
   state = "Odisha",
   onLocationChange,
 }) => {
+  const {
+    userLocation,
+    isUsingLiveGps,
+    locationStatus,
+    requestLocationAccess,
+  } = useLanguage();
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
-  // State & Mandi Selection State
+  // State & Mandi Selection State (only overrides exact props/GPS when user picks from dropdown)
   const [selectedState, setSelectedState] = useState<string>(() => {
     if (state && STATE_NAMES.includes(state)) return state;
     return "Odisha";
   });
+  const [localOverridePlace, setLocalOverridePlace] = useState<MandiLocation | null>(null);
 
   const availablePlaces = useMemo(() => {
     return REGIONAL_MANDIS[selectedState] || REGIONAL_MANDIS["Odisha"];
@@ -78,20 +83,71 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
     return matched?.id || availablePlaces[0].id;
   });
 
-  const activePlace = useMemo(() => {
-    return availablePlaces.find((p) => p.id === selectedPlaceId) || availablePlaces[0];
-  }, [availablePlaces, selectedPlaceId]);
+  // Prefer exact active coordinates (manual dropdown override > live GPS > parent props > fallback)
+  const activeCoords = useMemo(() => {
+    if (localOverridePlace) {
+      return {
+        lat: localOverridePlace.lat,
+        lon: localOverridePlace.lon,
+        name: localOverridePlace.name,
+        address: localOverridePlace.address,
+        state: localOverridePlace.state,
+        isLiveGps: false,
+      };
+    }
+    if (isUsingLiveGps && userLocation) {
+      return {
+        lat: userLocation.lat,
+        lon: userLocation.lon,
+        name: userLocation.locality,
+        address: userLocation.address,
+        state: userLocation.state,
+        isLiveGps: true,
+      };
+    }
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
+      return {
+        lat,
+        lon,
+        name: locationName,
+        address,
+        state,
+        isLiveGps: false,
+      };
+    }
+    const fallbackPlace = availablePlaces.find((p) => p.id === selectedPlaceId) || availablePlaces[0];
+    return {
+      lat: fallbackPlace.lat,
+      lon: fallbackPlace.lon,
+      name: fallbackPlace.name,
+      address: fallbackPlace.address,
+      state: fallbackPlace.state,
+      isLiveGps: false,
+    };
+  }, [
+    localOverridePlace,
+    isUsingLiveGps,
+    userLocation,
+    lat,
+    lon,
+    locationName,
+    address,
+    state,
+    availablePlaces,
+    selectedPlaceId,
+  ]);
 
-  const currentLat = activePlace.lat;
-  const currentLon = activePlace.lon;
-  const currentPlaceName = activePlace.name;
-  const currentAddress = activePlace.address;
+  const currentLat = activeCoords.lat;
+  const currentLon = activeCoords.lon;
+  const currentPlaceName = activeCoords.name;
+  const currentAddress = activeCoords.address;
+  const displayState = activeCoords.state;
 
-  // Active Layer: Defaults to Live Rain & Wind Flow across all regions (har jagah)
+  // Active Layer: Defaults to Live Rain & Wind Flow
   const [activeLayer, setActiveLayer] = useState<LayerMode>("live_rain");
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // Default to All India (panoramic subcontinent view) so wind and rain flow opens everywhere at start
-  const [isAllIndia, setIsAllIndia] = useState(true);
+  // Open focused directly at the user's location rather than zooming out to All India
+  const [isAllIndia, setIsAllIndia] = useState(false);
 
   const [nasaData, setNasaData] = useState<{
     temperature_c?: number;
@@ -120,8 +176,9 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
     return d.toISOString().split("T")[0];
   }, []);
 
-  // Update selection if parent props change
+  // Update dropdown selection if parent props or GPS change
   useEffect(() => {
+    setLocalOverridePlace(null);
     if (state && STATE_NAMES.includes(state)) {
       setSelectedState(state);
       const places = REGIONAL_MANDIS[state];
@@ -137,6 +194,19 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
       }
     }
   }, [state, locationName, lat, lon]);
+
+  useEffect(() => {
+    if (isUsingLiveGps && userLocation) {
+      setLocalOverridePlace(null);
+      setIsAllIndia(false);
+      if (STATE_NAMES.includes(userLocation.state)) {
+        setSelectedState(userLocation.state);
+      }
+      if (userLocation.nearestMandi?.id) {
+        setSelectedPlaceId(userLocation.nearestMandi.id);
+      }
+    }
+  }, [isUsingLiveGps, userLocation]);
 
   // Fetch live agro-meteorological diagnostics
   useEffect(() => {
@@ -178,9 +248,10 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
     if (places && places.length > 0) {
       const firstPlace = places[0];
       setSelectedPlaceId(firstPlace.id);
+      setLocalOverridePlace(firstPlace);
       if (onLocationChange) onLocationChange(firstPlace);
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo([firstPlace.lat, firstPlace.lon], 8, { duration: 1.2 });
+        mapInstanceRef.current.flyTo([firstPlace.lat, firstPlace.lon], 10, { duration: 1.2 });
       }
     }
   };
@@ -191,11 +262,18 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
     setIsAllIndia(false);
     const place = availablePlaces.find((p) => p.id === newPlaceId);
     if (place) {
+      setLocalOverridePlace(place);
       if (onLocationChange) onLocationChange(place);
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo([place.lat, place.lon], 9, { duration: 1.2 });
+        mapInstanceRef.current.flyTo([place.lat, place.lon], 11, { duration: 1.2 });
       }
     }
+  };
+
+  const handleUseMyLocation = async () => {
+    setLocalOverridePlace(null);
+    setIsAllIndia(false);
+    await requestLocationAccess(true);
   };
 
   // Quick Fly to All India
@@ -217,7 +295,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
         ? "clouds"
         : "rain"; // Default: Live rain precipitation radar WITH active animated wind streamline flow
 
-    const zoom = isAllIndia ? 5 : 7;
+    const zoom = isAllIndia ? 5 : 9;
     const centerLat = isAllIndia ? 22.8 : currentLat;
     const centerLon = isAllIndia ? 82.5 : currentLon;
 
@@ -260,7 +338,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
 
       map = L.map(mapContainerRef.current, {
         center: isAllIndia ? [22.8, 82.5] : [currentLat, currentLon],
-        zoom: isAllIndia ? 5 : 8,
+        zoom: isAllIndia ? 5 : 10,
         zoomControl: false,
         attributionControl: false,
       });
@@ -424,24 +502,50 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
             </select>
           </div>
 
-          {/* Farm View Quick Focus */}
+          {/* My Live GPS Location Button */}
+          <button
+            type="button"
+            onClick={handleUseMyLocation}
+            disabled={locationStatus === "requesting"}
+            className={`px-3 py-1.5 rounded-2xl backdrop-blur-xl border text-xs font-bold transition-all cursor-pointer shadow-lg inline-flex items-center gap-1.5 shrink-0 ${
+              activeCoords.isLiveGps && !isAllIndia
+                ? "bg-emerald-500/25 text-emerald-300 border-emerald-400/60 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                : "bg-black/85 hover:bg-black text-white hover:text-emerald-400 border-white/20"
+            }`}
+            title="Request GPS and center map on your exact location"
+          >
+            {locationStatus === "requesting" ? (
+              <Loader2 className="h-3.5 w-3.5 text-emerald-400 animate-spin" />
+            ) : (
+              <LocateFixed className="h-3.5 w-3.5 text-emerald-400" />
+            )}
+            <span>
+              {locationStatus === "requesting"
+                ? "Locating..."
+                : activeCoords.isLiveGps
+                ? "My Location"
+                : "Allow Location"}
+            </span>
+          </button>
+
+          {/* Local Focus */}
           <button
             type="button"
             onClick={() => {
               setIsAllIndia(false);
               if (mapInstanceRef.current) {
-                mapInstanceRef.current.flyTo([currentLat, currentLon], 8, { duration: 1.2 });
+                mapInstanceRef.current.flyTo([currentLat, currentLon], 10, { duration: 1.2 });
               }
             }}
             className={`px-3 py-1.5 rounded-2xl backdrop-blur-xl border text-xs font-bold transition-all cursor-pointer shadow-lg inline-flex items-center gap-1 shrink-0 ${
-              !isAllIndia
+              !isAllIndia && !activeCoords.isLiveGps
                 ? "bg-emerald-500/25 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
                 : "bg-black/80 hover:bg-black text-white hover:text-emerald-400 border-white/20"
             }`}
-            title="Focus on selected farm coordinates"
+            title="Focus on selected coordinates"
           >
             <MapPin className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Farm View</span>
+            <span>Local View</span>
           </button>
 
           {/* All India Reset Button */}
@@ -620,10 +724,18 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
               <div className="min-w-0">
                 <div className="text-xs font-bold text-white flex items-center gap-1.5 truncate">
                   <span>{currentPlaceName}</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">({selectedState})</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">({displayState})</span>
+                  {activeCoords.isLiveGps && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[9px] font-bold text-emerald-300">
+                      LIVE GPS
+                    </span>
+                  )}
                 </div>
                 <div className="text-[10px] text-emerald-400/90 font-mono truncate">
-                  {currentLat.toFixed(3)}°N, {currentLon.toFixed(3)}°E • {currentAddress}
+                  {currentLat.toFixed(3)}°N, {currentLon.toFixed(3)}°E
+                  {activeCoords.isLiveGps && userLocation?.nearestMandi
+                    ? ` • Near ${userLocation.nearestMandi.name} (${userLocation.distanceKm} km)`
+                    : ` • ${currentAddress}`}
                 </div>
               </div>
             </div>

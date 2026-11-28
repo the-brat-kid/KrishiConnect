@@ -10,6 +10,7 @@ import {
   Plus,
   ExternalLink,
   MapPin,
+  LocateFixed,
   CheckCircle2,
   Globe2,
   Building2,
@@ -273,18 +274,20 @@ const STATES = [
 ];
 
 function ColdStorageContent() {
-  const { currentRegionDef } = useLanguage();
+  const { currentRegionDef, userLocation, isUsingLiveGps, locationStatus, requestLocationAccess } = useLanguage();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") || searchParams.get("crop") || "";
+
+  const activeRegionState = userLocation?.state || currentRegionDef?.name;
 
   const [facilities] = useState<ColdStorageFacility[]>(PAN_INDIA_FACILITIES);
   const [search, setSearch] = useState(initialQuery);
   const [selectedState, setSelectedState] = useState(
     initialQuery
       ? "All India"
-      : currentRegionDef?.name && STATES.includes(currentRegionDef.name)
-      ? currentRegionDef.name
+      : activeRegionState && STATES.includes(activeRegionState)
+      ? activeRegionState
       : "All India"
   );
 
@@ -296,14 +299,14 @@ function ColdStorageContent() {
   }, [initialQuery]);
 
   useEffect(() => {
-    if (!initialQuery && currentRegionDef?.name) {
-      if (STATES.includes(currentRegionDef.name)) {
-        setSelectedState(currentRegionDef.name);
+    if (!initialQuery && activeRegionState) {
+      if (STATES.includes(activeRegionState)) {
+        setSelectedState(activeRegionState);
       } else {
         setSelectedState("All India");
       }
     }
-  }, [currentRegionDef?.name, initialQuery]);
+  }, [activeRegionState, initialQuery]);
   const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null);
   const [detailFacility, setDetailFacility] = useState<ColdStorageFacility | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -406,6 +409,17 @@ function ColdStorageContent() {
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => requestLocationAccess(true)}
+              disabled={locationStatus === "requesting"}
+              className="h-9 px-3 text-xs font-semibold shrink-0 flex items-center gap-1.5"
+            >
+              <LocateFixed className="h-3.5 w-3.5 text-emerald-500" />
+              <span>{isUsingLiveGps && userLocation ? userLocation.locality.split(",")[0] : "Near Me"}</span>
+            </Button>
             <span className="text-xs text-muted-foreground whitespace-nowrap hidden sm:inline">State:</span>
             <select
               value={selectedState}
