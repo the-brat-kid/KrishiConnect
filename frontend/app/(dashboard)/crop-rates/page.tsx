@@ -6,6 +6,7 @@ import { AnimatedNumber } from "@/components/core/animated-number";
 import { Tilt } from "@/components/core/tilt";
 import { useCropRates, CropRateItem } from "@/hooks/use-crop-rates";
 import { useLanguage, REGIONS, RegionId } from "@/lib/language-context";
+import { getCropImage } from "@/lib/crop-images";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,6 @@ import {
   Minus,
   RefreshCw,
   Search,
-  ExternalLink,
   Store,
   LayoutGrid,
   List as ListIcon,
@@ -25,8 +25,6 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
-  Sparkles,
-  Globe2,
 } from "lucide-react";
 
 const INDIAN_STATES = [
@@ -153,38 +151,6 @@ export default function DailyCropRatesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <div className="badge-liquid-glass-emerald">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-              <span className="flex items-center gap-1">
-                <Globe2 className="h-3 w-3 text-emerald-400" /> Pan-India Live Mandi Network
-              </span>
-            </div>
-
-            <a
-              href="https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
-              title="Government of India Open Data AGMARKNET (Resource 9ef84268)"
-            >
-              <Sparkles className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-              <span>data.gov.in (AGMARKNET)</span>
-              <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
-            </a>
-
-            <a
-              href="https://agmarknet.gov.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="badge-liquid-glass-emerald hover:brightness-110 transition-all group cursor-pointer"
-            >
-              <Globe2 className="w-3 h-3 text-emerald-400 shrink-0 group-hover:scale-110 transition-transform" />
-              <span>Agmarknet Portal</span>
-              <ExternalLink className="w-3 h-3 ml-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
-            </a>
-          </div>
-
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5 font-plus-jakarta">
             <Store className="h-8 w-8 text-primary" />
             Pan-India Daily Crop Rates
@@ -287,20 +253,14 @@ export default function DailyCropRatesPage() {
                     className="flex items-center gap-3 p-2.5 rounded-lg bg-card border shadow-xs hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group h-full"
                     title={`Click to view price history for ${staple.name}`}
                   >
-                    {staple.image ? (
-                      <img
-                        src={staple.image}
-                        alt={staple.name}
-                        className="w-10 h-10 object-contain rounded-md bg-muted p-1 flex-shrink-0 transition-transform group-hover:scale-110"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground">
-                        {staple.name.substring(0, 2).toUpperCase()}
-                      </div>
-                    )}
+                    <img
+                      src={getCropImage(staple.name, staple.image)}
+                      alt={staple.name}
+                      className="w-10 h-10 object-cover rounded-md bg-muted p-0.5 flex-shrink-0 transition-transform group-hover:scale-110 shadow-xs"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
                     <div className="min-w-0">
                       <p className="font-medium text-xs truncate group-hover:text-primary transition-colors">
                         {staple.name.split("(")[0]}
@@ -450,20 +410,14 @@ export default function DailyCropRatesPage() {
                   title="Click to view full price details & projections"
                 >
                   <TableCell className="py-2.5">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-10 h-10 object-contain rounded-xl bg-white/[0.05] border border-white/10 p-1"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-xs font-bold text-muted-foreground">
-                        {item.name.substring(0, 2).toUpperCase()}
-                      </div>
-                    )}
+                    <img
+                      src={getCropImage(item.name, item.image)}
+                      alt={item.name}
+                      className="w-10 h-10 object-cover rounded-xl bg-white/[0.05] border border-white/10 p-0.5 shadow-xs"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
@@ -544,20 +498,14 @@ export default function DailyCropRatesPage() {
               <div>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2.5">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 object-contain rounded-xl bg-muted p-1"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
-                        {item.name.substring(0, 2).toUpperCase()}
-                      </div>
-                    )}
+                    <img
+                      src={getCropImage(item.name, item.image)}
+                      alt={item.name}
+                      className="w-12 h-12 object-cover rounded-xl bg-muted p-0.5 shadow-xs"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
                     <div>
                       <h3 className="font-bold text-sm group-hover:text-primary transition-colors">
                         {item.name}

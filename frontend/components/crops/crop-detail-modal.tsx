@@ -40,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Chart3DContainer, ThreeDDot, ThreeDChartDefs } from "@/components/ui/chart-3d";
 import { useCropHistory, CropHistoryItem } from "@/hooks/use-crop-history";
+import { getCropImage } from "@/lib/crop-images";
 
 // Comprehensive Agronomic & Future Profitability Database for Odisha
 interface CropAgroProfile {
@@ -395,19 +396,28 @@ export function CropDetailModal({
         {/* Modal Top Header */}
         <DialogHeader className="shrink-0 p-4 sm:p-5 pb-3 sm:pb-4 border-b border-border/80 bg-muted/20 space-y-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[10px] font-bold uppercase tracking-wider">
-                  {category || "Mandi Intelligence"}
-                </Badge>
-                <span className="text-xs text-muted-foreground font-medium">{agroProfile.localName}</span>
+            <div className="flex items-center gap-3.5">
+              <div className="relative w-12 h-12 rounded-xl bg-muted/40 border border-border p-0.5 shrink-0 overflow-hidden shadow-xs">
+                <img
+                  src={getCropImage(cropName || historyItem?.id)}
+                  alt={cropName}
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
-              <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-                {cropName}
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                {mandiInfo || "APMC Mandi"} • Market Analytics
-              </DialogDescription>
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[10px] font-bold uppercase tracking-wider">
+                    {category || "Mandi Intelligence"}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground font-medium">{agroProfile.localName}</span>
+                </div>
+                <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  {cropName}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                  {mandiInfo || "APMC Mandi"} • Market Analytics
+                </DialogDescription>
+              </div>
             </div>
 
             {/* Price Pill */}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useCropHistory, CropHistoryItem } from "@/hooks/use-crop-history";
+import { getCropImage } from "@/lib/crop-images";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -413,20 +414,14 @@ export default function RateTrendsPage() {
                   return (
                     <TableRow key={item.id} className="hover:bg-muted/40 transition-colors">
                       <TableCell className="py-2">
-                        {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-8 h-8 object-contain rounded bg-muted/30 p-0.5"
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
-                            {item.name.substring(0, 2).toUpperCase()}
-                          </div>
-                        )}
+                        <img
+                          src={getCropImage(item.name || item.id, item.image)}
+                          alt={item.name}
+                          className="w-8 h-8 object-cover rounded bg-muted/30 p-0.5 shadow-xs"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
                       </TableCell>
                       <TableCell className="font-semibold text-foreground">
                         {item.name}

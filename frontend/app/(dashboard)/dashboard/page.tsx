@@ -60,7 +60,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹26",
     change: "+₹1",
     status: "up",
-    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/potato.jpg",
     accentGrad: "from-amber-500/20 via-amber-900/10 to-transparent",
   },
   {
@@ -71,7 +71,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹42",
     change: "-₹2",
     status: "down",
-    image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/onion.jpg",
     accentGrad: "from-purple-500/20 via-pink-950/10 to-transparent",
   },
   {
@@ -82,7 +82,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹30",
     change: "+₹3",
     status: "up",
-    image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/tomato.jpg",
     accentGrad: "from-rose-500/25 via-red-950/10 to-transparent",
   },
   {
@@ -93,7 +93,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹75",
     change: "-₹3",
     status: "down",
-    image: "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/green-chilli.jpg",
     accentGrad: "from-emerald-500/25 via-teal-950/10 to-transparent",
   },
   {
@@ -104,7 +104,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹32",
     change: "+₹2",
     status: "up",
-    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/brinjal.jpg",
     accentGrad: "from-violet-500/20 via-indigo-950/10 to-transparent",
   },
   {
@@ -115,7 +115,7 @@ const BASE_STAPLES = [
     fallbackRetail: "₹110",
     change: "0",
     status: "stable",
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=320&h=320&fit=crop&crop=center&auto=format&q=85",
+    image: "/crops/ginger.jpg",
     accentGrad: "from-yellow-600/20 via-amber-950/10 to-transparent",
   },
 ];
@@ -683,7 +683,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/25 via-red-950/20 to-transparent border border-rose-500/35 p-1 shrink-0 shadow-md">
                       <img
-                        src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=160&h=160&fit=crop&crop=center&auto=format&q=85"
+                        src="/crops/tomato.jpg"
                         alt="Tomato"
                         className="w-full h-full object-cover rounded-lg"
                       />
@@ -705,7 +705,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/25 via-pink-950/20 to-transparent border border-purple-500/35 p-1 shrink-0 shadow-md">
                       <img
-                        src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=160&h=160&fit=crop&crop=center&auto=format&q=85"
+                        src="/crops/onion.jpg"
                         alt="Onion"
                         className="w-full h-full object-cover rounded-lg"
                       />

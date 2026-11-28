@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCropImage } from "@/lib/crop-images";
 
 export interface CropRateItem {
   id: string;
@@ -1503,67 +1504,77 @@ const COMMODITY_META: Record<string, { emoji: string; category: string; image: s
   potato: {
     emoji: "🥔",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Potato.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/potato.jpg",
   },
   onion: {
     emoji: "🧅",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Onion.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/onion.jpg",
   },
   tomato: {
     emoji: "🍅",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Tomato.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/tomato.jpg",
   },
   brinjal: {
     emoji: "🍆",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Brinjal.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/brinjal.jpg",
   },
   cabbage: {
     emoji: "🥬",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cabbage.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/cabbage.jpg",
   },
   cauliflower: {
     emoji: "🥦",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Cauliflower.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/cauliflower.jpg",
   },
   chilli: {
     emoji: "🌶️",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/GreenChilli.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/green-chilli.jpg",
+  },
+  "green chilli": {
+    emoji: "🌶️",
+    category: "Vegetables",
+    image: "/crops/green-chilli.jpg",
+  },
+  "red chilli": {
+    emoji: "🌶️",
+    category: "Spices",
+    image: "/crops/red-chilli.jpg",
   },
   garlic: {
     emoji: "🧄",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Garlic.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/garlic.jpg",
   },
   ginger: {
     emoji: "🫚",
     category: "Vegetables",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Ginger.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/ginger.jpg",
   },
   wheat: {
     emoji: "🌾",
     category: "Cereals & Grains",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/wheat.jpg",
   },
   paddy: {
     emoji: "🌾",
     category: "Cereals & Grains",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Paddy.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/paddy.jpg",
   },
   rice: {
     emoji: "🍚",
     category: "Cereals & Grains",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Rice.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/rice.jpg",
   },
   mustard: {
     emoji: "🌼",
     category: "Oilseeds",
-    image: "https://api.acropai.com/storage/v1/render/image/public/acropcdn/crops/Mustard.jpg?width=48&quality=75&format=webp&resize=contain",
+    image: "/crops/mustard.jpg",
   },
   groundnut: {
     emoji: "🥜",
@@ -1744,6 +1755,11 @@ export async function GET(request: Request) {
     );
   }
 
+  const sanitizedItems = combinedItems.map((item) => ({
+    ...item,
+    image: getCropImage(item.name || item.id, item.image),
+  }));
+
   return NextResponse.json({
     success: true,
     market: stateParam ? `${stateParam.toUpperCase()} APMC Mandis` : "Pan-India National Mandi Network",
@@ -1753,7 +1769,7 @@ export async function GET(request: Request) {
     resourceId: DATA_GOV_RESOURCE_ID,
     isSampleKey: IS_SAMPLE_KEY,
     updatedAt: new Date().toISOString(),
-    count: combinedItems.length,
-    items: combinedItems,
+    count: sanitizedItems.length,
+    items: sanitizedItems,
   });
 }
