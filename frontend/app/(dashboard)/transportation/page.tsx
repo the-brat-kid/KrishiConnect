@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedNumber } from "@/components/core/animated-number";
+import { FreightDetailModal, FreightCorridorDetail } from "@/components/logistics/freight-detail-modal";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Truck,
@@ -136,6 +137,7 @@ export default function TransportationPage() {
   const [weightMt, setWeightMt] = useState<number>(5);
   const [selectedTruckId, setSelectedTruckId] = useState("canter-14");
   const [corridorRegionFilter, setCorridorRegionFilter] = useState<string>("All");
+  const [selectedCorridorDetail, setSelectedCorridorDetail] = useState<FreightCorridorDetail | null>(null);
 
   // Determine active distance
   const activeDistance = useMemo(() => {
@@ -658,8 +660,33 @@ export default function TransportationPage() {
             <TableBody>
               {filteredCorridors.map((corridor) => {
                 const est5Mt = Math.round(corridor.distance * 40 + 3500);
+                const estHours = Math.max(1, Math.round(corridor.distance / 45));
+                const truckClass =
+                  corridor.distance < 200
+                    ? "Tata Ace / 14ft Eicher"
+                    : corridor.distance < 600
+                    ? "14ft - 19ft Truck"
+                    : "19ft / Taurus Multi-Axle";
+                const detailObj: FreightCorridorDetail = {
+                  id: corridor.id,
+                  route: corridor.name,
+                  origin: corridor.origin,
+                  destination: corridor.destination,
+                  region: corridor.region,
+                  dist: corridor.distance,
+                  cost: est5Mt,
+                  truck: truckClass,
+                  time: estHours <= 12 ? `${estHours} hrs` : `${Math.ceil(estHours / 24)} days`,
+                  highway: corridor.highway,
+                  commodity: corridor.typicalCommodity,
+                };
                 return (
-                  <TableRow key={corridor.id} className="hover:bg-muted/40 transition-colors">
+                  <TableRow
+                    key={corridor.id}
+                    onClick={() => setSelectedCorridorDetail(detailObj)}
+                    className="cursor-pointer hover:bg-muted/60 transition-colors"
+                    title={`Click for full freight & load breakdown on ${corridor.name}`}
+                  >
                     <TableCell className="font-semibold text-foreground">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
@@ -693,7 +720,7 @@ export default function TransportationPage() {
                     <TableCell className="text-right font-bold text-primary">
                       ₹{est5Mt.toLocaleString("en-IN")}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-1.5">
                         <Button
                           variant="ghost"
@@ -725,6 +752,17 @@ export default function TransportationPage() {
           </Table>
         </div>
       </div>
+
+      <FreightDetailModal
+        corridor={selectedCorridorDetail}
+        isOpen={!!selectedCorridorDetail}
+        onClose={() => setSelectedCorridorDetail(null)}
+        onLoadInCalculator={(corridor) => {
+          if (corridor.id) setSelectedCorridorId(corridor.id);
+          if (corridor.origin) setFromCity(corridor.origin);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
     </div>
   );
 }

@@ -12,9 +12,10 @@ import { Badge } from "@/components/ui/badge"
 interface ColdStorageCardProps {
   facility: ColdStorageFacility
   onBook: (facility: ColdStorageFacility) => void
+  onViewDetails?: (facility: ColdStorageFacility) => void
 }
 
-export function ColdStorageCard({ facility, onBook }: ColdStorageCardProps) {
+export function ColdStorageCard({ facility, onBook, onViewDetails }: ColdStorageCardProps) {
   const capacityUsedPercent = Math.round(
     ((facility.total_capacity_quintals - facility.available_capacity_quintals) /
       facility.total_capacity_quintals) *
@@ -24,7 +25,13 @@ export function ColdStorageCard({ facility, onBook }: ColdStorageCardProps) {
   const isLowCapacity = facility.available_capacity_quintals < facility.total_capacity_quintals * 0.15
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-card/60 backdrop-blur-xl p-5 shadow-lg flex flex-col justify-between hover:border-primary/40 transition-all duration-200">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => (onViewDetails ? onViewDetails(facility) : onBook(facility))}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (onViewDetails ? onViewDetails(facility) : onBook(facility))}
+      className="cursor-pointer rounded-2xl border border-white/10 bg-card/60 backdrop-blur-xl p-5 shadow-lg flex flex-col justify-between hover:border-primary/40 transition-all duration-200"
+    >
       <div className="space-y-4">
         {/* Top Header */}
         <div className="flex items-start justify-between gap-3">
@@ -95,7 +102,10 @@ export function ColdStorageCard({ facility, onBook }: ColdStorageCardProps) {
 
         <Button
           size="sm"
-          onClick={() => onBook(facility)}
+          onClick={(e) => {
+            e.stopPropagation()
+            onBook(facility)
+          }}
           disabled={facility.available_capacity_quintals <= 0}
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
         >

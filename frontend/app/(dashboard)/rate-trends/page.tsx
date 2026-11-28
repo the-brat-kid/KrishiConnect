@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { CropDetailModal } from "@/components/crops/crop-detail-modal";
 import { useCropHistory, CropHistoryItem } from "@/hooks/use-crop-history";
 import { getCropImage } from "@/lib/crop-images";
 import { AnimatedNumber } from "@/components/core/animated-number";
@@ -44,6 +45,7 @@ export default function RateTrendsPage() {
   const [search, setSearch] = useState("");
   const [trendFilter, setTrendFilter] = useState<"all" | "up" | "down" | "stable">("all");
   const [selectedForChart, setSelectedForChart] = useState<string[]>(DEFAULT_SELECTED_CROPS);
+  const [selectedCropModal, setSelectedCropModal] = useState<CropHistoryItem | null>(null);
 
   const items = data?.items || [];
   const columns = data?.columns || [];
@@ -161,7 +163,12 @@ export default function RateTrendsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card shadow-sm">
+        <Card
+          onClick={() => stats?.topGainer && setSelectedCropModal(stats.topGainer)}
+          className={`bg-card shadow-sm transition-all ${
+            stats?.topGainer ? "cursor-pointer hover:border-emerald-500/50 hover:shadow-md" : ""
+          }`}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Top Weekly Gainer</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-emerald-600" />
@@ -183,7 +190,12 @@ export default function RateTrendsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card shadow-sm">
+        <Card
+          onClick={() => stats?.topLoser && setSelectedCropModal(stats.topLoser)}
+          className={`bg-card shadow-sm transition-all ${
+            stats?.topLoser ? "cursor-pointer hover:border-rose-500/50 hover:shadow-md" : ""
+          }`}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Top Weekly Price Drop</CardTitle>
             <ArrowDownRight className="h-4 w-4 text-rose-600" />
@@ -412,7 +424,12 @@ export default function RateTrendsPage() {
                   const isDown = item.change < 0;
 
                   return (
-                    <TableRow key={item.id} className="hover:bg-muted/40 transition-colors">
+                    <TableRow
+                      key={item.id}
+                      onClick={() => setSelectedCropModal(item)}
+                      className="cursor-pointer hover:bg-muted/60 transition-colors"
+                      title={`Click to view 7-day breakdown & profit calculator for ${item.name}`}
+                    >
                       <TableCell className="py-2">
                         <img
                           src={getCropImage(item.name || item.id, item.image)}
@@ -478,6 +495,17 @@ export default function RateTrendsPage() {
           </div>
         )}
       </div>
+
+      {selectedCropModal && (
+        <CropDetailModal
+          isOpen={!!selectedCropModal}
+          onClose={() => setSelectedCropModal(null)}
+          cropName={selectedCropModal.name}
+          currentPrice={selectedCropModal.currentPrice}
+          retailPrice={selectedCropModal.retailPrices?.[6]}
+          unit={selectedCropModal.unit || "kg"}
+        />
+      )}
     </div>
   );
 }

@@ -34,6 +34,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { ViewOnMap } from "@/components/ui/view-on-map";
 import { useLanguage } from "@/lib/language-context";
 
@@ -147,6 +154,7 @@ export default function FarmWeatherPage() {
   const [weatherData, setWeatherData] = useState<WeatherApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedForecastDay, setSelectedForecastDay] = useState<WeatherApiResponse["daily"][number] | null>(null);
 
   // Sync mandi with active region and mandi from global context
   useEffect(() => {
@@ -523,11 +531,16 @@ export default function FarmWeatherPage() {
               {(weatherData?.daily || []).map((item, idx) => (
                 <div
                   key={item.day + idx}
-                  className={`p-3 rounded-2xl border transition-all ${
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedForecastDay(item)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedForecastDay(item)}
+                  className={`cursor-pointer p-3 rounded-2xl border transition-all hover:scale-[1.03] hover:border-emerald-400/60 ${
                     idx === 0
                       ? "border-emerald-500/50 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
-                      : "border-white/10 bg-white/[0.03]"
+                      : "border-white/10 bg-white/[0.03] hover:bg-white/[0.07]"
                   }`}
+                  title={`Click for detailed weather & field advisory for ${item.day}`}
                 >
                   <p className="font-extrabold text-foreground">{item.day}</p>
                   <div className="my-2 flex justify-center">{renderWeatherIcon(item.icon)}</div>
@@ -665,6 +678,74 @@ export default function FarmWeatherPage() {
           </div>
         </div>
       </div>
+
+      {/* Selected Day Forecast Detail Modal */}
+      <Dialog open={!!selectedForecastDay} onOpenChange={(open) => !open && setSelectedForecastDay(null)}>
+        <DialogContent className="max-w-md w-[95vw] p-0 rounded-2xl border border-white/15 bg-[#0c0d0e]/95 backdrop-blur-2xl shadow-2xl text-foreground overflow-hidden">
+          {selectedForecastDay && (
+            <>
+              <DialogHeader className="p-5 pb-4 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <DialogTitle className="text-lg font-extrabold text-foreground flex items-center gap-2">
+                      {renderWeatherIcon(selectedForecastDay.icon)}
+                      <span>{selectedForecastDay.day} Forecast</span>
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                      {selectedForecastDay.date} • {selectedMandi.name}
+                    </DialogDescription>
+                  </div>
+                  <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+                    {selectedForecastDay.condition}
+                  </Badge>
+                </div>
+              </DialogHeader>
+
+              <div className="p-5 space-y-4 text-xs">
+                <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Max / Min</span>
+                    <span className="text-base font-extrabold font-mono text-foreground mt-1 block">
+                      {selectedForecastDay.maxTemp}° / {selectedForecastDay.minTemp}°C
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Rain Chance</span>
+                    <span className="text-base font-extrabold font-mono text-blue-400 mt-1 block">
+                      {selectedForecastDay.rainProbability}%
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Rainfall Vol</span>
+                    <span className="text-base font-extrabold font-mono text-emerald-400 mt-1 block">
+                      {selectedForecastDay.rainfallMm > 0 ? `${selectedForecastDay.rainfallMm} mm` : "0 mm (Dry)"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="font-bold text-foreground block">Spray &amp; Foliar Window</span>
+                    <p className="text-muted-foreground mt-0.5">
+                      {selectedForecastDay.rainProbability > 50
+                        ? "High rain risk — avoid pesticide or Nano Urea foliar spray to prevent wash-off."
+                        : "Favorable dry window for morning/evening foliar spraying."}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="font-bold text-foreground block">Sun-Drying &amp; Mandi Dispatch</span>
+                    <p className="text-muted-foreground mt-0.5">
+                      {selectedForecastDay.rainfallMm > 2
+                        ? "Keep harvested grain tarpaulin-covered; book waterproof covered trucks for APMC transit."
+                        : "Clear conditions suitable for open sun-drying and moisture reduction prior to mandi sale."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

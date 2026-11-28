@@ -151,7 +151,7 @@ export function Chart3DContainer({
  * - Ground shadow
  */
 export function ThreeDBar(props: any) {
-  const { fill, x, y, width, height, isSelected, active } = props;
+  const { fill, x, y, width, height, onClick } = props;
   if (!height || height <= 0 || width <= 0) return null;
 
   // Compute realistic isometric depth based on bar thickness
@@ -163,7 +163,10 @@ export function ThreeDBar(props: any) {
   const sideShadow = "#000000";
 
   return (
-    <g className="transition-all duration-300 hover:brightness-125 cursor-pointer">
+    <g
+      onClick={onClick}
+      className="transition-all duration-300 hover:brightness-125 cursor-pointer"
+    >
       {/* 3D Floor Ground Shadow */}
       <ellipse
         cx={x + width / 2 + depthX / 2}

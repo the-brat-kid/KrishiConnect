@@ -19,11 +19,18 @@ import { Badge } from "@/components/ui/badge";
 interface SoilLabCardProps {
   lab: SoilHealthLab;
   onBook: (lab: SoilHealthLab) => void;
+  onViewDetails?: (lab: SoilHealthLab) => void;
 }
 
-export function SoilLabCard({ lab, onBook }: SoilLabCardProps) {
+export function SoilLabCard({ lab, onBook, onViewDetails }: SoilLabCardProps) {
   return (
-    <div className="relative group rounded-2xl border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[#0c0d0e]/80 backdrop-blur-xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:border-emerald-500/40 flex flex-col justify-between">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => (onViewDetails ? onViewDetails(lab) : onBook(lab))}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (onViewDetails ? onViewDetails(lab) : onBook(lab))}
+      className="cursor-pointer relative group rounded-2xl border border-white/10 dark:border-white/10 bg-white/70 dark:bg-[#0c0d0e]/80 backdrop-blur-xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:border-emerald-500/40 flex flex-col justify-between"
+    >
       {/* Top Header */}
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -108,7 +115,7 @@ export function SoilLabCard({ lab, onBook }: SoilLabCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <a
             href={`tel:${lab.contact_phone}`}
             className="p-2.5 rounded-xl border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"

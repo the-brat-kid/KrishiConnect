@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useCustomers, useCreateCustomer, useDeleteCustomer } from "@/hooks/use-customers";
+import { BuyerDetailModal, CropBuyerDetail } from "@/components/buyers/buyer-detail-modal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -30,6 +32,8 @@ import {
   Filter,
   Trash2,
   AlertTriangle,
+  Receipt,
+  Mail,
 } from "lucide-react";
 
 interface CropBuyer {
@@ -171,6 +175,8 @@ export default function CustomersPage() {
   const [buyerSearch, setBuyerSearch] = useState("");
   const [selectedCropCategory, setSelectedCropCategory] = useState<string>("all");
   const [selectedBuyerType, setSelectedBuyerType] = useState<string>("all");
+  const [selectedBuyerModal, setSelectedBuyerModal] = useState<CropBuyerDetail | null>(null);
+  const [selectedCustomerModal, setSelectedCustomerModal] = useState<any | null>(null);
 
   // AgroDealz Inquiry Form State
   const [inquiryData, setInquiryData] = useState({
@@ -523,7 +529,12 @@ export default function CustomersPage() {
                   </TableRow>
                 ) : (
                   filteredCropBuyers.map((buyer) => (
-                    <TableRow key={buyer.id} className="hover:bg-muted/40 transition-colors">
+                    <TableRow
+                      key={buyer.id}
+                      onClick={() => setSelectedBuyerModal(buyer)}
+                      className="cursor-pointer hover:bg-muted/60 transition-colors"
+                      title={`Click to view procurement terms & lot calculator for ${buyer.businessName}`}
+                    >
                       <TableCell className="font-semibold text-foreground">
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1.5">
@@ -584,7 +595,7 @@ export default function CustomersPage() {
                         {buyer.paymentTerms}
                       </TableCell>
 
-                      <TableCell className="text-center">
+                      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                         <a
                           href="https://agrodealz.in/find-buyers"
                           target="_blank"
@@ -738,7 +749,12 @@ export default function CustomersPage() {
                   </TableRow>
                 ) : (
                   filteredCustomers.map((c: any) => (
-                    <TableRow key={c.id} className="hover:bg-white/[0.05] border-b border-white/5 transition-colors group">
+                    <TableRow
+                      key={c.id}
+                      onClick={() => setSelectedCustomerModal(c)}
+                      className="cursor-pointer hover:bg-white/[0.08] border-b border-white/5 transition-colors group"
+                      title={`Click to view account details for ${c.name}`}
+                    >
                       <TableCell className="font-semibold text-foreground">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
@@ -763,7 +779,7 @@ export default function CustomersPage() {
                       <TableCell className="text-xs text-muted-foreground">
                         {c.address || "-"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           onClick={() => setDeleteTarget({ id: c.id, name: c.name })}
@@ -868,6 +884,89 @@ export default function CustomersPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verified Crop Buyer Detail Modal */}
+      <BuyerDetailModal
+        buyer={selectedBuyerModal}
+        isOpen={!!selectedBuyerModal}
+        onClose={() => setSelectedBuyerModal(null)}
+      />
+
+      {/* Local Customer CRM Account Detail Modal */}
+      <Dialog open={!!selectedCustomerModal} onOpenChange={(open) => !open && setSelectedCustomerModal(null)}>
+        <DialogContent className="max-w-md w-[95vw] p-0 rounded-2xl border border-white/15 bg-[#0c0d0e]/95 backdrop-blur-2xl shadow-2xl text-foreground overflow-hidden">
+          {selectedCustomerModal && (
+            <>
+              <DialogHeader className="p-5 pb-4 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-primary/15 border border-primary/30 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                    {initials(selectedCustomerModal.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <DialogTitle className="text-lg font-extrabold text-foreground truncate">
+                      {selectedCustomerModal.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                      {selectedCustomerModal.gst_number ? "Registered B2B / GST Buyer" : "Retail / Mandi Counter Buyer"}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="p-5 space-y-3 text-xs">
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-primary" /> Email
+                  </span>
+                  <span className="font-semibold text-foreground">{selectedCustomerModal.email || "Not provided"}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <PhoneCall className="w-3.5 h-3.5 text-emerald-400" /> Phone
+                  </span>
+                  <span className="font-mono font-semibold text-foreground">{selectedCustomerModal.phone || "Not provided"}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-amber-400" /> GSTIN
+                  </span>
+                  <span className="font-mono font-semibold text-foreground">{selectedCustomerModal.gst_number || "Unregistered"}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-400" /> Mandi / Delivery Address
+                  </span>
+                  <p className="font-medium text-foreground">{selectedCustomerModal.address || "Not specified"}</p>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const target = { id: selectedCustomerModal.id, name: selectedCustomerModal.name };
+                    setSelectedCustomerModal(null);
+                    setDeleteTarget(target);
+                  }}
+                  className="text-xs border-rose-500/30 text-rose-400 hover:bg-rose-500/10"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                  Delete
+                </Button>
+
+                <Button type="button" size="sm" asChild className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">
+                  <Link href={`/invoices/new?customer=${encodeURIComponent(selectedCustomerModal.name)}`} className="inline-flex items-center gap-1.5">
+                    <Receipt className="w-3.5 h-3.5" />
+                    <span>Create Invoice</span>
+                  </Link>
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, ArrowRight, Receipt } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRecentTransactions } from "@/hooks/use-dashboard";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
@@ -15,6 +16,7 @@ function initials(name: string) {
 }
 
 export function RecentTransactions() {
+  const router = useRouter();
   const { data: transactions, isLoading } = useRecentTransactions();
 
   return (
@@ -63,7 +65,8 @@ export function RecentTransactions() {
             return (
               <div
                 key={t.invoice_id}
-                className="p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:bg-white/[0.04] transition-colors"
+                onClick={() => router.push(`/invoices/${t.invoice_id}`)}
+                className="cursor-pointer p-3.5 sm:p-4 flex items-center justify-between gap-3 hover:bg-white/[0.06] transition-colors"
               >
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -144,7 +147,8 @@ export function RecentTransactions() {
                 return (
                   <tr
                     key={t.invoice_id}
-                    className="group hover:bg-white/[0.06] dark:hover:bg-white/[0.05] transition-colors duration-150"
+                    onClick={() => router.push(`/invoices/${t.invoice_id}`)}
+                    className="cursor-pointer group hover:bg-white/[0.06] dark:hover:bg-white/[0.05] transition-colors duration-150"
                   >
                     {/* Invoice ID */}
                     <td className="py-3.5 px-5 sm:px-6">

@@ -764,7 +764,12 @@ export default function ProductsPage() {
                 const isAccepted = item.status === "bid_accepted";
 
                 return (
-                  <TableRow key={item.id} className="hover:bg-muted/30 transition-colors">
+                  <TableRow
+                    key={item.id}
+                    onClick={() => setSelectedAuditItem(item)}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    title={`Click to view lot & bidding details for ${item.name}`}
+                  >
                     {/* Name */}
                     <TableCell className="font-semibold text-foreground py-3">
                       <div className="flex flex-col">
@@ -846,7 +851,7 @@ export default function ProductsPage() {
                     </TableCell>
 
                     {/* Action Buttons */}
-                    <TableCell className="text-right space-x-1.5 py-3">
+                    <TableCell className="text-right space-x-1.5 py-3" onClick={(e) => e.stopPropagation()}>
                       {isLive ? (
                         <>
                           <Button
@@ -1125,17 +1130,23 @@ export default function ProductsPage() {
         <Dialog open={!!selectedAuditItem} onOpenChange={() => setSelectedAuditItem(null)}>
           <DialogContent className="max-w-md bg-card border-border shadow-2xl p-0 overflow-hidden">
             <DialogHeader className="p-4 border-b bg-muted/20">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <div>
                   <DialogTitle className="text-lg font-bold text-foreground">
-                    Live Bidding Audit Trail
+                    {selectedAuditItem.status === "bidding_live"
+                      ? "Live Bidding Audit Trail"
+                      : "Commodity Lot Details"}
                   </DialogTitle>
                   <DialogDescription className="text-xs text-muted-foreground">
-                    {selectedAuditItem.name} • {selectedAuditItem.stock} {selectedAuditItem.unit}
+                    {selectedAuditItem.name} • {selectedAuditItem.stock} {selectedAuditItem.unit} ({selectedAuditItem.sku})
                   </DialogDescription>
                 </div>
                 <Badge className="bg-emerald-600 text-white text-[10px]">
-                  Top Bid: ₹{selectedAuditItem.currentHighestBid}
+                  {selectedAuditItem.status === "bidding_live"
+                    ? `Top Bid: ₹${selectedAuditItem.currentHighestBid}`
+                    : selectedAuditItem.status === "bid_accepted"
+                    ? `Sold: ₹${selectedAuditItem.currentHighestBid}`
+                    : `Rate: ₹${selectedAuditItem.dailyMandiPrice}`}
                 </Badge>
               </div>
             </DialogHeader>
@@ -1147,42 +1158,84 @@ export default function ProductsPage() {
                   <span className="font-bold text-sm text-foreground">₹{selectedAuditItem.baseStartingBid}/{selectedAuditItem.unit}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold block">Total Bids</span>
-                  <span className="font-bold text-sm text-primary">{selectedAuditItem.totalBidsCount} Bids</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold block">
+                    {selectedAuditItem.status === "in_stock" ? "Category" : "Total Bids"}
+                  </span>
+                  <span className="font-bold text-sm text-primary">
+                    {selectedAuditItem.status === "in_stock"
+                      ? selectedAuditItem.category
+                      : `${selectedAuditItem.totalBidsCount} Bids`}
+                  </span>
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <span className="text-[11px] font-bold text-muted-foreground uppercase">Bidder Log (Newest to Oldest)</span>
-                <div className="divide-y border rounded-md bg-background">
-                  {selectedAuditItem.bidHistory.map((bid, idx) => (
-                    <div key={bid.id || idx} className="p-2.5 flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <p className="font-bold text-foreground text-xs flex items-center gap-1.5">
-                          {idx === 0 && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                          {bid.bidderName}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">{bid.location} • {bid.timeAgo}</p>
+                {selectedAuditItem.bidHistory.length > 0 ? (
+                  <div className="divide-y border rounded-md bg-background">
+                    {selectedAuditItem.bidHistory.map((bid, idx) => (
+                      <div key={bid.id || idx} className="p-2.5 flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <p className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                            {idx === 0 && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                            {bid.bidderName}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{bid.location} • {bid.timeAgo}</p>
+                        </div>
+                        <div className="text-right font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
+                          ₹{bid.amount.toLocaleString("en-IN")}
+                        </div>
                       </div>
-                      <div className="text-right font-extrabold text-sm text-emerald-600 dark:text-emerald-400">
-                        ₹{bid.amount.toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-md border bg-background text-muted-foreground">
+                    No bids placed yet. Daily mandi benchmark: ₹{selectedAuditItem.dailyMandiPrice.toLocaleString("en-IN")}/{selectedAuditItem.unit}.
+                  </div>
+                )}
               </div>
 
-              <Button
-                type="button"
-                onClick={() => {
-                  handleOpenAcceptBidInvoice(selectedAuditItem);
-                  setSelectedAuditItem(null);
-                }}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 mt-2 shadow-md"
-              >
-                <Gavel className="w-4 h-4 mr-1.5" />
-                <span>Accept Winning Bid & Generate Invoice (₹{selectedAuditItem.currentHighestBid}/{selectedAuditItem.unit})</span>
-              </Button>
+              {selectedAuditItem.status === "bidding_live" ? (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    handleOpenAcceptBidInvoice(selectedAuditItem);
+                    setSelectedAuditItem(null);
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 mt-2 shadow-md"
+                >
+                  <Gavel className="w-4 h-4 mr-1.5" />
+                  <span>Accept Winning Bid & Generate Invoice (₹{selectedAuditItem.currentHighestBid}/{selectedAuditItem.unit})</span>
+                </Button>
+              ) : selectedAuditItem.status === "bid_accepted" ? (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (selectedAuditItem.invoiceId) {
+                      router.push(`/invoices/${selectedAuditItem.invoiceId}`);
+                    } else {
+                      handleOpenAcceptBidInvoice(selectedAuditItem);
+                    }
+                    setSelectedAuditItem(null);
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 mt-2 shadow-md"
+                >
+                  <Receipt className="w-4 h-4 mr-1.5" />
+                  <span>{selectedAuditItem.invoiceId ? "Open Issued Invoice" : "Generate Mandi Invoice"}</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    handleStartBiddingOnItem(selectedAuditItem);
+                    setSelectedAuditItem(null);
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 mt-2 shadow-md"
+                >
+                  <Gavel className="w-4 h-4 mr-1.5" />
+                  <span>Start Live Auto-Bidding</span>
+                </Button>
+              )}
             </div>
           </DialogContent>
         </Dialog>

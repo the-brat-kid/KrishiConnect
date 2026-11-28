@@ -23,6 +23,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface CropFertilizerSpec {
   id: string;
@@ -265,6 +272,7 @@ function FertilizerContent() {
   }, [cropParam]);
 
   const [selectedCrop, setSelectedCrop] = useState<CropFertilizerSpec>(initialCrop);
+  const [detailCropModal, setDetailCropModal] = useState<CropFertilizerSpec | null>(null);
   const [acres, setAcres] = useState<number>(2);
   const [searchFilter, setSearchFilter] = useState<string>("");
 
@@ -762,9 +770,11 @@ function FertilizerContent() {
                     {filteredCrops.map((crop) => (
                       <tr
                         key={crop.id}
-                        className={`hover:bg-white/[0.02] transition-colors ${
+                        onClick={() => setDetailCropModal(crop)}
+                        className={`cursor-pointer hover:bg-white/[0.05] transition-colors ${
                           selectedCrop.id === crop.id ? "bg-white/[0.04]" : ""
                         }`}
+                        title={`Click to view full fertilizer dose & subsidy details for ${crop.name}`}
                       >
                         <td className="p-2.5">
                           <span className="font-semibold text-foreground block">{crop.name}</span>
@@ -783,7 +793,7 @@ function FertilizerContent() {
                         <td className="p-2.5 font-mono text-muted-foreground line-through">
                           ₹{crop.unsubsidizedMarketCost.toLocaleString()}
                         </td>
-                        <td className="p-2.5 text-right">
+                        <td className="p-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -990,6 +1000,119 @@ function FertilizerContent() {
           </Button>
         </Link>
       </div>
+
+      {/* Crop Fertilizer Detail Modal */}
+      <Dialog open={!!detailCropModal} onOpenChange={(open) => !open && setDetailCropModal(null)}>
+        <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] flex flex-col p-0 rounded-2xl border border-white/15 bg-[#0c0d0e]/95 backdrop-blur-2xl shadow-2xl text-foreground overflow-hidden">
+          {detailCropModal && (
+            <>
+              <DialogHeader className="p-5 pb-4 border-b border-white/10 bg-white/[0.02] shrink-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-500/10">
+                        {detailCropModal.season} Season
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{detailCropModal.hindiName}</span>
+                    </div>
+                    <DialogTitle className="text-lg font-extrabold text-foreground">
+                      {detailCropModal.name} — Nutrient Schedule
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                      {detailCropModal.description}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="p-5 space-y-4 overflow-y-auto text-xs">
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Urea</span>
+                    <span className="font-mono font-bold text-foreground text-sm">{detailCropModal.ureaKg} kg</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">DAP</span>
+                    <span className="font-mono font-bold text-foreground text-sm">{detailCropModal.dapKg} kg</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">MOP</span>
+                    <span className="font-mono font-bold text-foreground text-sm">{detailCropModal.mopKg} kg</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Zinc</span>
+                    <span className="font-mono font-bold text-foreground text-sm">
+                      {detailCropModal.zincKg > 0 ? `${detailCropModal.zincKg} kg` : "Opt."}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-emerald-400 block">Subsidized Cost / Acre</span>
+                    <span className="text-lg font-extrabold font-mono text-emerald-400">
+                      ₹{detailCropModal.subsidizedCostPerAcre.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-muted-foreground block">Unsubsidized Market Value</span>
+                    <span className="font-mono text-sm line-through text-muted-foreground">
+                      ₹{detailCropModal.unsubsidizedMarketCost.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                    Split Application Protocol
+                  </span>
+                  <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/10">
+                    <span className="font-bold text-emerald-400 block text-[10px] uppercase">Basal</span>
+                    <p className="text-foreground/90 mt-0.5">{detailCropModal.applicationSchedule.basal}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/10">
+                    <span className="font-bold text-amber-400 block text-[10px] uppercase">Split 1</span>
+                    <p className="text-foreground/90 mt-0.5">{detailCropModal.applicationSchedule.topDressing1}</p>
+                  </div>
+                  {detailCropModal.applicationSchedule.topDressing2 && (
+                    <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/10">
+                      <span className="font-bold text-sky-400 block text-[10px] uppercase">Split 2</span>
+                      <p className="text-foreground/90 mt-0.5">{detailCropModal.applicationSchedule.topDressing2}</p>
+                    </div>
+                  )}
+                  {detailCropModal.applicationSchedule.micronutrient && (
+                    <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/10">
+                      <span className="font-bold text-purple-400 block text-[10px] uppercase">Micronutrient</span>
+                      <p className="text-foreground/90 mt-0.5">{detailCropModal.applicationSchedule.micronutrient}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground leading-relaxed">{detailCropModal.keyAdvice}</span>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-white/10 bg-white/[0.02] flex justify-end gap-2 shrink-0">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCrop(detailCropModal);
+                    setDetailCropModal(null);
+                    const calcTab = document.querySelector('[value="calculator"]') as HTMLButtonElement;
+                    if (calcTab) calcTab.click();
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 h-9"
+                >
+                  <Calculator className="w-3.5 h-3.5 mr-1.5" />
+                  <span>Calculate Dose in Cost Calculator</span>
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

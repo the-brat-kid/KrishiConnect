@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import api from "@/lib/api";
 import {
@@ -28,6 +35,9 @@ import {
   RefreshCw,
   FileCheck,
   ShieldAlert,
+  Phone,
+  ShieldCheck,
+  Star,
 } from "lucide-react";
 
 const FALLBACK_LABS: SoilHealthLab[] = [
@@ -175,6 +185,7 @@ export default function SoilHealthPage() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLabForBooking, setSelectedLabForBooking] = useState<SoilHealthLab | null>(null);
+  const [detailLab, setDetailLab] = useState<SoilHealthLab | null>(null);
 
   // Fetch Labs
   const fetchLabs = async () => {
@@ -356,7 +367,12 @@ export default function SoilHealthPage() {
         <TabsContent value="labs" className="space-y-4 pt-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredLabs.map((lab) => (
-              <SoilLabCard key={lab.id} lab={lab} onBook={(l) => handleOpenBooking(l)} />
+              <SoilLabCard
+                key={lab.id}
+                lab={lab}
+                onViewDetails={(l) => setDetailLab(l)}
+                onBook={(l) => handleOpenBooking(l)}
+              />
             ))}
           </div>
 
@@ -481,6 +497,97 @@ export default function SoilHealthPage() {
           <SoilSamplingGuide />
         </TabsContent>
       </Tabs>
+
+      {/* Lab Full Details Modal */}
+      <Dialog open={!!detailLab} onOpenChange={(open) => !open && setDetailLab(null)}>
+        <DialogContent className="max-w-lg w-[95vw] p-0 rounded-2xl border border-white/15 bg-[#0c0d0e]/95 backdrop-blur-2xl shadow-2xl text-foreground overflow-hidden">
+          {detailLab && (
+            <>
+              <DialogHeader className="p-5 pb-4 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-400 bg-emerald-500/10">
+                        {detailLab.district}, {detailLab.state}
+                      </Badge>
+                      <span className="flex items-center text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                        <Star className="w-3 h-3 fill-amber-400 mr-1" /> {detailLab.rating} ({detailLab.total_tests_conducted.toLocaleString("en-IN")} tests)
+                      </span>
+                    </div>
+                    <DialogTitle className="text-lg font-extrabold text-foreground">
+                      {detailLab.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>{detailLab.location} ({detailLab.pincode})</span>
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="p-5 space-y-4 text-xs">
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Report SLA</span>
+                    <span className="font-bold text-foreground text-sm">{detailLab.turnaround_days} Days</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Collection</span>
+                    <span className="font-bold text-emerald-400 text-sm">
+                      {detailLab.doorstep_collection ? "Doorstep Pickup" : "Lab Drop-off"}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] text-muted-foreground block">Base Fee</span>
+                    <span className="font-mono font-bold text-foreground text-sm">₹{detailLab.base_fee}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center gap-2 text-emerald-300 font-medium">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{detailLab.accreditation}</span>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                    All Supported Soil Test Packages
+                  </span>
+                  <div className="space-y-1.5">
+                    {detailLab.supported_tests.map((test) => (
+                      <div key={test} className="p-2.5 rounded-lg bg-white/[0.03] border border-white/10 flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span className="font-medium text-foreground">{test}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-between gap-2">
+                <a
+                  href={`tel:${detailLab.contact_phone}`}
+                  className="btn-liquid-glass inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-foreground hover:text-white"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{detailLab.contact_phone}</span>
+                </a>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const chosen = detailLab;
+                    setDetailLab(null);
+                    handleOpenBooking(chosen);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 h-9"
+                >
+                  <CalendarCheck className="w-3.5 h-3.5 mr-1.5" />
+                  <span>Book Soil Check</span>
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Booking Modal */}
       <SoilAppointmentModal

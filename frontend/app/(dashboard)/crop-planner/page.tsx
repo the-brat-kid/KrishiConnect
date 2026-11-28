@@ -383,7 +383,22 @@ export default function CropPlannerPage() {
 
             {/* Quick KPI Highlights for Selected Land */}
             <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg border border-border/80 bg-muted/30">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setExpandedCropId(highestProfitCrop.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setSelectedCategory("All");
+                    setExpandedCropId(highestProfitCrop.id);
+                  }
+                }}
+                className="cursor-pointer p-3 rounded-lg border border-border/80 bg-muted/30 hover:border-emerald-500/50 transition-all"
+                title="Click to inspect full cultivation expense breakdown"
+              >
                 <span className="text-[10px] font-semibold uppercase text-muted-foreground block">
                   Top Margin Crop
                 </span>
@@ -395,7 +410,22 @@ export default function CropPlannerPage() {
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg border border-border/80 bg-muted/30">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setExpandedCropId(highestRoiCrop.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setSelectedCategory("All");
+                    setExpandedCropId(highestRoiCrop.id);
+                  }
+                }}
+                className="cursor-pointer p-3 rounded-lg border border-border/80 bg-muted/30 hover:border-primary/50 transition-all"
+                title="Click to inspect full cultivation expense breakdown"
+              >
                 <span className="text-[10px] font-semibold uppercase text-muted-foreground block">
                   Highest ROI Option
                 </span>
@@ -407,9 +437,24 @@ export default function CropPlannerPage() {
                 </span>
               </div>
 
-              <div className="col-span-2 sm:col-span-1 p-3 rounded-lg border border-primary/20 bg-primary/5">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setExpandedCropId("boro_paddy");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setSelectedCategory("All");
+                    setExpandedCropId("boro_paddy");
+                  }
+                }}
+                className="cursor-pointer col-span-2 sm:col-span-1 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:border-primary/50 transition-all"
+                title="Click to inspect Boro Paddy MSP breakdown"
+              >
                 <span className="text-[10px] font-semibold uppercase text-primary block">
-                  National MSP & Bonus Status
+                  National MSP &amp; Bonus Status
                 </span>
                 <p className="text-sm font-extrabold text-foreground mt-0.5">
                   ₹3,100 / Qtl

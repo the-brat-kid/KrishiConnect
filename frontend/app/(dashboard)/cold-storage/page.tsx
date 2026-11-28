@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ColdStorageFacility } from "@/types/cold-storage";
 import { ColdStorageCard } from "@/components/cold-storage/cold-storage-card";
+import { ColdStorageDetailModal } from "@/components/cold-storage/cold-storage-detail-modal";
 import { BookingModal } from "@/components/cold-storage/booking-modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -303,6 +304,7 @@ function ColdStorageContent() {
     }
   }, [currentRegionDef?.name, initialQuery]);
   const [bookingFacility, setBookingFacility] = useState<ColdStorageFacility | null>(null);
+  const [detailFacility, setDetailFacility] = useState<ColdStorageFacility | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredFacilities = useMemo(() => {
@@ -447,6 +449,7 @@ function ColdStorageContent() {
           <ColdStorageCard
             key={fac.id}
             facility={fac}
+            onViewDetails={(f) => setDetailFacility(f)}
             onBook={(f) => {
               setBookingFacility(f);
               setIsModalOpen(true);
@@ -462,6 +465,17 @@ function ColdStorageContent() {
           <p className="text-xs mt-1">Try clearing your filters or searching for another crop/district.</p>
         </div>
       )}
+
+      {/* Detailed Vault Telemetry Modal */}
+      <ColdStorageDetailModal
+        facility={detailFacility}
+        isOpen={!!detailFacility}
+        onClose={() => setDetailFacility(null)}
+        onBook={(f) => {
+          setBookingFacility(f);
+          setIsModalOpen(true);
+        }}
+      />
 
       {/* Booking Dialog */}
       <BookingModal

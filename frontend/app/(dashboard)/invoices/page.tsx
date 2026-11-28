@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useInvoices, useDeleteInvoice, useSendInvoiceEmail } from "@/hooks/use-invoices";
 import { useCustomers } from "@/hooks/use-customers";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -55,6 +56,7 @@ function isGenericCustomerName(name?: string): boolean {
 }
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const { data: invoices, isLoading } = useInvoices();
   const { data: customers } = useCustomers();
   const { mutateAsync: deleteInvoice } = useDeleteInvoice();
@@ -339,7 +341,12 @@ export default function InvoicesPage() {
                 const status = isOverdue ? "unpaid" : (inv.status || "unpaid");
                 const buyer = getBuyerDetails(inv);
                 return (
-                  <tr key={inv.id} className="hover:bg-white/5 transition-colors group">
+                  <tr
+                    key={inv.id}
+                    onClick={() => router.push(`/invoices/${inv.id}`)}
+                    className="cursor-pointer hover:bg-white/5 transition-colors group"
+                    title={`Click to open invoice #${inv.invoice_number}`}
+                  >
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <Link href={`/invoices/${inv.id}`} className="font-mono font-bold text-emerald-400 group-hover:underline inline-flex items-center gap-1.5">
                         <span>{inv.invoice_number}</span>
@@ -372,7 +379,7 @@ export default function InvoicesPage() {
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap text-right">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1.5">
                         {inv.status !== "paid" && (
                           <button
