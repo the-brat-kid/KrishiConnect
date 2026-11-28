@@ -156,7 +156,7 @@ export default function DailyCropRatesPage() {
             Pan-India Daily Crop Rates
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Real-time wholesale modal prices across 28 states & 2,400+ APMC mandis (₹/Quintal & ₹/Kg).
+            Live wholesale prices across APMC mandis (₹/Quintal &amp; ₹/Kg).
           </p>
         </div>
 

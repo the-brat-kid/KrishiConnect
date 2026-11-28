@@ -427,7 +427,7 @@ export default function LoginPage() {
                     </Label>
                     <div className="relative flex items-center rounded-2xl border border-white/20 dark:border-white/15 bg-black/60 backdrop-blur-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,0.15)] focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 transition-all overflow-hidden group">
                       <div className="flex items-center gap-1.5 px-3.5 py-3.5 border-r border-white/10 bg-white/[0.02] text-sm font-extrabold text-foreground select-none">
-                        <span className="text-sm">🇮🇳</span>
+                        <span className="text-[11px] font-mono text-muted-foreground">IN</span>
                         <span>+91</span>
                       </div>
                       <input

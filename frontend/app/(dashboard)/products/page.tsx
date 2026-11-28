@@ -97,12 +97,12 @@ const PRESET_MANDI_COMMODITIES: MandiCommodityPreset[] = [
 
 // Verified Odisha Mandi Buyers participating in Auto-Bidding
 const MOCK_MANDI_BUYERS = [
-  { name: "Utkal Agro Commodities Mill", location: "Cuttack Malgodown Hub", rating: "4.9★", verified: true },
-  { name: "Kalinga Fresh Wholesale Mandi", location: "Bhubaneswar Unit-1 Yard", rating: "4.8★", verified: true },
-  { name: "Eastern Spices & Grain Export", location: "Berhampur Trading Yard", rating: "4.9★", verified: true },
-  { name: "Reliance Fresh Sourcing Hub", location: "Khordha Industrial Estate", rating: "4.7★", verified: true },
-  { name: "Bargarh Rice Producers Syndicate", location: "Bargarh APMC Market", rating: "4.9★", verified: true },
-  { name: "Mahanadi Cold Chain Logistics", location: "Jatni Terminal Hub", rating: "4.8★", verified: true },
+  { name: "Utkal Agro Commodities Mill", location: "Cuttack Malgodown Hub", rating: "4.9/5", verified: true },
+  { name: "Kalinga Fresh Wholesale Mandi", location: "Bhubaneswar Unit-1 Yard", rating: "4.8/5", verified: true },
+  { name: "Eastern Spices & Grain Export", location: "Berhampur Trading Yard", rating: "4.9/5", verified: true },
+  { name: "Reliance Fresh Sourcing Hub", location: "Khordha Industrial Estate", rating: "4.7/5", verified: true },
+  { name: "Bargarh Rice Producers Syndicate", location: "Bargarh APMC Market", rating: "4.9/5", verified: true },
+  { name: "Mahanadi Cold Chain Logistics", location: "Jatni Terminal Hub", rating: "4.8/5", verified: true },
 ];
 
 interface BidHistoryEntry {
@@ -606,18 +606,12 @@ export default function ProductsPage() {
       {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 flex items-center gap-1 font-semibold text-xs">
-              <Gavel className="w-3 h-3 text-emerald-600" /> Auto-Bidding Mandi Exchange
-            </Badge>
-            <span className="text-xs text-muted-foreground font-mono">Pan-India APMC</span>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Package className="h-8 w-8 text-primary" />
-            Crops Inventory & Live Auto-Bidding
+            Crops Inventory &amp; Live Auto-Bidding
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage your crop stock, pre-populate verified daily mandi rates, and list lots for automated competitive buyer auctions across India.
+            Manage crop inventory, daily mandi rates &amp; live buyer auctions.
           </p>
         </div>
 
@@ -812,7 +806,7 @@ export default function ProductsPage() {
                         </div>
                       ) : isAccepted ? (
                         <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
-                          ✓ Hammer Dropped / Sold
+                          Hammer Dropped / Sold
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="border-border text-muted-foreground text-[10px]">
@@ -1103,7 +1097,7 @@ export default function ProductsPage() {
                       <Clock className="w-3.5 h-3.5 text-primary" /> Auction Window: <strong>6 Hours (Mandi Day)</strong>
                     </span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                      ✓ Instant settlement & GST Invoice supported
+                      Instant settlement &amp; GST Invoice supported
                     </span>
                   </div>
                 </div>

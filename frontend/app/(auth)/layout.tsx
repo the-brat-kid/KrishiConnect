@@ -21,16 +21,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <div className="relative z-10 max-w-md space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-bold backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Pan-India Mandi & Agro Portal</span>
-          </div>
-
           <h1 className="font-editorial text-3xl sm:text-4xl font-light leading-tight text-white">
             From farm gate to buyer: sell at the right price and get paid on the spot.
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Instant GST & non-GST billing, direct UPI and Stripe payouts, and live real-time APMC Mandi price discovery engineered for Indian farmers, FPOs, and traders.
+            GST billing, instant UPI payouts &amp; live APMC mandi rates.
           </p>
 
           <div className="flex flex-wrap gap-2.5 pt-2">

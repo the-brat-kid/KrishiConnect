@@ -153,16 +153,6 @@ export default function HomePage() {
       {/* 2. Responsive Hero Section */}
       <main className="relative z-20 flex-1 flex flex-col justify-center px-4 sm:px-12 md:px-16 max-w-4xl py-6 sm:py-12">
         <div className="space-y-4 sm:space-y-6 animate-page-enter">
-          {/* Subtle Live Status Pill */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-muted-foreground w-fit">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="tracking-wider uppercase text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                National Mandi Live • 28 States
-              </span>
-            </div>
-          </div>
-
           {/* High-Impact Responsive Headline */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-foreground leading-[1.15] sm:leading-[1.08] font-plus-jakarta">
             Sovereign trade at the <span className="font-extrabold text-primary">farm gate.</span>
@@ -170,7 +160,7 @@ export default function HomePage() {
 
           {/* Clean Subcopy */}
           <p className="text-sm sm:text-base text-muted-foreground font-normal leading-relaxed max-w-xl">
-            Pan-India agricultural commerce simplified: verified daily APMC mandi modal prices via Government of India Agmarknet, nationwide freight routing, and instant digital GST billing for farmers and traders across 28 states.
+            Live APMC mandi rates, freight routing, and instant GST billing for farmers and traders.
           </p>
 
           {/* Phone-Compatible Focused Action Area */}

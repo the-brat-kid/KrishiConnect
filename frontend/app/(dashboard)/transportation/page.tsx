@@ -23,7 +23,6 @@ import {
   ArrowRight,
   Info,
   CheckCircle2,
-  Globe2,
 } from "lucide-react";
 
 interface Corridor {
@@ -224,20 +223,12 @@ export default function TransportationPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <Globe2 className="h-3.5 w-3.5 text-emerald-600" /> Pan-India Verified Freight Network
-            </Badge>
-            <Badge variant="secondary" className="text-xs">
-              All India Transport Service
-            </Badge>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Truck className="h-8 w-8 text-primary" />
-            Pan-India Agricultural Transportation & Freight
+            Pan-India Agricultural Transportation &amp; Freight
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Calculate mandi freight charges, vehicle hire rates, and book nationwide commercial transport across 28 states.
+            Calculate mandi freight charges, vehicle rates &amp; book transport.
           </p>
         </div>
 

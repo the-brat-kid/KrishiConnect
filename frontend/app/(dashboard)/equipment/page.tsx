@@ -101,18 +101,11 @@ export default function EquipmentRentalPage() {
       {/* 1. Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/10 pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              KhetiSetu Farm Fleet Network
-            </span>
-            <span className="text-xs text-muted-foreground">Odisha & Pan-India</span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Farm Equipment & Machinery
+            Farm Equipment &amp; Machinery
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-2xl">
-            Rent verified tractors, combine harvesters, precision seeders, and spray drones at fixed hourly and per-acre rates.
+            Rent tractors, harvesters, seeders &amp; drones at fixed rates.
           </p>
         </div>
 

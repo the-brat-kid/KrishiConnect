@@ -234,18 +234,12 @@ export default function SettingsPage() {
       {/* Top Header Bar with Liquid Glass Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="badge-liquid-glass-emerald">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-              <span>APMC Settlement &amp; Business Profile Engine</span>
-            </div>
-          </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-md flex items-center gap-2.5">
             <Settings className="h-8 w-8 text-emerald-400 drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
             <span>Business Profile &amp; Settings</span>
           </h1>
           <p className="text-sm font-medium text-zinc-200 drop-shadow-sm">
-            Configure your farm trade credentials, real-time UPI routing for invoices, and APMC compliance parameters.
+            Trade credentials, UPI routing &amp; GST profile.
           </p>
         </div>
       </div>

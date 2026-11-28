@@ -339,19 +339,11 @@ function FertilizerContent() {
       <div className="relative overflow-hidden rounded-2xl p-6 bg-[#0c0d0e] border border-white/10 shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-zinc-400 border-zinc-700 text-[11px] font-semibold">
-                ICAR & Agrifarming Reference
-              </Badge>
-              <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
-                NBS Rabi 2024
-              </Badge>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Fertilizers Cost Per Acre & Government Subsidies
+              Fertilizers Cost Per Acre &amp; Government Subsidies
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl">
-              Agronomic cost breakdown, application schedules, and Nutrient-Based Subsidy (NBS) benchmarks across major Indian crops.
+              Per-acre cost, application schedules &amp; NBS subsidy benchmarks.
             </p>
           </div>
 

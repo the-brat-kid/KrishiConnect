@@ -145,7 +145,7 @@ def _build_html(invoice_number: str, amount: float) -> str:
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 24px; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px;">
                 <tr>
                   <td style="font-size: 13px; line-height: 1.5; color: #166534;">
-                    📎 <strong>Attached:</strong> <code style="background-color: #dcfce7; padding: 2px 6px; border-radius: 4px; font-size: 12px;">{invoice_number}.pdf</code><br>
+                    <strong>Attached:</strong> <code style="background-color: #dcfce7; padding: 2px 6px; border-radius: 4px; font-size: 12px;">{invoice_number}.pdf</code><br>
                     You can view, save, or print the attached tax invoice directly from this email.
                   </td>
                 </tr>
@@ -379,7 +379,7 @@ def _build_otp_html(otp_code: str) -> str:
                 </span>
               </div>
               <p style="font-size: 12px; color: #94a3b8; margin: 0 0 20px 0;">
-                ⏱️ This code will expire in <strong>10 minutes</strong>.<br>
+                This code will expire in <strong>10 minutes</strong>.<br>
                 For your security, never share this code with anyone.
               </p>
               <div style="border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 11px; color: #94a3b8;">
@@ -467,7 +467,7 @@ def _build_inquiry_notification_html(name: str, email: str, phone: str, role: st
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; padding: 24px;">
   <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
     <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 20px; color: white;">
-      <h2 style="margin: 0; font-size: 18px;">📬 New KrishiConnect Helpdesk Inquiry</h2>
+      <h2 style="margin: 0; font-size: 18px;">New KrishiConnect Helpdesk Inquiry</h2>
     </div>
     <div style="padding: 24px; color: #1e293b;">
       <p style="margin-top: 0;"><strong>Sender Name:</strong> {name}</p>

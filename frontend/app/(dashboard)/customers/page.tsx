@@ -294,17 +294,12 @@ export default function CustomersPage() {
       {/* Top Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Verified by KrishiConnect
-            </Badge>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Users className="h-8 w-8 text-primary" />
-            Crop Buyers & Customer Directory
+            Crop Buyers &amp; Customer Directory
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Find verified commodity buyers, mandi traders, and food mills across India, and manage your local billing clients.
+            Verified mandi buyers, food mills &amp; billing clients.
           </p>
         </div>
 

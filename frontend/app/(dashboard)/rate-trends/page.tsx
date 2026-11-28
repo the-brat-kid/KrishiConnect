@@ -35,7 +35,6 @@ import {
   ArrowDownRight,
   Activity,
   Layers,
-  MapPin,
 } from "lucide-react";
 
 const DEFAULT_SELECTED_CROPS = ["potato", "tomato", "onion", "brinjal"];
@@ -112,21 +111,16 @@ export default function RateTrendsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 flex items-center gap-1 font-medium">
-              <MapPin className="h-3 w-3" /> Pan-India Mandis • 7-Day History
-            </Badge>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {columns[0] && columns[columns.length - 1] ? `${columns[0]} – ${columns[columns.length - 1]}` : "Last 7 Days"}
-            </span>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <LineChartIcon className="h-8 w-8 text-primary" />
             7-Day Rate Trends
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Historical price analytics and weekly rate volatility across Pan-India APMC commodities.
+          <p className="text-muted-foreground text-sm mt-1 flex flex-wrap items-center gap-2">
+            <span>Weekly price analytics across APMC commodities.</span>
+            <span className="text-xs inline-flex items-center gap-1 opacity-80">
+              <Calendar className="h-3 w-3" />
+              {columns[0] && columns[columns.length - 1] ? `${columns[0]} – ${columns[columns.length - 1]}` : "Last 7 Days"}
+            </span>
           </p>
         </div>
 

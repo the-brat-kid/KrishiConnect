@@ -22,13 +22,9 @@ export default function NewInvoicePage() {
             <Receipt className="h-8 w-8 text-primary drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
             <span>Create New Invoice</span>
           </h1>
-          <span className="badge-liquid-glass-emerald">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>New Sale Entry</span>
-          </span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Enter customer information, commodities, pricing, and choose settlement terms (Cash, UPI, or Pay Later).
+          Enter customer, commodities, pricing &amp; payment terms.
         </p>
       </div>
 

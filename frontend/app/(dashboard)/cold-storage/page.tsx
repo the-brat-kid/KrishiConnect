@@ -7,7 +7,6 @@ import {
   Search,
   Filter,
   ShieldCheck,
-  ThermometerSnowflake,
   Plus,
   ExternalLink,
   MapPin,
@@ -336,15 +335,11 @@ function ColdStorageContent() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-2">
-            <ThermometerSnowflake className="h-3.5 w-3.5" />
-            <span>National Post-Harvest Cold-Chain & Vault Network</span>
-          </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-editorial">
             Pan-India Cold Storage Network
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
-            Book temperature-controlled chambers, monitor telemetry live, and obtain WDRA e-NWR negotiable warehouse receipts across 10+ states.
+            Book climate chambers, track live telemetry &amp; manage e-NWR receipts.
           </p>
         </div>
 

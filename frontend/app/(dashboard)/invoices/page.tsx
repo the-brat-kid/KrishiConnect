@@ -218,18 +218,12 @@ export default function InvoicesPage() {
       {/* Header Bar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="badge-liquid-glass-emerald">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-              <span>Real-Time Invoicing &amp; Settlements</span>
-            </div>
-          </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2.5">
             <Receipt className="h-8 w-8 text-primary drop-shadow-[0_0_10px_rgba(20,122,77,0.5)]" />
             <span>Invoices &amp; Receivables</span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage agricultural billing, UPI QR auto-verification, cash receipts, and customer ledger balances.
+            Billing, UPI verification &amp; customer balances.
           </p>
         </div>
 

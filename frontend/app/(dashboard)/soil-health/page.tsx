@@ -265,15 +265,11 @@ export default function SoilHealthPage() {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-5">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-2">
-            <FlaskConical className="w-3.5 h-3.5" />
-            <span>Govt & NABL Certified Testing</span>
-          </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            Soil Health Check & Field Diagnostic
+            Soil Health Check &amp; Field Diagnostic
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Book an appointment for comprehensive 12-parameter soil fertility testing. Doorstep field sample pickup available nationwide across key agricultural districts.
+            Book 12-parameter soil testing with doorstep sample pickup.
           </p>
         </div>
 

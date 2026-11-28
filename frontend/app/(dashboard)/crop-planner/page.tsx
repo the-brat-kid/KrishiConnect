@@ -9,7 +9,6 @@ import {
   Calendar,
   ShieldCheck,
   ArrowUpRight,
-  Sparkles,
   Info,
   ChevronRight,
   Wheat,
@@ -288,18 +287,12 @@ export default function CropPlannerPage() {
       {/* Top Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 flex items-center gap-1 font-medium text-xs">
-              <Sparkles className="h-3 w-3" /> Upcoming Season: Rabi 2026-27 Planning
-            </Badge>
-            <span className="text-xs text-muted-foreground font-mono">Pan-India Agro-Climatic Model</span>
-          </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Sprout className="h-8 w-8 text-primary" />
-            Next Season Crop & Profitability Advisor
+            Next Season Crop &amp; Profitability Advisor
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Data-backed crop recommendations for the upcoming winter season: compare cultivation costs, harvest yields, and net profits per acre across Indian states.
+            Compare Rabi 2026-27 cultivation costs, yields &amp; net profit per acre.
           </p>
         </div>
 
