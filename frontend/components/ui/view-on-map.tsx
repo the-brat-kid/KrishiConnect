@@ -695,7 +695,7 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
       {/* 1. Real-Time Moving Cloud Radar Viewport (Windy Live Particle Stream) */}
       {isLiveStreamActive && (
         <iframe
-          key={`${activeLayer}-${currentLat}-${currentLon}-${isAllIndia}`}
+          key={`${activeLayer}-${currentLat.toFixed(3)}-${currentLon.toFixed(3)}-${isAllIndia}`}
           src={liveStreamUrl}
           className="w-full h-full min-h-[480px] sm:min-h-[560px] border-0 z-10 bg-[#060a0e]"
           title="Live Animated Cloud and Weather Radar Movement Map"

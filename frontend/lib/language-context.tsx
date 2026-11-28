@@ -967,7 +967,7 @@ interface LanguageContextType {
   isUsingLiveGps: boolean;
   locationStatus: GeolocationStatus;
   locationError: string | null;
-  requestLocationAccess: (force?: boolean) => Promise<void>;
+  requestLocationAccess: (force?: boolean, options?: { silent?: boolean; bypassCache?: boolean }) => Promise<void>;
   language: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
   availableLanguages: LanguageCode[];
@@ -983,6 +983,7 @@ const STORAGE_KEY_STATE = "krishi_user_state";
 const STORAGE_KEY_PLACE = "krishi_user_place";
 const STORAGE_KEY_GPS = "krishi_user_gps_v1";
 const STORAGE_KEY_GPS_DISMISSED = "krishi_user_gps_dismissed";
+const GPS_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // Auto-refresh live GPS every 5 minutes
 
 // In-memory registry of original DOM text to allow clean reversal
 const originalTextMap = new WeakMap<Node, string>();
@@ -1385,39 +1386,58 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locationStatus, setLocationStatus] = useState<GeolocationStatus>("idle");
   const [locationError, setLocationError] = useState<string | null>(null);
   const gpsAutoAttemptedRef = useRef(false);
+  const isUsingLiveGpsRef = useRef(false);
+  const lastGpsUpdatedAtRef = useRef(0);
   const pathname = usePathname();
 
-  const applyGpsLocation = useCallback((loc: UserGpsLocation) => {
+  useEffect(() => {
+    isUsingLiveGpsRef.current = isUsingLiveGps;
+  }, [isUsingLiveGps]);
+
+  const applyGpsLocation = useCallback((loc: UserGpsLocation, keepManualSelection = false) => {
+    lastGpsUpdatedAtRef.current = loc.updatedAt || Date.now();
     setUserLocation(loc);
-    setIsUsingLiveGps(true);
     setLocationStatus("granted");
     setLocationError(null);
 
     const normalizedState = normalizeIndianState(loc.state) || loc.nearestMandi.state || "Odisha";
     const regId = stateToRegionId(normalizedState) as RegionId;
-    setSelectedState(normalizedState);
-    setSelectedPlaceId(loc.nearestMandi.id);
-    if (REGIONS[regId]) {
-      setRegionState(regId);
+
+    if (!keepManualSelection) {
+      isUsingLiveGpsRef.current = true;
+      setIsUsingLiveGps(true);
+      setSelectedState(normalizedState);
+      setSelectedPlaceId(loc.nearestMandi.id);
+      if (REGIONS[regId]) {
+        setRegionState(regId);
+      }
     }
 
     try {
       localStorage.setItem(STORAGE_KEY_GPS, JSON.stringify(loc));
-      localStorage.setItem(STORAGE_KEY_STATE, normalizedState);
-      localStorage.setItem(STORAGE_KEY_PLACE, loc.nearestMandi.id);
-      if (REGIONS[regId]) {
-        localStorage.setItem(STORAGE_KEY_REGION, regId);
+      if (!keepManualSelection) {
+        localStorage.setItem(STORAGE_KEY_STATE, normalizedState);
+        localStorage.setItem(STORAGE_KEY_PLACE, loc.nearestMandi.id);
+        if (REGIONS[regId]) {
+          localStorage.setItem(STORAGE_KEY_REGION, regId);
+        }
       }
       localStorage.removeItem(STORAGE_KEY_GPS_DISMISSED);
     } catch {}
   }, []);
 
-  const requestLocationAccess = useCallback(async (force = false) => {
+  const requestLocationAccess = useCallback(async (
+    force = false,
+    options?: { silent?: boolean; bypassCache?: boolean }
+  ) => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
       setLocationStatus("unavailable");
       setLocationError("Geolocation is not supported by this browser.");
       return;
     }
+
+    const silent = Boolean(options?.silent);
+    const bypassCache = Boolean(force || options?.bypassCache);
 
     if (force) {
       try {
@@ -1425,8 +1445,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
-    setLocationStatus("requesting");
-    setLocationError(null);
+    if (!silent) {
+      setLocationStatus("requesting");
+      setLocationError(null);
+    }
 
     await new Promise<void>((resolve) => {
       navigator.geolocation.getCurrentPosition(
@@ -1469,29 +1491,34 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
             console.warn("Reverse geocode fallback active:", geoErr);
           }
 
-          applyGpsLocation(resolvedLoc);
+          const keepManual = silent && !isUsingLiveGpsRef.current;
+          applyGpsLocation(resolvedLoc, keepManual);
           resolve();
         },
         (err) => {
           if (err.code === err.PERMISSION_DENIED) {
             setLocationStatus("denied");
-            setLocationError("Location permission denied. Enable browser location to view local map & data.");
+            if (!silent) {
+              setLocationError("Location permission denied. Enable browser location to view local map & data.");
+            }
             try {
               localStorage.setItem(STORAGE_KEY_GPS_DISMISSED, "1");
             } catch {}
-          } else if (err.code === err.POSITION_UNAVAILABLE) {
-            setLocationStatus("unavailable");
-            setLocationError("GPS signal unavailable. Using selected region.");
-          } else {
-            setLocationStatus("error");
-            setLocationError(err.message || "Could not fetch your current location.");
+          } else if (!silent) {
+            if (err.code === err.POSITION_UNAVAILABLE) {
+              setLocationStatus("unavailable");
+              setLocationError("GPS signal unavailable. Using selected region.");
+            } else {
+              setLocationStatus("error");
+              setLocationError(err.message || "Could not fetch your current location.");
+            }
           }
           resolve();
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: force ? 0 : 300000,
+          maximumAge: bypassCache ? 0 : GPS_REFRESH_INTERVAL_MS,
         }
       );
     });
@@ -1513,6 +1540,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         try {
           const parsedGps = JSON.parse(savedGpsRaw) as UserGpsLocation;
           if (parsedGps && Number.isFinite(parsedGps.lat) && Number.isFinite(parsedGps.lon)) {
+            lastGpsUpdatedAtRef.current = parsedGps.updatedAt || 0;
+            isUsingLiveGpsRef.current = true;
             setUserLocation(parsedGps);
             setIsUsingLiveGps(true);
             setLocationStatus("granted");
@@ -1576,14 +1605,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         if (raw) cachedUpdatedAt = JSON.parse(raw)?.updatedAt || 0;
       } catch {}
 
-      const isCacheStale = Date.now() - cachedUpdatedAt > 15 * 60 * 1000;
+      const isCacheStale = Date.now() - cachedUpdatedAt >= GPS_REFRESH_INTERVAL_MS;
 
       if (navigator.permissions && navigator.permissions.query) {
         try {
           const perm = await navigator.permissions.query({ name: "geolocation" as PermissionName });
           if (perm.state === "granted") {
             if (isCacheStale) {
-              requestLocationAccess(false);
+              requestLocationAccess(false, { silent: cachedUpdatedAt > 0, bypassCache: true });
             }
           } else if (perm.state === "prompt" && !dismissed) {
             requestLocationAccess(false);
@@ -1595,12 +1624,54 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
 
       if (!dismissed && isCacheStale) {
-        requestLocationAccess(false);
+        requestLocationAccess(false, { silent: cachedUpdatedAt > 0, bypassCache: true });
       }
     };
 
     runAutoLocation();
   }, [pathname, requestLocationAccess]);
+
+  // Periodically refresh live GPS every 5 minutes (and on tab return if stale)
+  useEffect(() => {
+    if (typeof window === "undefined" || !("geolocation" in navigator)) return;
+    const isAuthOrLanding =
+      !pathname || pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/register");
+    if (isAuthOrLanding) return;
+    if (locationStatus === "denied" || locationStatus === "unavailable") return;
+
+    const silentRefreshIfPermitted = async () => {
+      if (document.visibilityState === "hidden") return;
+      if (!isUsingLiveGpsRef.current && locationStatus !== "granted") return;
+
+      if (navigator.permissions && navigator.permissions.query) {
+        try {
+          const perm = await navigator.permissions.query({ name: "geolocation" as PermissionName });
+          if (perm.state !== "granted") return;
+        } catch {}
+      } else if (!isUsingLiveGpsRef.current) {
+        return;
+      }
+
+      await requestLocationAccess(false, { silent: true, bypassCache: true });
+    };
+
+    const intervalId = window.setInterval(silentRefreshIfPermitted, GPS_REFRESH_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const elapsed = Date.now() - lastGpsUpdatedAtRef.current;
+        if (elapsed >= GPS_REFRESH_INTERVAL_MS) {
+          silentRefreshIfPermitted();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pathname, locationStatus, requestLocationAccess]);
 
   // Sync with user's profile address when available (only when neither live GPS nor manual state exists)
   useEffect(() => {
