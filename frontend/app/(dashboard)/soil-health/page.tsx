@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { LiquidConfirmModal } from "@/components/ui/liquid-confirm-modal";
 import { useToast } from "@/components/ui/use-toast";
 import api from "@/lib/api";
 import {
@@ -186,6 +187,8 @@ export default function SoilHealthPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLabForBooking, setSelectedLabForBooking] = useState<SoilHealthLab | null>(null);
   const [detailLab, setDetailLab] = useState<SoilHealthLab | null>(null);
+  const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Fetch Labs
   const fetchLabs = async () => {
@@ -227,10 +230,12 @@ export default function SoilHealthPage() {
     setIsModalOpen(true);
   };
 
-  const handleCancelAppointment = async (id: string) => {
-    if (!confirm("Are you sure you want to cancel this appointment?")) return;
+  const handleCancelAppointment = async () => {
+    if (!cancelAppointmentId) return;
     try {
-      await api.delete(`/soil-health/appointments/${id}`);
+      setIsCancelling(true);
+      await api.delete(`/soil-health/appointments/${cancelAppointmentId}`);
+      setCancelAppointmentId(null);
       toast({ title: "Appointment Cancelled" });
       fetchAppointments();
     } catch (err: any) {
@@ -239,6 +244,8 @@ export default function SoilHealthPage() {
         description: err.response?.data?.detail || "Could not cancel appointment",
         variant: "destructive",
       });
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -479,7 +486,7 @@ export default function SoilHealthPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleCancelAppointment(apt.id)}
+                      onClick={() => setCancelAppointmentId(apt.id)}
                       className="text-xs text-destructive hover:bg-destructive/10 h-8 px-2.5 flex items-center gap-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -598,6 +605,19 @@ export default function SoilHealthPage() {
           fetchAppointments();
           setActiveTab("appointments");
         }}
+      />
+
+      {/* Cancel Appointment Liquid Glass Confirm Modal */}
+      <LiquidConfirmModal
+        isOpen={!!cancelAppointmentId}
+        onClose={() => setCancelAppointmentId(null)}
+        onConfirm={handleCancelAppointment}
+        title="Cancel Soil Test Appointment"
+        description="Are you sure you want to cancel this soil test booking? A Krishi Mitra slot may need to be rebooked later."
+        confirmLabel="Cancel Appointment"
+        cancelLabel="Keep Booking"
+        variant="danger"
+        isLoading={isCancelling}
       />
     </div>
   );

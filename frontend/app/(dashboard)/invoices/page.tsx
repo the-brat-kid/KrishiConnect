@@ -8,6 +8,8 @@ import { useCustomers } from "@/hooks/use-customers";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AnimatedNumber } from "@/components/core/animated-number";
 import { useToast } from "@/components/ui/use-toast";
+import { SendInvoiceEmailModal } from "@/components/invoices/send-invoice-email-modal";
+import { LiquidConfirmModal } from "@/components/ui/liquid-confirm-modal";
 import {
   Plus,
   Mail,
@@ -65,6 +67,17 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [emailModalTarget, setEmailModalTarget] = useState<{
+    id: string;
+    invoiceNumber: string;
+    customerName: string;
+    defaultEmail?: string;
+    amountText: string;
+  } | null>(null);
+  const [deleteModalTarget, setDeleteModalTarget] = useState<{
+    id: string;
+    invoiceNumber: string;
+  } | null>(null);
 
   const customerMap = useMemo(() => {
     const map = new Map<string, any>();
@@ -111,13 +124,13 @@ export default function InvoicesPage() {
     };
   }, [customerMap]);
 
-  const handleDeleteInvoice = async (id: string, invoiceNumber: string) => {
-    if (!window.confirm(`Are you sure you want to delete invoice #${invoiceNumber}?`)) {
-      return;
-    }
+  const handleConfirmDeleteInvoice = async () => {
+    if (!deleteModalTarget) return;
+    const { id, invoiceNumber } = deleteModalTarget;
     try {
       setDeletingId(id);
       await deleteInvoice(id);
+      setDeleteModalTarget(null);
       toast({
         title: "Invoice Deleted",
         description: `Invoice #${invoiceNumber} has been removed.`,
@@ -144,13 +157,13 @@ export default function InvoicesPage() {
     }
   };
 
-  const handleSendEmail = async (invoiceId: string, invoiceNumber: string, defaultEmail?: string) => {
-    const customerEmail = window.prompt(`Enter recipient email to send Invoice #${invoiceNumber} (PDF attached):`, defaultEmail || "");
-    if (!customerEmail || !customerEmail.trim()) return;
-
+  const handleConfirmSendEmail = async (customerEmail: string) => {
+    if (!emailModalTarget) return;
+    const { id, invoiceNumber } = emailModalTarget;
     try {
-      setSendingEmailId(invoiceId);
-      const res = await sendInvoiceEmail({ id: invoiceId, email: customerEmail.trim() });
+      setSendingEmailId(id);
+      const res = await sendInvoiceEmail({ id, email: customerEmail.trim() });
+      setEmailModalTarget(null);
       toast({
         title: "Invoice PDF Dispatched",
         description: res?.message || `Invoice #${invoiceNumber} with attached PDF sent to ${customerEmail.trim()}`,
@@ -391,7 +404,15 @@ export default function InvoicesPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleSendEmail(inv.id, inv.invoice_number, buyer.email)}
+                          onClick={() =>
+                            setEmailModalTarget({
+                              id: inv.id,
+                              invoiceNumber: inv.invoice_number,
+                              customerName: buyer.name,
+                              defaultEmail: buyer.email,
+                              amountText: formatCurrency(inv.grand_total),
+                            })
+                          }
                           disabled={sendingEmailId === inv.id}
                           title="Send Invoice PDF via Email"
                           className="btn-liquid-glass p-2 rounded-xl text-muted-foreground hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
@@ -410,7 +431,7 @@ export default function InvoicesPage() {
                           <Eye className="w-4 h-4" />
                         </Link>
                         <button
-                          onClick={() => handleDeleteInvoice(inv.id, inv.invoice_number)}
+                          onClick={() => setDeleteModalTarget({ id: inv.id, invoiceNumber: inv.invoice_number })}
                           disabled={deletingId === inv.id}
                           title="Delete Invoice"
                           className="btn-liquid-glass p-2 rounded-xl text-muted-foreground hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10 transition-colors"
@@ -436,6 +457,30 @@ export default function InvoicesPage() {
           </table>
         </div>
       </div>
+
+      {/* Liquid Glass Email PDF Modal */}
+      <SendInvoiceEmailModal
+        isOpen={!!emailModalTarget}
+        onClose={() => setEmailModalTarget(null)}
+        invoiceNumber={emailModalTarget?.invoiceNumber || ""}
+        customerName={emailModalTarget?.customerName}
+        defaultEmail={emailModalTarget?.defaultEmail || ""}
+        amountText={emailModalTarget?.amountText}
+        isSending={!!sendingEmailId}
+        onSend={handleConfirmSendEmail}
+      />
+
+      {/* Liquid Glass Delete Confirmation Modal */}
+      <LiquidConfirmModal
+        isOpen={!!deleteModalTarget}
+        onClose={() => setDeleteModalTarget(null)}
+        onConfirm={handleConfirmDeleteInvoice}
+        title={deleteModalTarget ? `Delete Invoice #${deleteModalTarget.invoiceNumber}` : "Delete Invoice"}
+        description="Are you sure you want to permanently remove this invoice from your ledger? This action cannot be undone."
+        confirmLabel="Delete Invoice"
+        variant="danger"
+        isLoading={!!deletingId}
+      />
     </div>
   );
 }

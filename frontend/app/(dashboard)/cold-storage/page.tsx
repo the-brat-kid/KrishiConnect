@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/lib/language-context";
+import { useToast } from "@/components/ui/use-toast";
 
 const PAN_INDIA_FACILITIES: ColdStorageFacility[] = [
   {
@@ -274,6 +275,7 @@ const STATES = [
 
 function ColdStorageContent() {
   const { currentRegionDef } = useLanguage();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("search") || searchParams.get("crop") || "";
 
@@ -482,7 +484,12 @@ function ColdStorageContent() {
         facility={bookingFacility}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => alert("Chamber booking request submitted successfully! Facility manager will contact you.")}
+        onSuccess={() =>
+          toast({
+            title: "Chamber Booking Submitted",
+            description: "Your cold storage reservation request has been registered. Facility manager will contact you shortly.",
+          })
+        }
       />
     </div>
   );

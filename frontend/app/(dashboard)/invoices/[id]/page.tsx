@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PaymentQR } from "@/components/invoices/payment-qr";
 import { InvoiceSheet } from "@/components/invoices/invoice-sheet";
+import { SendInvoiceEmailModal } from "@/components/invoices/send-invoice-email-modal";
+import { LiquidConfirmModal } from "@/components/ui/liquid-confirm-modal";
 import { formatCurrency } from "@/lib/utils";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/invoices/invoice-pdf";
@@ -46,22 +48,23 @@ export default function InvoiceDetailPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
 
-  const handleSendEmail = async () => {
+  const handleSendEmail = () => {
     if (!invoice) return;
-    const defaultEmail = customers?.find((c) => c.id === invoice.customer_id)?.email || "";
-    const targetEmail = window.prompt(
-      `Send Invoice #${invoice.invoice_number} with PDF attachment to:`,
-      defaultEmail
-    );
-    if (!targetEmail || !targetEmail.trim()) return;
+    setIsEmailModalOpen(true);
+  };
 
+  const handleConfirmSendEmail = async (targetEmail: string) => {
+    if (!invoice) return;
     try {
       setIsSendingEmail(true);
       const res = await sendInvoiceEmail({ id: invoice.id, email: targetEmail.trim() });
       const msg = res?.message || `Invoice PDF successfully emailed to ${targetEmail.trim()}`;
       setVerificationMessage(msg);
+      setIsEmailModalOpen(false);
       toast({
         title: "Invoice PDF Dispatched",
         description: msg,
@@ -78,14 +81,17 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  const handleDeleteInvoice = async () => {
+  const handleDeleteInvoice = () => {
     if (!invoice) return;
-    if (!window.confirm(`Are you sure you want to delete invoice #${invoice.invoice_number}? This cannot be undone.`)) {
-      return;
-    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteInvoice = async () => {
+    if (!invoice) return;
     try {
       setIsDeleting(true);
       await deleteInvoice(invoice.id);
+      setIsDeleteModalOpen(false);
       toast({
         title: "Invoice Deleted",
         description: `Invoice #${invoice.invoice_number} has been removed.`,
@@ -392,6 +398,30 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Liquid Glass Email PDF Modal */}
+      <SendInvoiceEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        invoiceNumber={invoice.invoice_number}
+        customerName={customer?.name}
+        defaultEmail={customer?.email || ""}
+        amountText={formatCurrency(invoice.grand_total)}
+        isSending={isSendingEmail}
+        onSend={handleConfirmSendEmail}
+      />
+
+      {/* Liquid Glass Delete Confirmation Modal */}
+      <LiquidConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDeleteInvoice}
+        title={`Delete Invoice #${invoice.invoice_number}`}
+        description="Are you sure you want to permanently remove this invoice from your ledger? This action cannot be undone."
+        confirmLabel="Delete Invoice"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
