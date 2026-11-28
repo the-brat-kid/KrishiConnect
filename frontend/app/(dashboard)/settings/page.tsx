@@ -270,10 +270,7 @@ export default function SettingsPage() {
             }`}
           >
             <ShieldCheck className="h-4 w-4 text-emerald-300" />
-            <span>KYC Verification Hub</span>
-            <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-1.5 font-mono">
-              UIDAI Offline
-            </span>
+            <span>KYC Verification</span>
           </button>
         </div>
 
@@ -305,12 +302,8 @@ export default function SettingsPage() {
                     <span>Business &amp; Farm Identity</span>
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    This information appears on customer invoices, transport bills, and mandi delivery notes.
+                    Appears on customer invoices and delivery notes.
                   </p>
-                </div>
-                <div className="hidden sm:flex items-center gap-1 text-[11px] font-semibold text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 rounded-full">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Verified KYC</span>
                 </div>
               </div>
 
@@ -369,14 +362,11 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground flex items-center gap-2">
                       <Compass className="h-4 w-4 text-emerald-400" />
-                      <span>Farming Region &amp; Primary APMC Mandi Yard</span>
-                    </span>
-                    <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                      Platform-Wide Sync
+                      <span>Farming Region &amp; APMC Mandi</span>
                     </span>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Tailors live crop prices, NASA satellite weather telemetry, and transport freight routes across the entire portal.
+                    Syncs crop prices, weather telemetry &amp; transport routes.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -653,12 +643,9 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-foreground">Live FreePay QR Pass</h3>
-                  <p className="text-[11px] text-muted-foreground">Dynamic Mandi Settlement</p>
+                  <p className="text-[11px] text-muted-foreground">Dynamic UPI Settlement</p>
                 </div>
               </div>
-              <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                0% Fee
-              </span>
             </div>
 
             {/* QR Code Presentation */}
@@ -750,17 +737,11 @@ export default function SettingsPage() {
                   <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight drop-shadow-sm">
                     {kycName || user?.full_name || "Harsh Srivastava"}
                   </h2>
-                  <span className="badge-liquid-glass-emerald text-xs font-bold py-1 px-3 flex items-center gap-1.5 shadow-[0_0_12px_rgba(52,211,153,0.4)]">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
-                    <span>UIDAI OFFLINE VERIFIED PRODUCER</span>
-                  </span>
                 </div>
                 <p className="text-xs font-medium text-zinc-300 font-mono flex items-center gap-2 flex-wrap">
                   <span className="text-zinc-200 font-semibold">Mandi ID: APMC-OD-2026-9812</span>
                   <span className="text-zinc-400">•</span>
-                  <span className="text-emerald-300 font-semibold">Compliance Level: Tier 3 (Cryptographic KYC)</span>
-                  <span className="text-zinc-400">•</span>
-                  <span className="text-zinc-200 font-semibold">UIDAI Offline Verified</span>
+                  <span className="text-emerald-300 font-semibold">UIDAI Offline Verified</span>
                 </p>
               </div>
             </div>
@@ -806,10 +787,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center gap-2">
                     <Compass className="h-4 w-4 text-emerald-400" />
-                    <span>Registered Agricultural Jurisdiction &amp; APMC Yard</span>
-                  </span>
-                  <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                    Verified APMC Corridor
+                    <span>Registered Agricultural Jurisdiction</span>
                   </span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-black/50 border border-white/15 space-y-1">
@@ -840,12 +818,9 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-white">Kisan Mandi ID Pass</h3>
-                      <p className="text-[11px] font-medium text-zinc-300">Verified Trade Credential</p>
+                      <p className="text-[11px] font-medium text-zinc-300">Trade Credential</p>
                     </div>
                   </div>
-                  <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-2">
-                    APMC Pass
-                  </span>
                 </div>
 
                 {/* Stylized QR Code Badge */}

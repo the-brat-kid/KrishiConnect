@@ -274,8 +274,6 @@ export default function RateTrendsPage() {
                 title="7-Day Mandi Price Trajectory (₹/kg)"
                 subtitle="Multi-Crop Modal Auction Rates"
                 icon={<Activity className="w-4 h-4 text-emerald-400" />}
-                badge="3D Spectrum"
-                show3DBadge={true}
               >
                 <div className="h-80 w-full pt-4">
                   <ResponsiveContainer width="100%" height="100%">

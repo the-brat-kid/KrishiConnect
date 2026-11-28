@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback, ReactNode, CSSProperties } from "react";
-import { Box, Layers } from "lucide-react";
+import { Box } from "lucide-react";
 
 interface Chart3DContainerProps {
   children: ReactNode;
@@ -30,7 +30,7 @@ export function Chart3DContainer({
   className = "",
   style = {},
   rotationIntensity = 7,
-  show3DBadge = true,
+  show3DBadge = false,
 }: Chart3DContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Default resting 3D angle so depth is ALWAYS visibly apparent

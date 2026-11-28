@@ -482,8 +482,6 @@ export default function CropPlannerPage() {
               title="Net Profit vs Cultivation Cost (₹ / Acre)"
               subtitle="Rabi Season Econometric Model"
               icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
-              badge="3D Economics"
-              show3DBadge={true}
             >
               <div className="h-64 sm:h-72 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">

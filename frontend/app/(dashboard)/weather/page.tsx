@@ -422,32 +422,29 @@ export default function FarmWeatherPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
                 <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  <Droplets className="w-3.5 h-3.5 text-blue-400" /> Relative Humidity
+                  <Droplets className="w-3.5 h-3.5 text-blue-400" /> Humidity
                 </span>
                 <span className="text-lg font-bold text-foreground mt-1 block">
                   {current?.humidity ?? 68}%
                 </span>
-                <span className="text-[10px] text-muted-foreground block">Optimal: 60-80%</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
                 <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  <Wind className="w-3.5 h-3.5 text-emerald-400" /> Wind Velocity
+                  <Wind className="w-3.5 h-3.5 text-emerald-400" /> Wind Speed
                 </span>
                 <span className="text-lg font-bold text-foreground mt-1 block">
                   {current?.windSpeed ?? "8 km/h"}
                 </span>
-                <span className="text-[10px] text-emerald-400 block font-medium">Favorable drift</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
                 <span className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  <Thermometer className="w-3.5 h-3.5 text-amber-400" /> Feels Like Temp
+                  <Thermometer className="w-3.5 h-3.5 text-amber-400" /> Feels Like
                 </span>
                 <span className="text-lg font-bold text-foreground mt-1 block">
                   {current?.feelsLike ?? 28}°C
                 </span>
-                <span className="text-[10px] text-muted-foreground block">Heat index safe</span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
@@ -465,7 +462,6 @@ export default function FarmWeatherPage() {
                 >
                   {rain?.sprayWindow?.status ?? "Optimal"}
                 </span>
-                <span className="text-[10px] text-muted-foreground block">Foliar adherence</span>
               </div>
             </div>
 
@@ -510,13 +506,10 @@ export default function FarmWeatherPage() {
             </div>
           </div>
 
-          {/* 24-Hour Hourly Probability of Rain Chart (3D Perspective) */}
+          {/* 24-Hour Hourly Probability of Rain Chart */}
           <Chart3DContainer
-            title={`24-Hour Timeline: Rain Probability (%) — ${selectedMandi.name}`}
-            subtitle="Hour-by-hour chance of precipitation to plan harvesting and mandi dispatch"
+            title={`24-Hour Rain Probability — ${selectedMandi.name}`}
             icon={<Clock className="w-4 h-4 text-emerald-400" />}
-            badge="3D Meteo"
-            show3DBadge={true}
           >
             <div className="h-48 w-full pt-2">
               {weatherData?.hourly && weatherData.hourly.length > 0 ? (
@@ -623,13 +616,10 @@ export default function FarmWeatherPage() {
                   <Satellite className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground">NASA Satellite Telemetry</h3>
-                  <p className="text-[11px] text-muted-foreground">MODIS / POWER Earth Model</p>
+                  <h3 className="font-bold text-sm text-foreground">Satellite Telemetry</h3>
+                  <p className="text-[11px] text-muted-foreground">NASA MODIS / POWER</p>
                 </div>
               </div>
-              <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                Live
-              </span>
             </div>
 
             <div className="space-y-3">
@@ -638,15 +628,12 @@ export default function FarmWeatherPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>Solar Irradiance (Insolation)</span>
+                    <span>Solar Irradiance</span>
                   </span>
                   <span className="font-extrabold text-foreground font-mono">
                     {current?.solarRadiationMj ?? 18.4} MJ/m²
                   </span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  Photosynthetic photon flux rate for grain maturity and open sun-drying.
-                </p>
               </div>
 
               {/* Air Quality Index (AQI) */}
@@ -654,14 +641,14 @@ export default function FarmWeatherPage() {
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <Activity className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Aerosol AQI Depth</span>
+                    <span>Air Quality (AQI)</span>
                   </span>
                   <span className={`px-2 py-0.5 rounded-full border text-[11px] font-bold ${aqiColorClass}`}>
                     AQI {current?.estimatedAqi ?? 72}
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Status: <strong className="text-foreground">{current?.aqiStatus ?? "Moderate"}</strong>. Evaluates particulate scattering over agricultural canopy.
+                  Status: <strong className="text-foreground">{current?.aqiStatus ?? "Moderate"}</strong>
                 </p>
               </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Mail, FileText, Loader2, Send, CheckCircle2, Sparkles } from "lucide-react";
+import { Mail, FileText, Loader2, Send, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -68,10 +68,6 @@ export function SendInvoiceEmailModal({
             </div>
             <div className="min-w-0 text-left">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="badge-liquid-glass-emerald text-[10px] py-0.5 px-2">
-                  <Sparkles className="w-3 h-3 text-emerald-300" />
-                  <span>PDF Attached</span>
-                </span>
                 <span className="font-mono text-[11px] font-bold text-emerald-400">
                   #{invoiceNumber}
                 </span>

@@ -166,12 +166,12 @@ export default function InvoiceDetailPage() {
             {status === "paid" ? (
               <span className="badge-liquid-glass-emerald">
                 <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Paid &amp; Settled</span>
+                <span>Paid</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
                 <Clock className="w-3.5 h-3.5" />
-                <span>Payment Pending</span>
+                <span>Pending</span>
               </span>
             )}
           </div>
@@ -266,10 +266,6 @@ export default function InvoiceDetailPage() {
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
                   <span>Settlement</span>
                 </h2>
-                <div className="badge-liquid-glass-emerald">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Auto-Verify</span>
-                </div>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {status === "paid" ? "Invoice is settled in ledger" : "Collect payment via UPI, Cash, or Pay Later"}

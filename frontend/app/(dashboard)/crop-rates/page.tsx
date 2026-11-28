@@ -193,20 +193,19 @@ export default function DailyCropRatesPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">National Mandi Commodities</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Commodities</CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               <AnimatedNumber value={items.length || 24} suffix=" Crops" springOptions={{ bounce: 0, duration: 1600 }} />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Pan-India APMC modal coverage</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. National Wholesale Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Wholesale Rate</CardTitle>
             <IndianRupee className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -214,34 +213,33 @@ export default function DailyCropRatesPage() {
               <AnimatedNumber value={averagePrice} prefix="₹" suffix=" / kg" springOptions={{ bounce: 0, duration: 1600 }} />
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              ₹{(averagePrice * 100).toLocaleString("en-IN")} / quintal average
+              ₹{(averagePrice * 100).toLocaleString("en-IN")} / quintal
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Trade State</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active State</CardTitle>
             <MapPin className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-lg font-bold text-foreground truncate">
               {selectedState}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Filtered across key APMC clusters</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">AGMARKNET Feed Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Feed Status</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live Agmarknet Sync Active
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Last synced: {lastUpdatedFormatted}</p>
+            <p className="text-xs text-muted-foreground mt-1">Updated {lastUpdatedFormatted}</p>
           </CardContent>
         </Card>
       </div>
@@ -251,7 +249,7 @@ export default function DailyCropRatesPage() {
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader className="pb-3 pt-4">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary" /> National Benchmark Staples (All India Median)
+              <Store className="h-4 w-4 text-primary" /> Benchmark Staples
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">

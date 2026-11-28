@@ -781,11 +781,6 @@ export default function DashboardPage() {
                   <Store className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
                   <span>Mandi Rates</span>
                 </CardTitle>
-
-                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Live</span>
-                </div>
               </div>
 
               <CardDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
@@ -963,12 +958,8 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2.5 flex-wrap">
                 <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                   <CloudSun className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(20,122,77,0.5)]" />
-                  <span>Weather & Radar</span>
+                  <span>Weather &amp; Radar</span>
                 </CardTitle>
-                <div className="btn-liquid-glass inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Live Wind &amp; Rain Radar</span>
-                </div>
               </div>
               <CardDescription className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <span>

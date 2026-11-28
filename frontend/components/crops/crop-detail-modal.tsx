@@ -525,12 +525,10 @@ export function CropDetailModal({
                 </div>
               </div>
 
-              {/* 7-Day Trend Chart (3D Perspective) */}
+              {/* 7-Day Trend Chart */}
               <Chart3DContainer
                 title="Price Progression (Past 7 Days)"
                 subtitle={`APMC Wholesale Modal (₹/${unit})`}
-                badge="3D Trend"
-                show3DBadge={true}
               >
                 <div className="h-44 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">

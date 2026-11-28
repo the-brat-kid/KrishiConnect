@@ -528,26 +528,6 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
             </span>
           </button>
 
-          {/* Local Focus */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsAllIndia(false);
-              if (mapInstanceRef.current) {
-                mapInstanceRef.current.flyTo([currentLat, currentLon], 10, { duration: 1.2 });
-              }
-            }}
-            className={`px-3 py-1.5 rounded-2xl backdrop-blur-xl border text-xs font-bold transition-all cursor-pointer shadow-lg inline-flex items-center gap-1 shrink-0 ${
-              !isAllIndia && !activeCoords.isLiveGps
-                ? "bg-emerald-500/25 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.25)]"
-                : "bg-black/80 hover:bg-black text-white hover:text-emerald-400 border-white/20"
-            }`}
-            title="Focus on selected coordinates"
-          >
-            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Local View</span>
-          </button>
-
           {/* All India Reset Button */}
           <button
             type="button"
@@ -572,18 +552,18 @@ export const ViewOnMap: React.FC<ViewOnMapProps> = ({
             </span>
             <span className="font-extrabold tracking-wide">
               {activeLayer === "live_rain"
-                ? "LIVE WIND & RAIN FLOW"
+                ? "RAIN & WIND"
                 : activeLayer === "live_wind"
-                ? "LIVE WIND STREAM"
+                ? "WIND STREAM"
                 : activeLayer === "live_radar"
-                ? "DOPPLER WEATHER RADAR"
+                ? "DOPPLER RADAR"
                 : activeLayer === "live_clouds"
-                ? "LIVE CLOUD RADAR"
+                ? "CLOUD RADAR"
                 : activeLayer === "truecolor"
-                ? "NASA EARTH OBSERVATION"
+                ? "SATELLITE"
                 : activeLayer === "aqi"
-                ? "SATELLITE AEROSOL & AQI"
-                : "MANDI CORRIDOR NETWORK"}
+                ? "AIR QUALITY"
+                : "MANDI CORRIDORS"}
             </span>
           </div>
 

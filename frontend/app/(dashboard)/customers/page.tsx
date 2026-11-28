@@ -19,16 +19,12 @@ import {
   Users,
   Building2,
   ExternalLink,
-  ShieldCheck,
   CheckCircle2,
   MapPin,
   PhoneCall,
   Store,
-  Layers,
   ArrowRight,
   TrendingUp,
-  Clock,
-  Sparkles,
   Filter,
   Trash2,
   AlertTriangle,
@@ -322,89 +318,33 @@ export default function CustomersPage() {
         <TabsList className="bg-muted p-1 rounded-lg">
           <TabsTrigger value="crop-buyers" className="flex items-center gap-2">
             <Store className="h-4 w-4" />
-            <span>Find Crop Buyers (Verified by KrishiConnect)</span>
-            <Badge variant="secondary" className="text-[10px] bg-emerald-100 text-emerald-800 ml-1">
-              Live
-            </Badge>
+            <span>Crop Buyers</span>
           </TabsTrigger>
           <TabsTrigger value="my-customers" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span>My Invoiced Customers (Local CRM)</span>
+            <span>My Customers</span>
             <Badge variant="outline" className="text-[10px] ml-1">
               {stats.total}
             </Badge>
           </TabsTrigger>
         </TabsList>
 
-        {/* ========================================================================= */}
-        {/* TAB 1: AGRODEALZ VERIFIED CROP BUYERS */}
-        {/* ========================================================================= */}
         <TabsContent value="crop-buyers" className="space-y-6">
-          {/* Highlight KPI Cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Verified Buyer Network</CardTitle>
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">50+ Verified Traders</div>
-                <p className="text-xs text-muted-foreground mt-1">Mills, exporters & mandi commission agents</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">High Demand Commodities</CardTitle>
-                <TrendingUp className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm font-bold text-foreground">Paddy, Tomato, Onion, Chilli</div>
-                <p className="text-xs text-muted-foreground mt-1">Daily buying enquiries active across Pan-India mandis</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Zero Middlemen</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-700">Direct Deals</div>
-                <p className="text-xs text-muted-foreground mt-1">Negotiate directly with mills & wholesalers</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Matching Response Time</CardTitle>
-                <Clock className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-amber-700">Within 24 Hours</div>
-                <p className="text-xs text-muted-foreground mt-1">Verified by KrishiConnect buyer team</p>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Direct Match Request Widget */}
           <Card className="border-emerald-500/30 bg-gradient-to-r from-emerald-50/50 via-card to-card shadow-sm">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-700">
-                    <Sparkles className="h-5 w-5" />
+                    <Store className="h-5 w-5" />
                   </span>
                   <div>
-                    <CardTitle className="text-lg font-bold">Have Crops to Sell? Let KrishiConnect Find You a Buyer</CardTitle>
+                    <CardTitle className="text-lg font-bold">Request Buyer Match</CardTitle>
                     <CardDescription className="text-xs">
-                      Submit your harvest details and KrishiConnect matches you with verified traders, mills, or exporters across India.
+                      Submit crop details to connect with mandi traders and mills.
                     </CardDescription>
                   </div>
                 </div>
-                <Badge variant="outline" className="border-emerald-300 text-emerald-700 text-xs hidden sm:inline-flex">
-                  Free Service for Farmers
-                </Badge>
               </div>
             </CardHeader>
             <CardContent>

@@ -236,9 +236,6 @@ export function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps) {
                   <Compass className="h-3.5 w-3.5 text-emerald-400" />
                   <span>Region &amp; Mandi Yard</span>
                 </span>
-                <span className="badge-liquid-glass-emerald text-[9px] py-0.5 px-2">
-                  Site Sync
-                </span>
               </div>
 
               {/* Dual Controls: State & Mandi */}
